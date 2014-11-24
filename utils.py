@@ -362,7 +362,7 @@ class ngTextInput(TextInput):
         pass
         
 try:
-    import mechanize, urllib
+    import urllib
         
     class Request(Thread):
         def __init__(self, **kwargs):
@@ -378,6 +378,7 @@ try:
             self.start()
             
         def run(self):
+            '''
             br = mechanize.Browser()
             
             response = br.open(mechanize.Request(self.action,
@@ -385,6 +386,12 @@ try:
                                         )
                                     
             
+            res = response.read()
+            
+            self.callback(res)
+            '''
+            
+            response = urllib.request.urlopen(self.action)
             res = response.read()
             
             self.callback(res)

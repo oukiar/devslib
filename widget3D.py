@@ -246,16 +246,20 @@ class Image3D(Widget3D):
         with self.canvas:
             #Color(1,1,1,self.opacity)
             
-            Rectangle(texture=self.texture, pos=(-5, -5), size=(10,10))
+            Rectangle(texture=self.texture, pos=(-self.width/2, -self.height/2), size=self.size)
     
         #self.canvas.opacity = .3
+
+        print self.size
 
     def on_source(self, w, val):
         
         if self.source != '':            
             self.texture = CoreImage(self.source).texture
-            with self.canvas:
-                Rectangle(texture=self.texture, pos=(-5, -5), size=(10,10))
+            
+            #with self.canvas:
+                #Rectangle(texture=self.texture, pos=(-5, -5), size=(10,10))
+            #    Rectangle(texture=self.texture, pos=(-self.width/2, -self.height/2), size=self.size)
     
 class Video3D(Widget3D):
     
