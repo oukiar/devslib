@@ -391,7 +391,7 @@ try:
             self.callback(res)
             '''
             
-            response = urllib.request.urlopen(self.action)
+            response = urllib.urlopen(self.action)
             res = response.read()
             
             self.callback(res)
