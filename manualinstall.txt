@@ -1,0 +1,5 @@
+Sincronizarse con las devslib
+
+wget -m --no-parent www.devsinc.com.mx/devslib/
+python www.devsinc.com.mx/devslib/install.py
+
