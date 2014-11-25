@@ -22,7 +22,7 @@ class CoverItem(Widget3D):
         
         super(CoverItem, self).__init__(**kwargs)
         
-        self.image = Image3D()
+        self.image = Image3D(size_hint=(None,None), size=(10,10))
         self.points = rotatingPoints(scale3D=(2, 2, 1))
         
         self.add_widget(self.points)
