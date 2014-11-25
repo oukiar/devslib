@@ -362,14 +362,14 @@ class ngTextInput(TextInput):
         pass
         
 try:
-    import urllib
+    import urllib, urllib2
         
     class Request(Thread):
         def __init__(self, **kwargs):
             
             self.callback = kwargs.pop('callback')
             self.action = kwargs.pop('action')
-            self.data = kwargs.pop('data')
+            self.data = urllib.urlencode(kwargs.pop('data') )
             
             #super(Request, self).__init__(**kwargs)
             Thread.__init__(self)
@@ -391,7 +391,8 @@ try:
             self.callback(res)
             '''
             
-            response = urllib.urlopen(self.action)
+            req = urllib2.Request(self.action, self.data)
+            response = urllib2.urlopen(req)
             res = response.read()
             
             self.callback(res)
