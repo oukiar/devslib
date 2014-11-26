@@ -212,7 +212,7 @@ class MessageBox(ngDialog):
         
         self.content = lay
         
-class MessageBoxTime(ngDialog):
+class MessageBoxTime(Popup):
     def __init__(self, **kwargs):
         
         msg = kwargs.get('msg', '')
