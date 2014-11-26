@@ -22,10 +22,11 @@ class CoverItem(Widget3D):
         
         super(CoverItem, self).__init__(**kwargs)
         
+        self.bg = Image3D(source='cover.png', size_hint=(None,None), size=(10,10))
         self.image = Image3D(size_hint=(None,None), size=(10,10))
-        self.points = rotatingPoints(scale3D=(2, 2, 1))
+        #self.points = rotatingPoints(scale3D=(2, 2, 1))
         
-        self.add_widget(self.points)
+        #self.add_widget(self.bg)
         
     def set_texture(self, texture):
         if texture != None and texture != False:
@@ -33,16 +34,17 @@ class CoverItem(Widget3D):
                 self.add_widget(self.image)
             
             self.image.texture = texture
-            
-            if self.points in self.children:
-                self.remove_widget(self.points)
+            '''
+            #if self.points in self.children:
+            #    self.remove_widget(self.points)
         else:
             self.add_widget(self.points)
             self.remove_widget(self.image)
-
+            '''
+            
     def on_opacity(self, w, val):
         self.image.opacity = val
-        self.points.opacity = val
+        #self.points.opacity = val
         
         super(CoverItem, self).on_opacity(w, val)
 
