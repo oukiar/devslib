@@ -110,7 +110,7 @@ class Widget3D(Widget):
     def setup3D(self):
         asp = Window.width / float(Window.height)
         #self.canvas['projection_mat'] = Matrix().view_clip(-asp, asp, -1, 1, 1, 100, 1)
-        self.canvas['projection_mat'] = Matrix().view_clip(-asp, asp, -1, 1, 1, 100, 1)
+        self.canvas['projection_mat'] = Matrix().view_clip(-asp, asp, -1, 1, 1, 2048, 1)
         
     
     #This version lacks of herencia 3D ... I think
