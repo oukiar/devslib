@@ -152,8 +152,6 @@ class Widget3D(Widget):
         
         super(Test3D, self).__init__(pos_x=-1*ratio, pos_y=-1, scale_x=1.0/100*xratiofix, scale_y=1.0/100*yratiofix, pos_z=-1, **kwargs)
        
-    def on_touch_down(self, w, touch):
-        
 
     def on_rotate3D(self, w, val):
         '''
