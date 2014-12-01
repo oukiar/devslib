@@ -197,7 +197,7 @@ class ngDialog(FloatLayout):
             
         self.box.add_widget(val)
 
-class MessageBox(ngDialog):
+class MessageBox(Popup):
     def __init__(self, **kwargs):
         super(MessageBox, self).__init__(**kwargs)
         lay = BoxLayout()
@@ -245,6 +245,7 @@ class LabelShadow(StencilView):
         self.shadowcolor = kwargs.pop('color', (1, 1, 1, 1) )
         self.text = kwargs.pop('text', '')
         self.font_size = kwargs.pop('font_size', 16)
+        self.texthalign = kwargs.pop('texthalign', 'center')
         
         kwargs.pop('pos', '')
         kwargs.pop('color', '')
@@ -255,11 +256,23 @@ class LabelShadow(StencilView):
         super(LabelShadow, self).__init__(**kwargs)
         
         
+        
+        
         self.add_widget(self.label)
         self.add_widget(self.shadow)
         
         #self.label.pos[0] = -1000
         
+        
+        if self.texthalign == 'left':
+            self.label.bind(size=self.fixLabelText )
+            self.shadow.bind(size=self.fixLabelText )
+        
+    def fixLabelText(self, w, val):
+        '''
+        Trickly fix for align text to left in a label
+        '''
+        w.text_size = val
     
     def on_text(self, w, val):
         if hasattr(self, 'label'):
@@ -293,12 +306,19 @@ class LabelItem(BoxLayout):
     def __init__(self, **kwargs):
         super(LabelItem, self).__init__(**kwargs)
         self.caption = kwargs.get('caption', 'Caption')
+        self.widgetposition = kwargs.get('widgetposition', 'right')
+        self.texthalign = kwargs.get('texthalign', 'left')
         
-        self.lb_caption = LabelShadow(text=self.caption)
-        self.item = kwargs.get('itemtype')(**kwargs.get('item_kwargs'))
+        self.lb_caption = LabelShadow(text=self.caption, texthalign=self.texthalign)
+        self.item = kwargs.get('itemtype')(**kwargs.get('item_kwargs', {}))
         
-        self.add_widget(self.lb_caption)
-        self.add_widget(self.item)
+        if self.widgetposition == 'right':
+            self.add_widget(self.lb_caption)
+            self.add_widget(self.item)
+        elif self.widgetposition == 'left':
+            self.add_widget(self.item)
+            self.add_widget(self.lb_caption)
+
 
 class st(StencilView):
     def __init__(self, **kwargs):
