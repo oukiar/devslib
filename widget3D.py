@@ -83,8 +83,8 @@ class Widget3D(Widget):
 
         #
         with self.canvas.before:
-            self.cb_setup = Callback(self.setup_gl_context)
             PushMatrix()    #save the current opengl state
+            self.cb_setup = Callback(self.setup_gl_context)
             #translate
             self.translate = Translate(self.pos_x, self.pos_y, self.pos_z)
             #rotate
@@ -94,7 +94,6 @@ class Widget3D(Widget):
             #scale
             self.scale = Scale(self.scale_x, self.scale_y, self.scale_z)
             
-            self.cb_reset = Callback(self.reset_gl_context)
             
         with self.canvas:
             '''
@@ -104,6 +103,8 @@ class Widget3D(Widget):
             
         with self.canvas.after:
             #UpdateNormalMatrix()
+            
+            self.cb_reset = Callback(self.reset_gl_context)
             PopMatrix() #restore the previous opengl state 
           
         #configure 3D
@@ -112,9 +113,10 @@ class Widget3D(Widget):
         super(Widget3D, self).__init__(**kwargs)
         
     def setup3D(self):
-        asp = Window.width / float(Window.height)
+        hasp =  float(Window.width) / float(Window.height)
+        asp =  float(Window.height) / float(Window.width)
         #self.canvas['projection_mat'] = Matrix().view_clip(-asp, asp, -1, 1, 1, 100, 1)
-        self.canvas['projection_mat'] = Matrix().view_clip(-asp, asp, -1, 1, 1, 2048, 1)
+        self.canvas['projection_mat'] = Matrix().view_clip(-hasp, hasp, -asp, asp, 1, 2048, 1)
         
     
     #This version lacks of herencia 3D ... I think
@@ -370,10 +372,6 @@ class Circle(Widget3D):
         
         self.radius = 5
     
-def main():
-    
-    return rotatingPoints(size_hint=(None,None), size=(10,10), pos3D=(0,0,-15), rotate3D=(0,0,0) )
-        
 if __name__ == '__main__':
     from kivy.base import runTouchApp
     from kivy.uix.video import Video
