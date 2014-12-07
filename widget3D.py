@@ -141,6 +141,12 @@ class Widget3D(Widget):
             w.scale_z = self.scale_z
         
         super(Widget3D, self).add_widget(w, position)
+        
+    def save_pos(self):
+        '''
+        Save the current 3D position of the object
+        '''
+        pass
     
     def to2d(self, w):
         '''
@@ -152,8 +158,11 @@ class Widget3D(Widget):
         xratiofix = 100.0/(Window.width/2)*ratio
         yratiofix = 100.0/(Window.height/2)
         
-        super(Test3D, self).__init__(pos_x=-1*ratio, pos_y=-1, scale_x=1.0/100*xratiofix, scale_y=1.0/100*yratiofix, pos_z=-1, **kwargs)
-       
+        self.pos_x=-1*ratio
+        self.pos_y=-1
+        self.pos_z=-1
+        self.scale_x=1.0/100*xratiofix
+        self.scale_y=1.0/100*yratiofix       
 
     def on_rotate3D(self, w, val):
         '''
