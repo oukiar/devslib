@@ -5,8 +5,11 @@
 from kivy.core.window import Window
 from kivy.animation import Animation
 from kivy.uix.widget import Widget
-from kivy.uix.button import Button
+from kivy.uix.image import Image
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 
 from kivy.core.image import Image as CoreImage
 from kivy.properties import StringProperty, ListProperty, NumericProperty, ReferenceListProperty, ObjectProperty
@@ -117,7 +120,45 @@ class Widget3D(Widget):
         asp =  float(Window.height) / float(Window.width)
         #self.canvas['projection_mat'] = Matrix().view_clip(-asp, asp, -1, 1, 1, 100, 1)
         self.canvas['projection_mat'] = Matrix().view_clip(-hasp, hasp, -asp, asp, 1, 2048, 1)
-        
+    
+    def project2D(self):
+        return Matrix().project(self.pos_x+self.pos[0],
+                            self.pos_y+self.pos[1],
+                            self.pos_z,
+                            self.canvas['modelview_mat'],
+                            self.canvas['projection_mat'],
+                         0,
+                         0,
+                         Window.width,
+                         Window.height)
+    
+    def collide_point3D(self, point2D):
+        #print self.pos
+    
+        x, y, z = Matrix().project(self.pos_x+self.pos[0],
+                            self.pos_y+self.pos[1],
+                            self.pos_z,
+                            self.canvas['modelview_mat'],
+                            self.canvas['projection_mat'],
+                            0,
+                            0,
+                            Window.width,
+                            Window.height)
+            
+        w, h, z = Matrix().project(self.pos_x+self.pos[0]+self.width,
+                            self.pos_y+self.pos[1]+self.height,
+                            self.pos_z,
+                            self.canvas['modelview_mat'],
+                            self.canvas['projection_mat'],
+                            0,
+                            0,
+                            Window.width,
+                            Window.height)
+                            
+        print x,y,w,h
+    
+        return Widget(pos=(x, y), size=(w-x, h-y)).collide_point(point2D[0], point2D[1])
+    
     
     #This version lacks of herencia 3D ... I think
     def add_widget(self, w, position=0):
@@ -148,21 +189,24 @@ class Widget3D(Widget):
         '''
         pass
     
-    def to2d(self, w):
+    def to2d(self, w=None):
         '''
         Return the 2D coordinates transformed to 3D position
         '''
         
+        if w == None:
+            w = self
+        
         ratio = float(Window.width)/Window.height
         
-        xratiofix = 100.0/(Window.width/2)*ratio
-        yratiofix = 100.0/(Window.height/2)
+        xratiofix = float(self.width)/(Window.width/2)*ratio
+        yratiofix = float(self.height)/(Window.height/2)
         
         self.pos_x=-1*ratio
         self.pos_y=-1
         self.pos_z=-1
-        self.scale_x=1.0/100*xratiofix
-        self.scale_y=1.0/100*yratiofix       
+        self.scale_x=1.0 / self.width * xratiofix
+        self.scale_y=1.0 / self.height * yratiofix
 
     def on_rotate3D(self, w, val):
         '''
@@ -205,7 +249,59 @@ class Widget3D(Widget):
 
     def reset_gl_context(self, *args):
         glDisable(GL_DEPTH_TEST)
+
+class Edit3D(FloatLayout):
+    def __init__(self, **kwargs):
+        super(Edit3D, self).__init__(**kwargs)
+    
+        self.lb_command = Label(text='Command: ')
+        #self.add_widget(self.lb_command)
+    
+        self.options3D = BoxLayout(size_hint=(None,None), width=300)
+    
+        self.btn_x = ToggleButton(text='X')
+        self.btn_y = ToggleButton(text='Y')
+        self.btn_z = ToggleButton(text='Z')
+        self.btn_w = ToggleButton(text='W')
+        self.btn_h = ToggleButton(text='H')
+    
+        self.options3D.add_widget(self.btn_x)
+        self.options3D.add_widget(self.btn_y)
+        self.options3D.add_widget(self.btn_z)
+        self.options3D.add_widget(self.btn_w)
+        self.options3D.add_widget(self.btn_h)
+    
+        self.add_widget(self.options3D)
+    
+    def on_touch_down(self, touch):
+        super(Edit3D, self).on_touch_down(touch)
+
+        self.lasttouch = touch.pos
+
+
+    def on_touch_move(self, touch):
         
+        diff = float(self.lasttouch[1]) - float(touch.pos[1])
+        
+        print diff
+        
+        for i in self.children:
+            
+            if i in [self.options3D]:
+                continue
+            
+            if self.btn_x.state == 'down':
+                i.pos_x += diff*.01
+                    
+            if self.btn_y.state == 'down':
+                i.pos_y += diff*.01
+                            
+            if self.btn_z.state == 'down':
+                i.pos_z += diff*.01
+                                    
+        super(Edit3D, self).on_touch_move(touch)
+
+
 class ZoomLayout3D(Widget3D):
     '''
     Layout that lets you make zoom in the scene
@@ -258,7 +354,16 @@ class Image3D(Widget3D):
     source = StringProperty()
     
     def __init__(self, **kwargs):
+        
+        if 'pos_z' in kwargs:
+            defz = False
+        else:
+            defz = True
+        
         super(Image3D, self).__init__(**kwargs)
+        
+        if defz:
+            self.pos_z = -self.width*4
         
         self.source = kwargs.get('source', '')
         
@@ -267,7 +372,7 @@ class Image3D(Widget3D):
         self.canvas.clear()
         with self.canvas:
             
-            Rectangle(texture=self.texture, pos=(-self.width/2, -self.height/2), size=self.size)
+            Rectangle(texture=self.texture, pos=self.pos, size=self.size)
 
     def on_source(self, w, val):
         
@@ -276,9 +381,12 @@ class Image3D(Widget3D):
 
     def on_size(self, w, val):
         print val
+        
+        self.pos = (-val[0]/2, -val[1]/2)
+        
         self.canvas.clear()
         with self.canvas:
-            Rectangle(texture=self.texture, pos=(-self.width/2, -self.height/2), size=self.size)
+            Rectangle(texture=self.texture, pos=self.pos, size=self.size)
 
 
 class Video3D(Widget3D):
@@ -322,10 +430,11 @@ class rotatingPoints(Widget3D):
     
     def __init__(self, **kwargs):
         
+        
         super(rotatingPoints, self).__init__(size_hint=(None,None), 
                                                 size=(10,10), 
                                                 pos=(-5, -5), 
-                                                pos3D=(0,0,-15), 
+                                                pos3D=kwargs.pop('pos3D', (0,0,-15)),
                                                 rotate3D=(0,0,0),
                                                 **kwargs)
         
@@ -352,7 +461,7 @@ class rotatingPoints(Widget3D):
             vertices.extend([x, y])
             indices.append(i)
             
-        #return Point(points=vertices, pointsize=2)
+            #return Point(points=vertices, pointsize=2)
         #return Line(points=vertices)
         return Mesh(vertices=vertices, indices=indices, mode='points', pointsize=8)
         
@@ -389,10 +498,15 @@ if __name__ == '__main__':
     #runTouchApp( Widget3D( pos3D=(0,0,-15), rotate3D=(0,45,0) ) )
     #runTouchApp( rotatingPoints( pos3D=(0,0,-15), rotate3D=(0,0,0) ) )
     
-    lay = BoxLayout()
+    lay = Edit3D()
     #lay.add_widget(Image3D(source='default.png', pos3D=(0,0,-10)))
     #lay.add_widget(Button(text='bnada'))
-    lay.add_widget(rotatingPoints())
+    
+    rp = Image3D(source='cover.png')
+    #rp.to2d()
+    
+    lay.add_widget(rp)
+    
     
     #lay.add_widget(rotatingImage(source='cover.png', pos3D=(17.5,-6,-20)) )
     
