@@ -10,6 +10,8 @@ from kivy.animation import Animation, AnimationTransition
 from kivy.core.image import Image as CoreImage
 from kivy.properties import NumericProperty, ListProperty, StringProperty
 
+from kivy.uix.button import Button
+
 from kivy.clock import Clock
 
 
@@ -23,10 +25,13 @@ class CoverItem(Widget3D):
         super(CoverItem, self).__init__(**kwargs)
         
         self.bg = Image3D(source='cover.png', size_hint=(None,None), size=(10,10))
-        self.image = Image3D(size_hint=(None,None), size=(10,10))
+        self.image = Image3D(size_hint=(None,None), x=.34, size=(8.34, 9.1))
         #self.points = rotatingPoints(scale3D=(2, 2, 1))
         
-        #self.add_widget(self.bg)
+        self.btn_ = Button(text='hello')
+        self.add_widget(self.btn_)
+        
+        self.add_widget(self.bg)
         
     def set_texture(self, texture):
         if texture != None and texture != False:

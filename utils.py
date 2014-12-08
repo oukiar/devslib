@@ -74,7 +74,7 @@ def get_img_file(path):
     except:
         pass
                 
-    return 'cover.png'
+    return 'no_cover.png'
         
 def getfullfilename(path, filename):
     '''

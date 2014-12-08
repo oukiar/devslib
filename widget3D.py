@@ -155,7 +155,7 @@ class Widget3D(Widget):
                             Window.width,
                             Window.height)
                             
-        print x,y,w,h
+        #print x,y,w,h
     
         return Widget(pos=(x, y), size=(w-x, h-y)).collide_point(point2D[0], point2D[1])
     
@@ -283,7 +283,7 @@ class Edit3D(FloatLayout):
         
         diff = float(self.lasttouch[1]) - float(touch.pos[1])
         
-        print diff
+        #print diff
         
         for i in self.children:
             
