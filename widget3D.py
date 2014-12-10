@@ -97,6 +97,7 @@ class Widget3D(Widget):
             #scale
             self.scale = Scale(self.scale_x, self.scale_y, self.scale_z)
             
+            self.cb_reset = Callback(self.reset_gl_context)
             
         with self.canvas:
             '''
@@ -107,7 +108,6 @@ class Widget3D(Widget):
         with self.canvas.after:
             #UpdateNormalMatrix()
             
-            self.cb_reset = Callback(self.reset_gl_context)
             PopMatrix() #restore the previous opengl state 
           
         #configure 3D
