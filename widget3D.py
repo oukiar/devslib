@@ -96,7 +96,7 @@ class Widget3D(Widget):
             self._rotatez = Rotate(angle=self.rotate_z, axis=(0, 0, 1) )
             #scale
             self.scale = Scale(self.scale_x, self.scale_y, self.scale_z)
-            
+                        
             self.cb_reset = Callback(self.reset_gl_context)
             
         with self.canvas:
@@ -408,7 +408,7 @@ class rotatingImage(Image3D):
     def reanimate(self, w, val):
         self.rotate_z = 0
         
-        anim = Animation(rotate_z=360, duration=3)
+        anim = Animation(rotate_z=360, duration=60)
         
         anim.bind(on_complete=self.reanimate)
         anim.start(self)
