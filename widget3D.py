@@ -250,6 +250,19 @@ class Widget3D(Widget):
     def reset_gl_context(self, *args):
         glDisable(GL_DEPTH_TEST)
 
+
+class Loading(Image3D):
+    def __init__(self, **kwargs):
+        super(Loading, self).__init__(pos_z=-15, size_hint=(None, None), size=(2,2), **kwargs)
+        
+        self.reanimate()
+        
+    def reanimate(self, anim=None, w=None):
+        self.rotate_z = 0
+        self.anim = Animation(rotate_z=360, duration=1)
+        self.anim.bind(on_complete=self.reanimate)
+        self.anim.start(self)
+
 class Edit3D(FloatLayout):
     def __init__(self, **kwargs):
         super(Edit3D, self).__init__(**kwargs)
