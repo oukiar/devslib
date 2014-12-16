@@ -67,12 +67,6 @@ ALPHA 0.5
 
 
 '''
-kivy on raspberry
-http://wonderfulcode.tumblr.com/post/54102854344/kivy-on-raspberry-pi
-'''
-
-
-'''
 Inicialmente netget intenta comunicar localmente
 Despues internet
 Finalmente se queda en modo RAW en todas las interfaces
