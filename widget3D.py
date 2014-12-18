@@ -119,7 +119,7 @@ class Widget3D(Widget):
         hasp =  float(Window.width) / float(Window.height)
         asp =  float(Window.height) / float(Window.width)
         #self.canvas['projection_mat'] = Matrix().view_clip(-asp, asp, -1, 1, 1, 100, 1)
-        self.canvas['projection_mat'] = Matrix().view_clip(-hasp, hasp, -asp, asp, 1, 2048, 1)
+        self.canvas['projection_mat'] = Matrix().view_clip(-hasp, hasp, -1, 1, 1, 2048, 1)
     
     def project2D(self):
         return Matrix().project(self.pos_x+self.pos[0],
@@ -132,7 +132,7 @@ class Widget3D(Widget):
                          Window.width,
                          Window.height)
     
-    def collide_point3D(self, point2D):
+    def collide_point3D(self, pointx, pointy):
         #print self.pos
     
         x, y, z = Matrix().project(self.pos_x+self.pos[0],
@@ -157,7 +157,7 @@ class Widget3D(Widget):
                             
         #print x,y,w,h
     
-        return Widget(pos=(x, y), size=(w-x, h-y)).collide_point(point2D[0], point2D[1])
+        return Widget(pos=(x, y), size=(w-x, h-y)).collide_point(pointx, pointy)
     
     
     #This version lacks of herencia 3D ... I think
@@ -361,6 +361,8 @@ class Image3D(Widget3D):
             defz = False
         else:
             defz = True
+                
+        
         
         super(Image3D, self).__init__(**kwargs)
         
@@ -368,12 +370,14 @@ class Image3D(Widget3D):
             self.pos_z = -self.width*4
         
         self.source = kwargs.get('source', '')
+
+        self.center = (0,0)
         
+
             
     def on_texture(self, text, val):
         self.canvas.clear()
         with self.canvas:
-            
             Rectangle(texture=self.texture, pos=self.pos, size=self.size)
 
     def on_source(self, w, val):
@@ -381,14 +385,16 @@ class Image3D(Widget3D):
         if self.source != '':            
             self.texture = CoreImage(self.source).texture
 
+
     def on_size(self, w, val):
-        print val
-        
-        self.pos = (-val[0]/2, -val[1]/2)
-        
         self.canvas.clear()
         with self.canvas:
-            Rectangle(texture=self.texture, pos=self.pos, size=self.size)
+            Rectangle(texture=self.texture, pos=val, size=self.size)
+
+    def on_pos(self, w, val):
+        self.canvas.clear()
+        with self.canvas:
+            Rectangle(texture=self.texture, pos=val, size=self.size)
 
 
 class Video3D(Widget3D):
@@ -495,8 +501,9 @@ class Circle(Widget3D):
 
 class Loading(Image3D):
     def __init__(self, **kwargs):
-        super(Loading, self).__init__(pos_z=-5, size_hint=(None, None), size=(2,2), **kwargs)
-        
+        super(Loading, self).__init__(size_hint=(None, None), **kwargs)
+        #self.center = (0,0)
+        self.pos_z = -100
         self.reanimate()
         
     def reanimate(self, anim=None, w=None):
