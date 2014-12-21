@@ -77,13 +77,12 @@ Pendientes:
 - Checar que los mensajes enviados, lleguen (checar en la recepcion o en el envio?, personalmente creo que quien envia, debe verificar que todos los paquetes de su envio hayan llegado (lo comprueba cuando recibe el ACK de su mensaje)
 - Crear y manejar sesiones encriptadas una vez que el login ha sido correcto (handshake)
 - Simple chat
-- Interconnections between users (pending).
+- Interconnections between users (in progress).
 '''
 
 '''
 Netget networking stuff
      the netget soul is based on UDP
-     we can talk all day about netget, and nobody can Imagine it
 '''
 
 '''
@@ -99,52 +98,7 @@ Netget transmission packets
 '''
 Netget data packets
 
-    For incomming packets:
-        - Can be encrypted with RSA2048 self public key
-        - Encripted with AES256 session key (with respective client or user)
-        
-    For outgoing packets:
-        - Can be encrypted with RSA2048 self private key
-        - Encripted with AES256 session key (with respective client or user)
-
- - Packets can be:
-    - Encripted with RSA 2048 public key (self), normally during login or new account process.
-    - Encripted with RSA 4096 public key (self), normally when you use NETGET_SECURE_MODE.
-    - Encripted with AES256 session key (related to a communication with specific user-client, not machines)
-    - Additional if you are the server, packages can be encrypted using the Netget server public key (the base of our security) used during login and new account
-    - And if youre the server, you must send encripted with server private key 
-
- - Packets json data format:
-    msg:
-        login
-        data:
-            user
-            passhash
-            
-    msg:
-        new_account
-        data:
-            user
-            passhash
-            privkey            Clave privada generada en el cliente y encriptada con AES256 con passphrase usando el password en texto plano
-            
-    msg:
-        ping
-        
-    msg:
-        ping_ack
-        
-    msg:
-        solve_udp_info  
-        
-    msg:
-        get_my_computers
-        
-    msg:
-        get_my_friends
-        
-    msg:
-        get_my_repositories
+    TODO: Rewrite this doc section
 '''
 
 '''
@@ -626,15 +580,17 @@ class NetgetSocket:
         
     def __del__(self):
         
-        print 'Finalizando sockets'
+        print 'Finalizando socket: ', self.port
 
-        self.ngin.recv_thread.shutdown()
+        try:
+            self.ngin.recv_thread.shutdown()
 
-        #send packet to myself saying that must shutdown receiver
-        self.ngout.netget_send(self.addr, 'shutdown')
+            #send packet to myself saying that must shutdown receiver
+            self.ngout.netget_send(self.addr, 'shutdown')
         
-        self.ngout.send_thread.shutdown()
-        
+            self.ngout.send_thread.shutdown()
+        except:
+                pass
 
 class Network:
     '''

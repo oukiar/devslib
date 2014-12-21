@@ -79,7 +79,7 @@ class Widget3D(Widget):
     def __init__(self, **kwargs):
         self.scale3D = kwargs.pop('scale3D', (1,1,1))   #real size by default
         self.rotate3D = kwargs.pop('rotate3D', (0,0,0))
-        self.pos3D = kwargs.pop('pos3D', (0,0,-15))     #z = -15 is good for the observer (person front of the monitor-screen-display-etc)
+        self.pos3D = kwargs.pop('pos3D', (0,0,-150))     #z = -15 is good for the observer (person front of the monitor-screen-display-etc)
 
         #
         self.canvas = RenderContext(compute_normal_mat=True)
@@ -106,7 +106,6 @@ class Widget3D(Widget):
             pass
             
         with self.canvas.after:
-            #UpdateNormalMatrix()
             
             PopMatrix() #restore the previous opengl state 
           
@@ -357,28 +356,19 @@ class Image3D(Widget3D):
     
     def __init__(self, **kwargs):
         
-        if 'pos_z' in kwargs:
-            defz = False
-        else:
-            defz = True
-                
-        
+        self.backupcenter = (0,0)
         
         super(Image3D, self).__init__(**kwargs)
         
-        if defz:
-            self.pos_z = -self.width*4
-        
         self.source = kwargs.get('source', '')
-
+            
         self.center = (0,0)
-        
 
             
     def on_texture(self, text, val):
         self.canvas.clear()
         with self.canvas:
-            Rectangle(texture=self.texture, pos=self.pos, size=self.size)
+            Rectangle(texture=val, pos=self.pos, size=self.size)
 
     def on_source(self, w, val):
         
@@ -387,11 +377,16 @@ class Image3D(Widget3D):
 
 
     def on_size(self, w, val):
+        self.center = self.backupcenter
+        
         self.canvas.clear()
         with self.canvas:
-            Rectangle(texture=self.texture, pos=val, size=self.size)
+            Rectangle(texture=self.texture, pos=self.pos, size=val)
+
+
 
     def on_pos(self, w, val):
+        
         self.canvas.clear()
         with self.canvas:
             Rectangle(texture=self.texture, pos=val, size=self.size)
