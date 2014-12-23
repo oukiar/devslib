@@ -24,9 +24,9 @@ class CoverItem(Widget3D):
         
         super(CoverItem, self).__init__(**kwargs)
         
-        self.bg = Image3D(source='cover.png', size_hint=(None,None), size=(10,10))
+        self.bg = Image3D(source='cover.png', size_hint=(None,None) )
         
-        self.image = Image3D(size_hint=(None,None), x=.4, size=(8.34, 9.1))
+        self.image = Image3D(size_hint=(None,None), x=.4, size=(83.4, 91))
         #self.points = rotatingPoints(scale3D=(2, 2, 1))
         
         #self.btn_ = Button(text='hello')
