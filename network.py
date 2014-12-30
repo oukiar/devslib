@@ -13,6 +13,7 @@ from time import sleep
 
 from kivy.clock import Clock
 
+#gui removed
 '''
 from kivy.core.window import Window
 from kivy.clock import Clock
