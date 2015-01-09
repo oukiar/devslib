@@ -637,7 +637,7 @@ class Network:
         for i in texto.split('\n'):
             if 'wlan0' in i:
                 ip = i[43:].split('/')[0]
-                print 'Salida android: '
+                print 'Salida android: ', i
                 print ip
                 ips.append(ip)
         
