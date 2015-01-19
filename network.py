@@ -456,7 +456,7 @@ class NetworkIn:
             de la cola en cada intervalo
         '''
         #change this for an event to the main gui, to make a nice effect on icon communication
-        #print "Assembling"
+        print "Assembling"
         
         packet, addr = self.pop_received_packet()
         
