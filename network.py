@@ -456,7 +456,7 @@ class NetworkIn:
             de la cola en cada intervalo
         '''
         #change this for an event to the main gui, to make a nice effect on icon communication
-        print "Assembling"
+        #print "Assembling"
         
         packet, addr = self.pop_received_packet()
         
@@ -647,9 +647,10 @@ class Network:
         
         for i in texto.split('\n'):
             if 'wlan0' in i:
-                ip = i[43:].split('/')[0]
+                ip = i.split()[5].split('/')[0]
+                #ip = i[43:].split('/')[0]
                 print 'Salida android: ', i
-                print ip
+                print 'IP: ', ip
                 ips.append(ip)
         
         return ips
