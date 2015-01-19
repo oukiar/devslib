@@ -6,12 +6,12 @@
 from subprocess import check_output
 
 import socket, sys, hashlib
-from threading import Timer
+from threading import Timer, Thread
 from time import sleep
 
 
 #Clock kivy dependency removed, now we are using threads ... now the code is legacy !!
-from kivy.clock import Clock
+#from kivy.clock import Clock
 
 #gui removed
 '''
@@ -109,8 +109,7 @@ Netget presentation format
         interface serialization)
 '''
 
-
-import urllib
+import urllib, urllib2
 
 
 #fix it ... the udp packet overflow 512 bytes, check if this is a problem
@@ -457,7 +456,7 @@ class NetworkIn:
             de la cola en cada intervalo
         '''
         #change this for an event to the main gui, to make a nice effect on icon communication
-        print "Assembling"
+        #print "Assembling"
         
         packet, addr = self.pop_received_packet()
         
@@ -762,6 +761,47 @@ class Network:
     def shutdown_network(self):
         for i in self.netget_sockets:
             i.__del__()
+            
+            
+class TimerOnce:
+    def __init__(self, callback, duration):
+        Timer(duration, callback)
+            
+class TimerInterval:
+    def __init__(self, callback, duration):
+        self.callback = callback
+        self.duration = duration
+        
+        Timer(self.duration, self.interval_callback)
+        
+    def interval_callback(self):
+        
+        self.callback()
+        
+        Timer(self.duration, self.interval_callback)
+        
+class Request(Thread):
+    def __init__(self, **kwargs):
+        
+        self.callback = kwargs.pop('callback')
+        self.action = kwargs.pop('action')
+        self.data = urllib.urlencode(kwargs.pop('data') )
+        
+        #super(Request, self).__init__(**kwargs)
+        Thread.__init__(self)
+        
+        
+        self.start()
+        
+    def run(self):
+        
+        print "Requesting url: ", self.action
+        
+        req = urllib2.Request(self.action, self.data)
+        response = urllib2.urlopen(req)
+        res = response.read()
+        
+        self.callback(res)
     
 if __name__ == '__main__':
     
