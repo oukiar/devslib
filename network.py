@@ -765,20 +765,20 @@ class Network:
             
 class TimerOnce:
     def __init__(self, callback, duration):
-        Timer(duration, callback)
+        Timer(duration, callback).start()
             
 class TimerInterval:
     def __init__(self, callback, duration):
         self.callback = callback
         self.duration = duration
         
-        Timer(self.duration, self.interval_callback)
+        Timer(self.duration, self.interval_callback).start()
         
     def interval_callback(self):
         
         self.callback()
         
-        Timer(self.duration, self.interval_callback)
+        Timer(self.duration, self.interval_callback).start()
         
 class Request(Thread):
     def __init__(self, **kwargs):
