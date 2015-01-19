@@ -10,7 +10,7 @@ from threading import Timer
 from time import sleep
 
 
-
+#Clock kivy dependency removed, now we are using threads ... now the code is legacy !!
 from kivy.clock import Clock
 
 #gui removed
@@ -440,17 +440,25 @@ class NetworkIn:
         self.recv_thread.start()
     
         #check each interval of time if are new incoming packets
-        Clock.schedule_interval(self.packet_assembler, .01)
+        #Clock.schedule_interval(self.packet_assembler, .01)
+        
+        #NEW TIMER PACKET ASSEMBLER ... ENERO 2015
+        #self.t = Timer(1.0 , self.packet_assembler)
+        #self.t.start()
+        self.packet_assembler()
         
         #super(NetworkIn, self).__init__(title='NetworkIn', **kwargs)
         
-    def packet_assembler(self, dt):
+    def packet_assembler(self, dt=None):
         '''
         Funcion encargada de extraer paquetes recibidos de manera asincrona ...
         Nota: Verificar si el tiempo de intervalo nos da una velocidad de recepcion
             adecuada, de no ser asi, usar un while hasta extraer todos los paquetes 
             de la cola en cada intervalo
         '''
+        #change this for an event to the main gui, to make a nice effect on icon communication
+        print "Assembling"
+        
         packet, addr = self.pop_received_packet()
         
         #hasta que no haya paquetes
@@ -460,6 +468,12 @@ class NetworkIn:
             
             #intentar obtener otro paquete
             packet, addr = self.pop_received_packet()
+            
+        #new timer way, removed kivy.clock dependency
+        if self.recv_thread.is_shuted_down() == False:
+            self.t = Timer(.01 , self.packet_assembler)
+            self.t.start()
+            
             
     def safe_recv(self, packet, addr):
         '''
@@ -563,21 +577,19 @@ class NetgetSocket:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(self.addr)
         
+        
         self.ngout = NetworkOut(sock=self.sock)
+        
+        print "Created socket"
+        
         self.ngin = NetworkIn(sock=self.sock, dispatch_message=self.incoming_message, ngout=self.ngout)
                 
-        
-    def ping(self, w):
-        self.ngout.netget_send((self.txt_ip.text.split(':')[0], int(self.txt_ip.text.split(':')[1]) ), self.txt_msg.text, self.txt_data.text)
-        
+
     def incoming_message(self, data, addr):
         '''
         This message is analized and pass to Network if is necessary
         '''
         self.dispatcher(data, addr)
-        
-    def on_dismiss(self):
-        self.__del__()
         
     def __del__(self):
         
@@ -690,33 +702,6 @@ class Network:
         return ips
 
             
-    def analize_message(self, data, addr):
-        
-        return
-        
-        print 'Analize message: ' + data['msg']
-        
-        #first we process the message in network level
-
-        if data['msg'] == 'handshake_init':
-            self.ngsock.ngout.netget_send(addr, 'handshake_init_ack', str(addr) )    #send not encrypted
-            self.on_netget_incoming(data, addr)
-        
-        elif data['msg'] == 'handshake_init_ack':
-            MessageBoxTime(msg='HANDSHAKE WITH SERVER CORRECT').open()
-            self.state = 'ready'
-            
-        elif data['msg'] == 'solve_udp_info':
-            self.sock.sendto('udp_info: ['+ addr[0] + ":" + str(addr[1]) + "]", addr)
-        #elif data['msg'] == 'login':
-        #    self.server_login(data['data'], addr)
-        elif data['msg'] == 'login_ok':
-            self.consola.text += "Login correcto"
-            self.state = 'online'
-            
-        else:
-            self.on_netget_incoming(data, addr)
-            
     def host_discover(self):
             
         for sock in self.netget_sockets:
@@ -750,7 +735,7 @@ class Network:
                 self.ngsock = None
                 
                 while self.ngsock == None:
-                
+                    #print "Creating socket: ", (ips[0], c)
                     self.create_socket(ips[0], c, dispatcher)
                     c += 1
                     
@@ -761,8 +746,10 @@ class Network:
     def create_socket(self, ip, port=netget_port, dispatch_func=None):
         try:
             self.ngsock = NetgetSocket(ip=ip, port=port, dispatcher=dispatch_func)
+            print "Created socket ", self.ngsock
             self.netget_sockets.append(self.ngsock)
         except:
+            print "Error creando socket ", (ip, port)
             self.ngsock = None
      
     def send(self, addr, data):
@@ -779,19 +766,22 @@ class Network:
 if __name__ == '__main__':
     
     
+    def incoming(addr, data):
+        print 'Addr: %s, Data: %s\n' % (addr, data)
+    
+    #global network object
     net = Network()
     
-    ip = net.discover_ips()[0]
+    #create conection
+    if net.create_connection(incoming):
+        #try to discover netget devices on the local network
+        net.host_discover()
+        
+        net.shutdown_network()
+    else:
+        print "Error creating connection"
+        net = None
     
-    net.create_socket(ip, 1234)
-    
-    net.send((ip, 1234), 'Hola'*200)
-    
-    print "Terminado"
-    
-    net.shutdown_network()
-    
-    sleep(1)
     
 
     
