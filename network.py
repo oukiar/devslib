@@ -626,13 +626,16 @@ class Network:
     def discover_ips(self):
         
         try: #try unix
+            print "Unix IP"
             ips = self.discover_ips_unix()
             print 'Unix IP solved: ', ips[0]
         except:
             try:
+                print "Android IP"
                 ips = self.discover_ips_android()
-                print 'Android IP solved'
+                print 'Android IP solved: ', ips
             except:
+                print "Windows IP"
                 #try windows
                 ips = self.discover_ips_windows()
                 print 'Windows IP solved'
@@ -647,7 +650,8 @@ class Network:
         
         for i in texto.split('\n'):
             if 'wlan0' in i:
-                ip = i.split()[5].split('/')[0]
+                print "Salida android: ", i
+                ip = i.split()[2].split('/')[0]
                 #ip = i[43:].split('/')[0]
                 print 'Salida android: ', i
                 print 'IP: ', ip
