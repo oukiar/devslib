@@ -543,6 +543,7 @@ class NetworkIn:
             '''
             
             self.dispatch_message(assembled_packet, addr)
+                            
             
             #avisar que esta transmission ya llego completa
             #tosend = json.dumps({'msg':''})
@@ -588,7 +589,16 @@ class NetgetSocket:
         '''
         This message is analized and pass to Network if is necessary
         '''
-        self.dispatcher(data, addr)
+        
+        #verificar si solo tenemos una funcion dispatcher
+        if str(type(self.dispatcher)) == "<type 'instancemethod'>":
+        
+            self.dispatcher(data, addr)
+        
+        else:
+            #lista de dispatchers
+            for dispfunc in self.dispatcher:
+                dispfunc(data, addr)
         
     def __del__(self):
         
@@ -746,6 +756,22 @@ class Network:
                 return True
         except:
             return False
+            
+    def add_dispatcher(self, dispatcher):
+        
+        for sock in self.netget_sockets:
+
+            #tenemos solo un metodo como dispatcher?
+            if str(type(sock.dispatcher)) == "<type 'instancemethod'>":
+
+                #convirtiendo en lista de dispatchers
+                print 'Convirtiendo funcion en lista de funciones'
+                oldisp = sock.dispatcher
+                sock.dispatcher = []
+                sock.dispatcher.append(oldisp)
+            
+            sock.dispatcher.append(dispatcher)
+            
         
     def create_socket(self, ip, port=netget_port, dispatch_func=None):
         try:
