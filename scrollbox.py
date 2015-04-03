@@ -7,6 +7,7 @@ class ScrollBox(ScrollView):
     def __init__(self, **kwargs):
     
         self.orientation = kwargs.pop('orientation', 'vertical')
+        self.hitem = kwargs.get('hitem', 30)
     
         super(ScrollBox, self).__init__(**kwargs)
             
@@ -25,6 +26,10 @@ class ScrollBox(ScrollView):
         self.layout.add_widget(w)
         
         if self.orientation == 'vertical':
-            self.layout.height += (w.height + len(self.layout.children)*(self.layout.spacing/2))
+            #self.layout.height += (w.height + len(self.layout.children)*(self.layout.spacing/2))
+            self.layout.height = len(self.layout.children) * self.hitem + self.layout.spacing *(len(self.layout.children)-1) + self.layout.padding[0] * 2
+            print self.layout.height
+            w.size_hint_y = None
+            w.height = self.hitem
         else:
             self.layout.width += (w.width + len(self.layout.children)*(self.layout.spacing/2))
