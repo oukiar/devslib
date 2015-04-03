@@ -23,7 +23,6 @@ from listbase import ListBase
 from kivy.graphics import Color
 from kivy.graphics.vertex_instructions import Line, BorderImage, Rectangle
 
-import pygame
 
 #Default selector
 class Selector(Widget):
