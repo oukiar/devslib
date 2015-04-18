@@ -1,20 +1,21 @@
 
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
+from kivy.properties import StringProperty
 
 class ScrollBox(ScrollView):
     
-    def __init__(self, **kwargs):
+    orientation = StringProperty()
     
-        self.orientation = kwargs.pop('orientation', 'vertical')
+    def __init__(self, **kwargs):
     
         super(ScrollBox, self).__init__(**kwargs)
             
         if self.orientation == 'vertical':
-            self.layout = BoxLayout(orientation='vertical', size_hint_y=None, spacing=10)
+            self.layout = BoxLayout(orientation='vertical', size_hint_y=None, spacing=10, padding=10)
             self.layout.height = 0
         else:
-            self.layout = BoxLayout(size_hint_x=None, spacing=10)
+            self.layout = BoxLayout(size_hint_x=None, spacing=10, padding=10)
             self.layout.width = 0
     
     
@@ -24,7 +25,15 @@ class ScrollBox(ScrollView):
         
         self.layout.add_widget(w)
         
+        
         if self.orientation == 'vertical':
-            self.layout.height += (w.height + len(self.layout.children)*(self.layout.spacing/2))
+            self.layout.height += w.height + self.layout.spacing
+        
+            if len(self.children) == 1:
+                self.layout.height = self.layout.spacing
+        
         else:
-            self.layout.width += (w.width + len(self.layout.children)*(self.layout.spacing/2))
+            self.layout.width += w.width + self.layout.spacing
+                
+            if len(self.children) == 1:
+                self.layout.width = self.layout.spacing
