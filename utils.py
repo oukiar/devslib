@@ -414,9 +414,14 @@ try:
             
             req = urllib2.Request(self.action, self.data)
             response = urllib2.urlopen(req)
-            res = response.read()
+            self.res = response.read()
             
-            self.callback(res)
+            #this call is for that when we call the callball, we want to make it from the main thread (the gui thread)
+            Clock.schedule_once(self.real_callback, 0)
+            
+        def real_callback(self, dt):
+            self.callback(self.res)
+            
 except:
     pass
     

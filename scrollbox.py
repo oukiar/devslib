@@ -8,6 +8,7 @@ class ScrollBox(ScrollView):
     orientation = StringProperty()
     
     def __init__(self, **kwargs):
+
     
         super(ScrollBox, self).__init__(**kwargs)
             
@@ -25,8 +26,8 @@ class ScrollBox(ScrollView):
         
         self.layout.add_widget(w)
         
-        
         if self.orientation == 'vertical':
+            
             self.layout.height += w.height + self.layout.spacing
         
             if len(self.children) == 1:
