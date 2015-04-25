@@ -38,3 +38,8 @@ class ScrollBox(ScrollView):
                 
             if len(self.children) == 1:
                 self.layout.width = self.layout.spacing
+                
+    def clear(self):
+        self.layout.clear_widgets()
+        self.layout.width = 0
+        self.layout.height = 0
