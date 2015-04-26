@@ -38,9 +38,6 @@ class ScrollBox(ScrollView):
                 
             self.layout.width += w.width + self.layout.spacing
         
-        print self.layout.size
-        print self.orientation
-        
         self.layout.add_widget(w, index)
                 
     def clear(self):
