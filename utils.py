@@ -391,6 +391,7 @@ try:
             self.action = kwargs.pop('action')
             self.data = urllib.urlencode(kwargs.pop('data') )
             
+            
             #super(Request, self).__init__(**kwargs)
             Thread.__init__(self)
             
