@@ -10,7 +10,8 @@ class ScrollBox(ScrollView):
     
     def __init__(self, **kwargs):
         
-        super(ScrollBox, self).__init__(**kwargs)
+        super(ScrollBox, self).__init__(size_hint=(1,1), **kwargs)
+        
         
         self.layout = BoxLayout()   
         self.layout.height = 0 
@@ -22,9 +23,14 @@ class ScrollBox(ScrollView):
     def on_orientation(self, w, val):
         self.layout.orientation = val
         if val == 'vertical':
-            self.layout.size_hint_y=None
+            self.layout.size_hint_y = None
+            self.layout.width = self.width
         else:
-            self.layout.size_hint_x=None
+            self.layout.size_hint_x = None
+            self.layout.height = self.height
+            
+        self.update_layout_size()
+        print "Scrollbox onorientation: ", (val, self.layout.size)
         
     def on_spacing(self, w, val):
         self.layout.spacing = val
@@ -49,6 +55,24 @@ class ScrollBox(ScrollView):
             self.layout.width += w.width + self.layout.spacing
         
         self.layout.add_widget(w, index)
+        print "Scrollbox size on addwidget: ", self.layout.size
+        
+    def update_layout_size(self):
+        if self.layout.orientation == 'vertical':
+            self.layout.width = self.width
+            self.layout.height = self.layout.padding[0]
+            self.layout.size_hint_y = None
+        else:
+            self.layout.height = self.height
+            self.layout.width = self.layout.padding[0]
+            self.layout.size_hint_x = None
+        
+        for i in self.layout.children:
+            if self.layout.orientation == 'vertical':
+                self.layout.height += i.height + self.layout.spacing
+                
+            else:
+                self.layout.width += i.width + self.layout.spacing
                 
     def clear(self):
         self.layout.clear_widgets()
