@@ -18,7 +18,6 @@ class ScrollBox(ScrollView):
         self.layout.width = 0
         super(ScrollBox, self).add_widget(self.layout)
         
-        print "scrollbox initialized"
         
     def on_orientation(self, w, val):
         self.layout.orientation = val
@@ -30,7 +29,6 @@ class ScrollBox(ScrollView):
             self.layout.height = self.height
             
         self.update_layout_size()
-        print "Scrollbox onorientation: ", (val, self.layout.size)
         
     def on_spacing(self, w, val):
         self.layout.spacing = val
@@ -55,7 +53,6 @@ class ScrollBox(ScrollView):
             self.layout.width += w.width + self.layout.spacing
         
         self.layout.add_widget(w, index)
-        print "Scrollbox size on addwidget: ", self.layout.size
         
     def update_layout_size(self):
         if self.layout.orientation == 'vertical':
