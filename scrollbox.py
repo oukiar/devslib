@@ -72,6 +72,7 @@ class ScrollBox(ScrollView):
                 self.layout.width += i.width + self.layout.spacing
                 
     def clear(self):
+        self.scroll_y = 1
         self.layout.clear_widgets()
         self.layout.width = 0
         self.layout.height = 0

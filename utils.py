@@ -432,13 +432,19 @@ def alert(title, msg):
     '''
     return Popup(title=title, content=Label(text=msg)).open()
     
-def fade_in(widget):
+def fade_in(widget, parentremove=False):
     widget.opacity = 0
     Animation(opacity=1, duration=.3).start(widget)
     
 def fade_out(widget):
     widget.opacity = 1
-    Animation(opacity=0, duration=.3).start(widget)
+    anim = Animation(opacity=0, duration=.3)
+    anim.bind(on_complete=on_parentremove)
+    anim.start(widget)
+    
+def on_parentremove(widget, w):
+    w.parent.remove_widget(w)
+    
     
 class ImageButton(ButtonBehavior, Image):
     pass
