@@ -20,6 +20,9 @@ class ScrollBox(ScrollView):
         
         
     def on_orientation(self, w, val):
+        if not hasattr(self, "layout"):
+            return
+
         self.layout.orientation = val
         if val == 'vertical':
             self.layout.size_hint_y = None

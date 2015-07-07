@@ -309,7 +309,7 @@ class LabelItem(BoxLayout):
         self.widgetposition = kwargs.get('widgetposition', 'right')
         self.texthalign = kwargs.get('texthalign', 'left')
         
-        self.lb_caption = LabelShadow(text=self.caption, texthalign=self.texthalign)
+        self.lb_caption = Label(text=self.caption, size_hint_x=None, width=200)
         self.item = kwargs.get('itemtype')(**kwargs.get('item_kwargs', {}))
         
         if self.widgetposition == 'right':
