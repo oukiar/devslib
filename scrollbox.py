@@ -10,11 +10,10 @@ class ScrollBox(ScrollView):
     
     def __init__(self, **kwargs):
         
-        self.layout = BoxLayout()  
-        
         super(ScrollBox, self).__init__(size_hint=(1,1), **kwargs)
         
-         
+        
+        self.layout = BoxLayout()   
         self.layout.height = 0 
         self.layout.width = 0
         super(ScrollBox, self).add_widget(self.layout)
