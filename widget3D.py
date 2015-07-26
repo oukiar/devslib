@@ -118,7 +118,7 @@ class Widget3D(Widget):
         hasp =  float(Window.width) / float(Window.height)
         asp =  float(Window.height) / float(Window.width)
         #self.canvas['projection_mat'] = Matrix().view_clip(-asp, asp, -1, 1, 1, 100, 1)
-        self.canvas['projection_mat'] = Matrix().view_clip(-hasp, hasp, -1, 1, 1, 2048, 1)
+        self.canvas['projection_mat'] = Matrix().view_clip(-hasp, hasp, -1, 1, 1, 4096, 1)
     
     def project2D(self):
         return Matrix().project(self.pos_x+self.pos[0],
@@ -218,7 +218,7 @@ class Widget3D(Widget):
         
         for i in self.children:
             i.rotate3D = self.rotate3D
-        
+    
     def on_pos3D(self, w, val):
         self.translate.x = val[0]
         self.translate.y = val[1]

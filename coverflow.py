@@ -11,12 +11,27 @@ from kivy.core.image import Image as CoreImage
 from kivy.properties import NumericProperty, ListProperty, StringProperty
 
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 
 from kivy.clock import Clock
 
 
 from widget3D import Widget3D, Image3D, rotatingPoints
 import utils
+
+Window.set_icon("ojbxproicon.png")
+
+class Label3D(Widget3D):
+    text = StringProperty()
+    def __init__(self, **kwargs):
+        text = kwargs.pop("text", "")
+        super(Label3D, self).__init__(**kwargs)
+        self.label = Label()
+        self.add_widget(self.label)
+        self.text = text
+        
+    def on_text(self, w, val):
+        self.label.text = val
 
 class CoverItem(Widget3D):
     
@@ -29,8 +44,11 @@ class CoverItem(Widget3D):
         self.image = Image3D(size_hint=(None,None), x=.4, size=(83.4, 91))
         #self.points = rotatingPoints(scale3D=(2, 2, 1))
         
-        #self.btn_ = Button(text='hello')
-        #self.add_widget(self.btn_)
+        #self.title = Button(text='hello', size_hint=(None,None), height=40, width=150, x=-75, y=40, font_size=20, background_normal="barra_play.png")
+        self.title = Label3D(text='hello', pos_z=-800, size_hint=(None,None) )
+        self.title.pos_z = -1000
+        print "POS3D: ", self.title.pos3D
+        self.add_widget(self.title)
         
         self.add_widget(self.bg)
         
@@ -271,6 +289,8 @@ class CoverFlow(Widget3D):
             i.rotate_y = yrot
             i.scale_x = scale3d[0]
             i.scale_y = scale3d[1]
+            
+            print "Z: ", i.title.pos_z
       
     def get_cover_from_cache(self, index, load=True):
         '''

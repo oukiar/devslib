@@ -40,23 +40,17 @@ class ScrollBox(ScrollView):
         self.layout.padding = val
         
     def add_widget(self, w, index=0):
-        
-        if self.orientation == 'vertical':
-            
-            if len(self.layout.children) == 0:
-                self.layout.height = self.layout.padding[0]
                 
-            self.layout.height += w.height + self.layout.spacing
-            
-        
-        else:
-            if len(self.layout.children) == 0:
-                self.layout.width = self.layout.padding[0]
-                
-            self.layout.width += w.width + self.layout.spacing
-        
         self.layout.add_widget(w, index)
         
+        self.update_layout_size()
+    
+    '''    
+    def collide_point(self, x, y):
+        print self.pos, x, y
+        super(ScrollBox, self).collide_point(x, y+self.height)
+    '''
+    
     def update_layout_size(self):
         if self.layout.orientation == 'vertical':
             self.layout.width = self.width
