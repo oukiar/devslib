@@ -44,6 +44,12 @@ class ScrollBox(ScrollView):
         self.layout.add_widget(w, index)
         
         self.update_layout_size()
+        
+    def remove_widget(self, w):
+                
+        self.layout.remove_widget(w)
+        
+        self.update_layout_size()
     
     '''    
     def collide_point(self, x, y):
