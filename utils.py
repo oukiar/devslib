@@ -426,11 +426,18 @@ try:
 except:
     pass
     
-def alert(title, msg):
+def alert(msg, title=""):
     '''
     Alert function
     '''
-    return Popup(title=title, content=Label(text=msg)).open()
+    popup = Popup(title=title, size_hint=(None,None), size=(400,200) )
+    content = BoxLayout(orientation="vertical")
+    content.add_widget(Label(text=msg))
+    content.add_widget(Button(text="Aceptar", on_press=popup.dismiss))
+    popup.content=content
+    popup.open()
+    
+    return popup
     
 def fade_in(widget, parentremove=False):
     widget.opacity = 0
