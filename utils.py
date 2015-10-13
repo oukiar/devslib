@@ -27,6 +27,9 @@ import os
 
 from threading import Thread
 
+class RotatedImage(Image):
+    angle = NumericProperty()
+
 def find_get_attr(iterable, find_attr, find_value):
     '''
     Usefull?
