@@ -109,7 +109,7 @@ Netget presentation format
         interface serialization)
 '''
 
-import urllib, urllib2
+#import urllib, urllib2
 
 
 #fix it ... the udp packet overflow 512 bytes, check if this is a problem
@@ -244,7 +244,7 @@ class SendThread(threading.Thread):
         self.shuted_down = False
 
     def run(self):
-        print 'Running sender thread'
+        print ('Running sender thread')
         while True:
             try:
                 packet_data = self.safe_pop_packet()
@@ -262,11 +262,11 @@ class SendThread(threading.Thread):
                 self.shutlock.release()
                 
                 if finish_thread:
-                    print 'Finishing SendThread'
+                    print ('Finishing SendThread')
                     break
                 
             except socket.error as e:
-                print 'Error en el thread send: ', e
+                print('Error en el thread send: ', e)
 
         self.shuted_down = True
         
@@ -380,7 +380,7 @@ class RecvThread(threading.Thread):
         self.shuted_down = False
 
     def run(self):
-        print 'Running receiver thread ...'
+        print ('Running receiver thread ...')
         while True:
             try:
                 #data, addr = self.sock.recvfrom(udp_max_size)
@@ -395,11 +395,11 @@ class RecvThread(threading.Thread):
                 self.shutlock.release()
                 
                 if finish_thread:
-                    print 'Finishing RecvThread'
+                    print ('Finishing RecvThread')
                     break
                 
             except socket.error as e:
-                print 'Error en el thread recv: ', e
+                print ('Error en el thread recv: ', e)
                 
         self.shuted_down = True
         self.sock.close()
@@ -580,7 +580,7 @@ class NetgetSocket:
         
         self.ngout = NetworkOut(sock=self.sock)
         
-        print "Created socket"
+        print ("Created socket")
         
         self.ngin = NetworkIn(sock=self.sock, dispatch_message=self.incoming_message, ngout=self.ngout)
                 
@@ -602,7 +602,7 @@ class NetgetSocket:
         
     def __del__(self):
         
-        print 'Finalizando socket: ', self.port
+        print ('Finalizando socket: ', self.port)
 
         try:
             self.ngin.recv_thread.shutdown()
@@ -636,19 +636,19 @@ class Network:
     def discover_ips(self):
         
         try: #try unix
-            print "Unix IP"
+            print ("Unix IP")
             ips = self.discover_ips_unix()
-            print 'Unix IP solved: ', ips[0]
+            print ('Unix IP solved: ', ips[0])
         except:
             try:
-                print "Android IP"
+                print ("Android IP")
                 ips = self.discover_ips_android()
-                print 'Android IP solved: ', ips
+                print ('Android IP solved: ', ips)
             except:
-                print "Windows IP"
+                print ("Windows IP")
                 #try windows
                 ips = self.discover_ips_windows()
-                print 'Windows IP solved'
+                print ('Windows IP solved')
                             
         return ips
                 
@@ -660,11 +660,11 @@ class Network:
         
         for i in texto.split('\n'):
             if 'wlan0' in i:
-                print "Salida android: ", i
+                print ("Salida android: ", i)
                 ip = i.split()[2].split('/')[0]
                 #ip = i[43:].split('/')[0]
-                print 'Salida android: ', i
-                print 'IP: ', ip
+                print ('Salida android: ', i)
+                print ('IP: ', ip)
                 ips.append(ip)
         
         return ips
@@ -765,7 +765,7 @@ class Network:
             if str(type(sock.dispatcher)) == "<type 'instancemethod'>":
 
                 #convirtiendo en lista de dispatchers
-                print 'Convirtiendo funcion en lista de funciones'
+                print ('Convirtiendo funcion en lista de funciones')
                 oldisp = sock.dispatcher
                 sock.dispatcher = []
                 sock.dispatcher.append(oldisp)
@@ -776,10 +776,10 @@ class Network:
     def create_socket(self, ip, port=netget_port, dispatch_func=None):
         try:
             self.ngsock = NetgetSocket(ip=ip, port=port, dispatcher=dispatch_func)
-            print "Created socket ", self.ngsock
+            print ("Created socket ", self.ngsock)
             self.netget_sockets.append(self.ngsock)
         except:
-            print "Error creando socket ", (ip, port)
+            print ("Error creando socket ", (ip, port))
             self.ngsock = None
      
     def send(self, addr, data):
@@ -826,7 +826,7 @@ class Request(Thread):
         
     def run(self):
         
-        print "Requesting url: ", self.action
+        print ("Requesting url: ", self.action)
         
         req = urllib2.Request(self.action, self.data)
         response = urllib2.urlopen(req)
@@ -838,7 +838,7 @@ if __name__ == '__main__':
     
     
     def incoming(addr, data):
-        print 'Addr: %s, Data: %s\n' % (addr, data)
+        print ('Addr: %s, Data: %s\n' % (addr, data))
     
     #global network object
     net = Network()
@@ -850,7 +850,7 @@ if __name__ == '__main__':
         
         net.shutdown_network()
     else:
-        print "Error creating connection"
+        print ("Error creating connection")
         net = None
     
     

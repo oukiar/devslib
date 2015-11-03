@@ -414,7 +414,7 @@ try:
             
             self.callback(res)
             '''
-            print "Requesting url: ", self.action
+            print ("Requesting url: ", self.action)
             
             req = urllib2.Request(self.action, self.data)
             response = urllib2.urlopen(req)
