@@ -9,7 +9,6 @@ import socket, sys, hashlib
 from threading import Timer, Thread
 from time import sleep
 
-
 #Clock kivy dependency removed, now we are using threads ... now the code is legacy !!
 #from kivy.clock import Clock
 
@@ -47,6 +46,7 @@ import base64
 #dont need more the www.devsinc.com.mx server
 try:
     import netifaces
+    from netifaces import interfaces, ifaddresses, AF_INET
 except:
     netifaces = None
 
@@ -635,6 +635,19 @@ class Network:
                 
     def discover_ips(self):
         
+        #new way again with netifaces     
+        print(interfaces())   
+        ip_list = []
+        print("1")
+        for interface in interfaces():
+            print (interface)
+            for link in ifaddresses(interface)[AF_INET]:
+                ip_list.append(link['addr'])
+                
+        print(ip_list)
+        return ip_list
+
+        
         try: #try unix
             print ("Unix IP")
             ips = self.discover_ips_unix()
@@ -705,11 +718,15 @@ class Network:
         ips = []
         
         texto = check_output('ipconfig')
-
-        for i in texto.split('\n'):
+        
+        for i in texto.split('\r\n'):
             
-            if 'Direcci' in i:
-                ip = i[44:].split()[0] 
+            print(i)
+                
+            if 'IPv4' in i:
+                #ip = i[44:].split()[0]           
+                ip = i.split(":")[1][1:]
+
                 if ip != "127.0.0.1":
                     ips.append( ip )
                     
@@ -740,7 +757,9 @@ class Network:
         
         try:
             ips = self.discover_ips()
-
+            
+            
+            
             if len(ips) >= 0:
                 
                 #we will try to create a socket initiating the netget port
@@ -755,6 +774,7 @@ class Network:
                     
                 return True
         except:
+            print("[Error] creating connection")
             return False
             
     def add_dispatcher(self, dispatcher):
