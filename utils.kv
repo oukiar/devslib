@@ -8,4 +8,13 @@
     canvas.after:
         PopMatrix
     
+<RotativeImage>:
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: root.angle
+            axis: 0, 0, 1
+            origin: root.center
+    canvas.after:
+        PopMatrix
     

@@ -30,6 +30,25 @@ from threading import Thread
 class RotatedImage(Image):
     angle = NumericProperty()
 
+class RotativeImage(Image):
+    angle = NumericProperty()
+    state = StringProperty()
+    
+    def on_state(self, w, val):
+        if val == "rotating":
+            print("rotating")
+            self.reanimate()
+        else:
+            self.anim.stop()
+    
+    def reanimate(self, w=None, val=0):
+        self.angle = 360
+        
+        self.anim = Animation(angle=0, duration=10)
+        
+        self.anim.bind(on_complete=self.reanimate)
+        self.anim.start(self)
+
 def find_get_attr(iterable, find_attr, find_value):
     '''
     Usefull?
