@@ -163,7 +163,7 @@ class Transmission:
             '''
             
             data_dict = {'tr':self.trans_id,
-                        'd':base64.b64encode(data[i:i+udp_max_size].decode(encoding='UTF-8')),   #encoded because can broke the json packet conversion
+                        'd':base64.b64encode(bytes(data[i:i+udp_max_size], "utf-8") ),   #encoded because can broke the json packet conversion
                         'tp':total_packets,
                         'pn':packet_counter,
                         'e':bcrypt,
@@ -778,7 +778,7 @@ class Network:
                         self.create_socket(ips[0], c, dispatcher)
                     else:
                         self.create_socket(ips[1], c, dispatcher)
-                        
+
                     c += 1
                     
                 return True
