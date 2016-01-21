@@ -162,13 +162,22 @@ class Transmission:
                         'attemps':1}
             '''
             
-            data_dict = {'tr':self.trans_id,
-                        'd':base64.b64encode(bytes(data[i:i+udp_max_size], "utf-8") ),   #encoded because can broke the json packet conversion
-                        'tp':total_packets,
-                        'pn':packet_counter,
-                        'e':bcrypt,
-                        #'tm':str(datetime.datetime.now()),
-                        'a':1}
+            try:    #python3 specific
+                data_dict = {'tr':self.trans_id,
+                            'd':base64.b64encode(bytes(data[i:i+udp_max_size], "utf-8") ),   #encoded because can broke the json packet conversion
+                            'tp':total_packets,
+                            'pn':packet_counter,
+                            'e':bcrypt,
+                            #'tm':str(datetime.datetime.now()),
+                            'a':1}
+            except:
+                data_dict = {'tr':self.trans_id,
+                            'd':base64.b64encode(data[i:i+udp_max_size]),   #encoded because can broke the json packet conversion
+                            'tp':total_packets,
+                            'pn':packet_counter,
+                            'e':bcrypt,
+                            #'tm':str(datetime.datetime.now()),
+                            'a':1}
                         
             self.packets[packet_counter] = data_dict
             
