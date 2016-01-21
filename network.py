@@ -640,10 +640,15 @@ class Network:
         ip_list = []
         print("1")
         for interface in interfaces():
-            print (interface)
-            for link in ifaddresses(interface)[AF_INET]:
-                ip_list.append(link['addr'])
-                
+            
+            print(interface)
+            try:
+                for link in ifaddresses(interface)[AF_INET]:
+                    print (ifaddresses(interface)[AF_INET])
+                    ip_list.append(link['addr'])
+            except:
+                pass
+
         print(ip_list)
         return ip_list
 
