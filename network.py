@@ -164,12 +164,13 @@ class Transmission:
             
             try:    #python3 specific
                 data_dict = {'tr':self.trans_id,
-                            'd':base64.b64encode(bytes(data[i:i+udp_max_size], "utf-8") ),   #encoded because can broke the json packet conversion
+                            'd':base64.b64encode(bytes(data[i:i+udp_max_size], "utf-8") ).decode(encoding="UTF-8"),   #encoded because can broke the json packet conversion
                             'tp':total_packets,
                             'pn':packet_counter,
                             'e':bcrypt,
                             #'tm':str(datetime.datetime.now()),
                             'a':1}
+            
             except:
                 data_dict = {'tr':self.trans_id,
                             'd':base64.b64encode(data[i:i+udp_max_size]),   #encoded because can broke the json packet conversion
@@ -262,8 +263,11 @@ class SendThread(threading.Thread):
                 if packet_data == None:
                     sleep(.01)
                     continue
-                                        
-                self.sock.sendto(packet_data[0], packet_data[1])   #packet_data holds (data, addr)
+                                 
+                try:
+                    self.sock.sendto(bytes(packet_data[0], "UTF-8"), packet_data[1])   #packet_data holds (data, addr)
+                except:
+                    self.sock.sendto(packet_data[0], packet_data[1])   #packet_data holds (data, addr)
 
                 #finalize this thread?
                 self.shutlock.acquire()
@@ -566,7 +570,7 @@ class NetworkIn:
         
         s_out = ''
         for i in range(0, len(transmission.packets)):
-            s_out += base64.b64decode(transmission.packets[i])
+            s_out += base64.b64decode(transmission.packets[i]).decode(encoding="UTF-8")
             
         return s_out
     
@@ -598,9 +602,10 @@ class NetgetSocket:
         '''
         This message is analized and pass to Network if is necessary
         '''
+        print(str(type(self.dispatcher)))
         
         #verificar si solo tenemos una funcion dispatcher
-        if str(type(self.dispatcher)) == "<type 'instancemethod'>":
+        if str(type(self.dispatcher)) == "<type 'instancemethod'>" or str(type(self.dispatcher)) == "<class 'method'>":
         
             self.dispatcher(data, addr)
         
