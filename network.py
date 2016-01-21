@@ -163,7 +163,7 @@ class Transmission:
             '''
             
             data_dict = {'tr':self.trans_id,
-                        'd':base64.b64encode(data[i:i+udp_max_size]),   #encoded because can broke the json packet conversion
+                        'd':base64.b64encode(data[i:i+udp_max_size].decode(encoding='UTF-8')),   #encoded because can broke the json packet conversion
                         'tp':total_packets,
                         'pn':packet_counter,
                         'e':bcrypt,
