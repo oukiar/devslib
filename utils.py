@@ -39,7 +39,7 @@ class RotativeImage(Image):
             print("rotating")
             self.reanimate()
         else:
-            self.anim.stop(self)
+            self.anim.cancel(self)
     
     def reanimate(self, w=None, val=0):
         self.angle = 360
