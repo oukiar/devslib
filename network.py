@@ -503,7 +503,7 @@ class NetworkIn:
         Recibe un paquete de datos en json listo para ser filtrado y agrupado adecuadamente (peer, transmission, packet)
         '''
                 
-        data_dict = json.loads(data)
+        data_dict = json.loads(data.decode(encoding='UTF-8'))
      
         peer_id = addr[0] + ':' + str(addr[1])
         
