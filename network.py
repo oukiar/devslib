@@ -789,10 +789,12 @@ class Network:
                 self.ngsock = None
                 
                 while self.ngsock == None:
-                    print "Creating socket: ", (ips[0], c)
+                    
                     if ips[0] != "127.0.0.1":
+                        print "Creating socket: ", (ips[0], c)
                         self.create_socket(ips[0], c, dispatcher)
                     else:
+                        print "Creating socket: ", (ips[1], c)
                         self.create_socket(ips[1], c, dispatcher)
 
                     c += 1
