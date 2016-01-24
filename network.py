@@ -46,7 +46,7 @@ import base64
 #dont need more the www.devsinc.com.mx server
 try:
     import netifaces
-    from netifaces import interfaces, ifaddresses, AF_INET
+    #from netifaces import interfaces, ifaddresses, AF_INET
 except:
     netifaces = None
 
@@ -649,6 +649,8 @@ class Network:
                 
     def discover_ips(self):
         
+        print("Discovering IP: " + str(netifaces))
+        
         #new way again with netifaces     
         print(interfaces())   
         ip_list = []
@@ -777,7 +779,7 @@ class Network:
         try:
             ips = self.discover_ips()
             
-            
+            print(ips)
             
             if len(ips) >= 0:
                 
@@ -787,7 +789,7 @@ class Network:
                 self.ngsock = None
                 
                 while self.ngsock == None:
-                    #print "Creating socket: ", (ips[0], c)
+                    print "Creating socket: ", (ips[0], c)
                     if ips[0] != "127.0.0.1":
                         self.create_socket(ips[0], c, dispatcher)
                     else:
