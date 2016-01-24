@@ -602,7 +602,7 @@ class NetgetSocket:
         '''
         This message is analized and pass to Network if is necessary
         '''
-        print(str(type(self.dispatcher)))
+        #print(str(type(self.dispatcher)))
         
         #verificar si solo tenemos una funcion dispatcher
         if str(type(self.dispatcher)) == "<type 'instancemethod'>" or str(type(self.dispatcher)) == "<class 'method'>" or str(type(self.dispatcher)) == "<type 'function'>":
