@@ -590,8 +590,10 @@ class NetgetSocket:
         
         # create the UDP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        print ("Created socket 1")
         self.sock.bind(self.addr)
         
+        print ("Created socket 2")
         
         self.ngout = NetworkOut(sock=self.sock)
         
