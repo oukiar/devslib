@@ -585,6 +585,8 @@ class NetgetSocket:
         
         self.dispatcher = kwargs.get('dispatcher')
         
+
+        print ("Created socket 0")
         
         # create the UDP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
