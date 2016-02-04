@@ -655,40 +655,45 @@ class Network:
         
         print("Discovering IP: " + str(netifaces))
         
-        #new way again with netifaces     
-        print(netifaces.interfaces())   
-        ip_list = []
-        print("1")
-        for interface in netifaces.interfaces():
-            
-            print(interface)
-            try:
-                for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
-                    print (netifaces.ifaddresses(interface)[netifaces.AF_INET])
-                    ip_list.append(link['addr'])
-            except:
-                pass
-
-        print(ip_list)
-        return ip_list
-
+        if netifaces != None:
         
-        try: #try unix
-            print ("Unix IP")
-            ips = self.discover_ips_unix()
-            print ('Unix IP solved: ', ips[0])
-        except:
-            try:
-                print ("Android IP")
-                ips = self.discover_ips_android()
-                print ('Android IP solved: ', ips)
+            #new way again with netifaces     
+            print(netifaces.interfaces())   
+            ip_list = []
+            print("1")
+            for interface in netifaces.interfaces():
+                
+                print(interface)
+                try:
+                    for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
+                        print (netifaces.ifaddresses(interface)[netifaces.AF_INET])
+                        ip_list.append(link['addr'])
+                except:
+                    pass
+
+            #print(ip_list)
+            
+            return ip_list
+            
+        else:
+            print("Discovering IP using legacy mode")
+        
+            try: #try unix
+                print ("Unix IP")
+                ips = self.discover_ips_unix()
+                print ('Unix IP solved: ', ips[0])
             except:
-                print ("Windows IP")
-                #try windows
-                ips = self.discover_ips_windows()
-                print ('Windows IP solved')
-                            
-        return ips
+                try:
+                    print ("Android IP")
+                    ips = self.discover_ips_android()
+                    print ('Android IP solved: ', ips)
+                except:
+                    print ("Windows IP")
+                    #try windows
+                    ips = self.discover_ips_windows()
+                    print ('Windows IP solved')
+                                
+            return ips
                 
     def discover_ips_android(self):
         
