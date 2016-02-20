@@ -597,7 +597,7 @@ class NetgetSocket:
         
         self.ngout = NetworkOut(sock=self.sock)
         
-        print ("Created socket")
+        print ("Created socket OK")
         
         self.ngin = NetworkIn(sock=self.sock, dispatch_message=self.incoming_message, ngout=self.ngout)
                 
@@ -653,7 +653,7 @@ class Network:
                 
     def discover_ips(self):
         
-        print("Discovering IP: " + str(netifaces))
+        print("Discovering IP netifaces: " + str(netifaces))
         
         if netifaces != None:
         
@@ -671,8 +671,8 @@ class Network:
                 except:
                     pass
 
-            #print(ip_list)
-            
+            print(ip_list)
+            #raw_input()
             return ip_list
             
         else:
@@ -803,10 +803,13 @@ class Network:
                         print("Creating socket: ", (ips[0], c) )
                         self.create_socket(ips[0], c, dispatcher)
                     else:
-                        print("Creating socket: ", (ips[1], c) )
+                        print("Creating socket 1: ", (ips[1], c) )
                         self.create_socket(ips[1], c, dispatcher)
 
                     c += 1
+                    
+                    if c == 31420:
+                        return False
                     
                 return True
         except:
