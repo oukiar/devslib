@@ -113,7 +113,7 @@ Netget presentation format
 
 
 #fix it ... the udp packet overflow 512 bytes, check if this is a problem
-udp_max_size=512    #with this value we think that the netget_packet never reach 512 bytes (UDP best minimal size) ... FIXME?
+udp_max_size=512    #with this value we think that the netget_packet never reach 512 bytes (UDP best minimal legacy size) ... FIXME?
 
 
 #research if is possible determinate the max udp size with a trick
@@ -586,18 +586,18 @@ class NetgetSocket:
         self.dispatcher = kwargs.get('dispatcher')
         
 
-        print ("Created socket 0")
+        #print ("Created socket 0")
         
         # create the UDP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        print ("Created socket 1: " + str(self.addr) )
+        #print ("Created socket 1: " + str(self.addr) )
         self.sock.bind(self.addr)
         
-        print ("Created socket 2")
+        #print ("Created socket 2")
         
         self.ngout = NetworkOut(sock=self.sock)
         
-        print ("Created socket OK")
+        #print ("Created socket OK")
         
         self.ngin = NetworkIn(sock=self.sock, dispatch_message=self.incoming_message, ngout=self.ngout)
                 
@@ -609,7 +609,10 @@ class NetgetSocket:
         #print(str(type(self.dispatcher)))
         
         #verificar si solo tenemos una funcion dispatcher
-        if str(type(self.dispatcher)) == "<type 'instancemethod'>" or str(type(self.dispatcher)) == "<class 'method'>" or str(type(self.dispatcher)) == "<type 'function'>":
+        if str(type(self.dispatcher)) == "<type 'instancemethod'>" or \
+            str(type(self.dispatcher)) == "<class 'method'>" or \
+            str(type(self.dispatcher)) == "<type 'function'>" or \
+            str(type(self.dispatcher)) == "<class 'function'>":
         
             self.dispatcher(data, addr)
         
@@ -658,20 +661,20 @@ class Network:
         if netifaces != None:
         
             #new way again with netifaces     
-            print(netifaces.interfaces())   
+            #print(netifaces.interfaces())   
             ip_list = []
-            print("1")
+            #print("1")
             for interface in netifaces.interfaces():
                 
-                print(interface)
+                #print(interface)
                 try:
                     for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
-                        print (netifaces.ifaddresses(interface)[netifaces.AF_INET])
+                        #print (netifaces.ifaddresses(interface)[netifaces.AF_INET])
                         ip_list.append(link['addr'])
                 except:
                     pass
 
-            print(ip_list)
+            #print(ip_list)
             #raw_input()
             return ip_list
             
@@ -799,11 +802,11 @@ class Network:
                 
                 while self.ngsock == None:
                     
-                    if ips[0] != "127.0.0.1":
-                        print("Creating socket: ", (ips[0], c) )
+                    try:
+                        print("CREATING SOCKET 0", (ips[0], c) )
                         self.create_socket(ips[0], c, dispatcher)
-                    else:
-                        print("Creating socket 1: ", (ips[1], c) )
+                    except:
+                        print("CREATING SOCKET 1", (ips[1], c) )
                         self.create_socket(ips[1], c, dispatcher)
 
                     c += 1
@@ -833,14 +836,12 @@ class Network:
             
         
     def create_socket(self, ip, port=netget_port, dispatch_func=None):
-        try:
-            self.ngsock = NetgetSocket(ip=ip, port=port, dispatcher=dispatch_func)
-            print ("Created socket ", self.ngsock)
-            self.netget_sockets.append(self.ngsock)
-        except:
-            print ("Error creando socket ", (ip, port))
-            self.ngsock = None
-     
+
+        self.ngsock = None    
+        self.ngsock = NetgetSocket(ip=ip, port=port, dispatcher=dispatch_func)
+        print ("Created socket ", self.ngsock)
+        self.netget_sockets.append(self.ngsock)
+ 
     def send(self, addr, data):
         '''
         Try to send a packet on the first connected socket
