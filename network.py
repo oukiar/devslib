@@ -806,8 +806,9 @@ class Network:
                     print("CREATING SOCKET 0", (ips[0], c) )
                     self.create_socket(ips[0], c, dispatcher)
                 except:
-                    print("CREATING SOCKET 1", (ips[1], c) )
-                    self.create_socket(ips[1], c, dispatcher)
+                    if len(ips) > 1:
+                        print("CREATING SOCKET 1", (ips[1], c) )
+                        self.create_socket(ips[1], c, dispatcher)
 
                 c += 1
                 
