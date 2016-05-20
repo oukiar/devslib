@@ -670,7 +670,8 @@ class Network:
                 try:
                     for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
                         #print (netifaces.ifaddresses(interface)[netifaces.AF_INET])
-                        ip_list.append(link['addr'])
+                        if link['addr'] != "127.0.0.1":
+                            ip_list.append(link['addr'])
                 except:
                     pass
 
