@@ -789,36 +789,32 @@ class Network:
         Nota: Usa forsozamente el puerto 31415
         '''
         
-        try:
-            ips = self.discover_ips()
+        ips = self.discover_ips()
+        
+        print(ips)
+        
+        if len(ips) >= 0:
             
-            print(ips)
+            #we will try to create a socket initiating the netget port
+            c = netget_port
             
-            if len(ips) >= 0:
+            self.ngsock = None
+            
+            while self.ngsock == None:
                 
-                #we will try to create a socket initiating the netget port
-                c = netget_port
-                
-                self.ngsock = None
-                
-                while self.ngsock == None:
-                    
-                    try:
-                        print("CREATING SOCKET 0", (ips[0], c) )
-                        self.create_socket(ips[0], c, dispatcher)
-                    except:
-                        print("CREATING SOCKET 1", (ips[1], c) )
-                        self.create_socket(ips[1], c, dispatcher)
+                try:
+                    print("CREATING SOCKET 0", (ips[0], c) )
+                    self.create_socket(ips[0], c, dispatcher)
+                except:
+                    print("CREATING SOCKET 1", (ips[1], c) )
+                    self.create_socket(ips[1], c, dispatcher)
 
-                    c += 1
-                    
-                    if c == 31420:
-                        return False
-                    
-                return True
-        except:
-            print("[Error] creating connection")
-            return False
+                c += 1
+                
+                if c == 31420:
+                    return False
+                
+            return True
             
     def add_dispatcher(self, dispatcher):
         
