@@ -531,6 +531,8 @@ class NetworkIn:
         #store in our way
         trans = peer.recv(data_dict)
         
+        print("RECIBIENDO: " + str(len(trans.packets) ))
+        
         #ya se recibieron todos los paquetes?
         if len(trans.packets) == data_dict['tp']:
             
