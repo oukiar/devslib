@@ -538,6 +538,7 @@ class NetworkIn:
             
             assembled_packet = self.assemble_packets(trans)
             
+            print("Assembling packet with size: " + str(len(trans.packets) ) )
             
             #try to decrypt ... TO-DO: implement encription at send and recv
             
