@@ -371,6 +371,8 @@ class NetworkOut:
         #visualize
         transmission = peer.send(data)
         
+        print("Sending packets: " + str(len(transmission.packets)))
+        
         #enqueue all packets to queue (safe-thread)
         for packet in transmission.packets:
             packet_json = json.dumps(transmission.packets[packet])
