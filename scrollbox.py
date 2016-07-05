@@ -83,3 +83,7 @@ class ScrollBox(ScrollView):
         self.layout.clear_widgets()
         self.layout.width = 0
         self.layout.height = 0
+        
+    def on_scroll_distance(self, w, val):
+        self.layout.scroll_distance = val
+        
