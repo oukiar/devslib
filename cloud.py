@@ -36,16 +36,7 @@ class NGVar:
         self.sql = ""
         self.className = kwargs.get("className")
         self.objectId = kwargs.get("objectId", "")
-        #self.values = {}
-        
-        '''
-        if 'json' in kwargs:
-            self.values = json.loads(kwargs.get('json'))
-            
-        elif 'values' in kwargs:
-            self.values = kwargs.get('values')
-        '''
-        
+                
         self.members_backlist = dir(self)
     
         #if objectId is comming on kwargs, initialize with values from database
@@ -70,12 +61,14 @@ class NGVar:
             sql = "update " + self.className + " set "
             
             values = ""
+            lst_values = []
             
             for i in dir(self):
                 if i not in self.members_backlist and i != "members_backlist":
                                         
                     #print (str(type(getattr(self, i) )))
                     
+                    '''
                     if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
                         val = str(getattr(self, i))
                     else:
@@ -83,30 +76,86 @@ class NGVar:
                             val = "'" + str(getattr(self, i) ) + "'"
                         except:
                             val = "'" + str(getattr(self, i).encode('utf8') ) + "'"
+                    '''
+                    
+                    lst_values.append(getattr(self, i))
             
                     if values == "":
-                        values = i + "=" + val
+                        values = i + "=?" #+ val
                     else:
-                        values += ", " + i + "=" + val
+                        values += ", " + i + "=?" #+ val
             
             sql += values + " where objectId='"+ self.objectId + "'"  
             
             
             try:
                 cursor = cnx.cursor()
-                if cursor.execute(sql):
+                if cursor.execute(sql, lst_values):
                     #print("SQL: " + sql)
-                    cnx.commit()
-                    return True
                     
-            except:
+                    if autocommit:
+                        cnx.commit()
+                        
+                    return True
+                                      
+            except sqlite3.Error as e:
+            
+                if 'no such table' in e.args[0]:
+                    print('sqlite3 Error: No such table')
+                    print (e.args[0])
+                else:
+                    print('sqlite3 Error: Unknown error')
+                    print (e.args[0])
+                                
                 print("Error updating-saving: " + sql)
+                print("Values: " + json.dumps(lst_values) )
             
             return False
         else:
             #create object unique ID
             self.objectId = str(uuid.uuid4())
             
+            
+            if self.className not in tables:
+                
+                tables.append(self.className)
+                
+                #create table
+                sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL" % (self.className)
+                
+                print("Recorriendo elementos de self")
+                
+                #recorrer con dir los elementos de nuestro objeto, para saber que campos llevara
+                for i in dir(self):
+                    if i not in self.members_backlist and i != "members_backlist":
+                        
+                        #print(i, type(getattr(self, i) ) )
+                        
+                        if str(type(getattr(self, i) )) in ["<type 'str'>", "<type 'unicode'>", "<class 'str'>"]:
+                            tp = "TEXT"
+                        elif str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
+                            tp = "INT"
+                        else:
+                            tp = "" #esto quizas provoca error al no definir tipo del campo
+                        
+                        #
+                        sql += ", " + i + " " + tp
+                
+                sql += ");"
+                
+                #crear tabla
+                cursor = cnx.cursor()
+                
+                if cursor.execute(sql):
+                    print("Tabla creada")
+                else:
+                    print("Error creando tabla SQL: " + sql)
+            else:
+                pass
+                #print("Table already exists")
+                
+            
+            '''
             #check if table already exists
             sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='%s'" % self.className
             #print("Checking: " + sql)
@@ -149,18 +198,24 @@ class NGVar:
                         print("Error creando tabla SQL: " + sql)
                 else:
                     print("Table already exists")
+            '''
+            
             
             #insert
             sql = "insert into " + self.className + "(objectId"
             
             values = ""
+            lst_values = []
             
             for i in dir(self):
                 if i not in self.members_backlist and i != "members_backlist":
                     sql += ", " + i #HERE: avoid the sqlinjection
                     
                     #print (str(type(getattr(self, i) )))
+                    values += ", ?" 
+                    lst_values.append(getattr(self, i))
                     
+                    '''
                     if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
                         values += ", " + str(getattr(self, i))
                     else:
@@ -168,19 +223,32 @@ class NGVar:
                             values += ", '" + str(getattr(self, i) ) + "'"
                         except:
                             values += ", '" + str(getattr(self, i).encode('utf8') ) + "'"
-            
+                    '''
+                    
             sql += ") values('"+ self.objectId + "'" + values + ")" 
             
             
             try:
                 cursor = cnx.cursor()
-                if cursor.execute(sql):
-                    #print("SQL: " + sql)
-                    cnx.commit()
+                
+                #print("SQL: " + sql)
+                
+                if cursor.execute(sql, lst_values):
+                    if autocommit:
+                        cnx.commit()
                     return True
                     
-            except:
-                print("Error saving: " + sql)
+            except sqlite3.Error as e:
+            
+                if 'no such table' in e.args[0]:
+                    print('sqlite3 Error: No such table')
+                    print (e.args[0])
+                else:
+                    print('sqlite3 Error: Unknown error')
+                    print (e.args[0])
+                
+                #print("Error saving: " + sql)
+                #input()
             
             return False
 
@@ -194,7 +262,8 @@ class NGVar:
         cursor = cnx.cursor()
         if cursor.execute(sql):
             #print("SQL: " + sql)
-            cnx.commit()
+            if autocommit:
+                cnx.commit()
             return True
         
         return False
@@ -247,27 +316,32 @@ class NGVar:
 import sqlite3
 
 cnx = None
+tables = []
+autocommit = True
 
 def init(dbname='database.db'):
     global cnx
+    global tables
     
     cnx = sqlite3.connect(dbname)
     
     print(cnx)    
     
+    '''
     #check if users table exists
     cursor = cnx.cursor()
-    cursor.execute( "SELECT name FROM sqlite_master WHERE type='table' AND name='users'" )
-    if len(cursor.fetchall()) == 0:
-        '''
-        #crear tabla users para almacenamiento local
-        sql = schema['users']
+    #cursor.execute( "SELECT name FROM sqlite_master WHERE type='table' AND name='users'" )
+    cursor.execute( "SELECT name FROM sqlite_master WHERE type='table'" )
     
-        cursor = cnx.cursor()
-        cursor.execute( sql )
-        print(cursor.fetchall())
-        '''
-        print("Created (fake) users table")
+    tables = cursor.fetchall()
+    '''
+    
+    query = Query(className="sqlite_master")
+    query.equalTo("type", "table")
+    for i in query.find():
+        tables.append(i.name)
+    
+    print("Database schema loaded: " + json.dumps(tables) )
 
 def create(className, objectId=None):
     '''
