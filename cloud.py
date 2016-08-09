@@ -302,6 +302,11 @@ class NGVar:
                     values[i] = getattr(self, i)
         
         return values
+        
+    def from_values(self, values):
+        for i in values:
+            setattr(self, i, values[i])
+        
 
 #-----------------
 #MODULE FUNCTIONS
