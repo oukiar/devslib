@@ -343,7 +343,7 @@ def init(dbname='database.db'):
     
     print("Database schema loaded: " + json.dumps(tables) )
     
-def init_server(self):
+def init_server():
     
     try:
         import pymysql
