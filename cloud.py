@@ -290,13 +290,14 @@ class NGVar:
         return ss
         
     def fix_to_json(self):
-        for i in self.values:
-            try:
-                self.values[i] = self.values[i].isoformat()
-                #print i
-            except:
-                pass
-                #print "badbad"
+        
+        values = {}
+        
+        for i in dir(self):
+            if i not in self.members_backlist and i != "members_backlist":
+                values[i] = getattr(self, i)
+        
+        return values
 
 #-----------------
 #MODULE FUNCTIONS
@@ -739,7 +740,7 @@ def receiver(data, addr):
 
                 #print (user.values)
 
-                tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":json.dumps(user)})
+                tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":json.dumps(user.fix_to_json() )})
                 net.send(addr, tosend)
                 
                 return
