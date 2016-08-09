@@ -556,7 +556,10 @@ class Query:
                 #STORE THE ROW
                 if raw:
                     #store as simple dict
-                    row[fieldname] = r[count]
+                    try:
+                        row[fieldname] = r[count].isoformat()   #datetime is better as string format
+                    except:
+                        row[fieldname] = r[count]
                 else:
                     #set the atribute for the ngvar
                     setattr(row, fieldname, r[count])
