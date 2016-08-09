@@ -369,8 +369,6 @@ def init_server():
 
         result_tables = cursor.fetchall()
         
-        if print_debug:
-            print("Found %s tables" % str(len(result_tables)) )
             
         
         #fetch all fields on all tables
@@ -378,7 +376,9 @@ def init_server():
             tables.append(i[0])
             
             
-        print("Database schema loaded: " + json.dumps(tables) )
+        if print_debug:
+            print("Found %s tables" % str(len(tables)) )
+            print("Database schema loaded: " + json.dumps(tables) )
             
         print("Orgboat server init success")
             
