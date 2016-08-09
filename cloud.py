@@ -613,6 +613,12 @@ class Query:
 from devslib.network import Network
 import socket
 
+
+try:
+    import bcrypt
+except:
+    bcrypt = None
+
 def receiver(data, addr):
     data_dict = json.loads(data)
 
