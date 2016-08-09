@@ -345,7 +345,7 @@ def init(dbname='database.db'):
     
 def init_server():
     
-    try:
+    if True:
         import pymysql
         
         dbIntegrityError = pymysql.IntegrityError
@@ -402,7 +402,7 @@ def init_server():
             
             print("Orgboat server init success")
             
-    except:
+    else:
         print("Error initializing server")
 
 def create(className, objectId=None):
