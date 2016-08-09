@@ -295,7 +295,11 @@ class NGVar:
         
         for i in dir(self):
             if i not in self.members_backlist and i != "members_backlist":
-                values[i] = getattr(self, i)
+                
+                try:
+                    values[i] = getattr(self, i).isoformat()
+                except:
+                    values[i] = getattr(self, i)
         
         return values
 
