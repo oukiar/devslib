@@ -724,7 +724,7 @@ def receiver(data, addr):
             print(result)
             
             print("User received pass: " + data_dict['data']['password'] )
-            print("User real pass: " + user.password )
+            print("User password hash: " + user.password )
             
             hashed = user.password
             
@@ -737,12 +737,6 @@ def receiver(data, addr):
                 #sessiontoken = os.urandom(32)
 
                 #user.setval('sessiontoken', sessiontoken)
-
-                #DISABLE IT !!!
-                #THIS IS NEED BECAUSE datetime IS NOT SERIALIZABLE FOR JSON
-                #user.fix_to_json()
-
-                #print (user.values)
 
                 tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":json.dumps(user.fix_to_json() )})
                 net.send(addr, tosend)
