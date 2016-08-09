@@ -371,7 +371,7 @@ class NetworkOut:
         #visualize
         transmission = peer.send(data)
         
-        print("Data: " + data)
+        #print("Data: " + data)
         print("Sending packets: " + str(len(transmission.packets)))
         
         #enqueue all packets to queue (safe-thread)
