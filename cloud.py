@@ -344,6 +344,8 @@ def init(dbname='database.db'):
     print("Database schema loaded: " + json.dumps(tables) )
     
 def init_server():
+    global cnx
+    global tables
     
     if True:
         import pymysql
@@ -371,38 +373,16 @@ def init_server():
             print("Found %s tables" % str(len(result_tables)) )
             print("Tables: ", result_tables )
             
-        return
         
         #fetch all fields on all tables
         for i in result_tables:
-            cursor = cnx.cursor()
-
-            if print_debug:
-                print("Listing ", i[0])
             
-            cursor.execute("DESCRIBE " + i[0])
-
-            result_fields = cursor.fetchall()
+            tables.append(i[0])
             
-            fields = []
-            primkey = None
             
-            print("Antes for")
+        print("Database schema loaded: " + json.dumps(tables) )
             
-            for j in result_fields:
-                
-                if print_debug:
-                    print("Field: ", j)
-                    
-                if j[3] == "PRI":
-                    primkey = j[0]
-                    
-                fields.append(j[0])
-                
-            #store data structure of this table
-            tables[i[0] ] = {'fields':fields, 'primarykey':primkey}
-            
-            print("Orgboat server init success")
+        print("Orgboat server init success")
             
     else:
         print("Error initializing server")
