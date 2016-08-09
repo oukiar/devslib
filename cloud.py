@@ -342,6 +342,68 @@ def init(dbname='database.db'):
         tables.append(i.name)
     
     print("Database schema loaded: " + json.dumps(tables) )
+    
+def init_server(self):
+    
+    try:
+        import pymysql
+        
+        dbIntegrityError = pymysql.IntegrityError
+                                      
+        cnx = pymysql.connect(host='localhost',
+                                 user='root',
+                                 password='CrkXhlHeix',
+                                 db='orgboat')
+                           
+        #autocommit feature enabled
+        cnx.autocommit(1)
+        
+        print_debug = True
+        #print_debug = False
+        
+        #fetch all tables on the database        
+        cursor = cnx.cursor()
+        cursor.execute("SHOW TABLES")
+
+        result_tables = cursor.fetchall()
+        
+        if print_debug:
+            print("Found %s tables" % str(len(result_tables)) )
+            print("Tables: ", result_tables )
+        
+        #fetch all fields on all tables
+        for i in result_tables:
+            cursor = cnx.cursor()
+
+            if print_debug:
+                print("Listing ", i[0])
+            
+            cursor.execute("DESCRIBE " + i[0])
+
+            result_fields = cursor.fetchall()
+            
+            fields = []
+            primkey = None
+            
+            print("Antes for")
+            
+            for j in result_fields:
+                
+                if print_debug:
+                    print("Field: ", j)
+                    
+                if j[3] == "PRI":
+                    primkey = j[0]
+                    
+                fields.append(j[0])
+                
+            #store data structure of this table
+            tables[i[0] ] = {'fields':fields, 'primarykey':primkey}
+            
+            print("Orgboat server init success")
+            
+    except:
+        print("Error initializing server")
 
 def create(className, objectId=None):
     '''
@@ -568,3 +630,183 @@ class Query:
         
         self.params.append(value)        
 
+
+
+#--------------------------------------
+#NETWORKING STUFF
+#all this work is only for low level communications of cloud synchronizations
+#
+
+from devslib.network import Network
+import socket
+
+def receiver(data, addr):
+    data_dict = json.loads(data)
+
+    if data_dict['msg'] == 'ping_ack':        
+        #print('PING ACK RECEIVED FROM ', addr, data_dict['data'])
+        
+        if addr[0] != net.ngsock.addr[0]:
+        	pass
+            #Clock.schedule_once(partial(self.add_devicehost, addr, data_dict['data']), 0)
+        
+
+    elif data_dict['msg'] == 'ping':
+        
+        print('PING RECEIVED FROM ', addr, data_dict['data'])
+        
+        tosend = json.dumps({'msg':'ping_ack', 'data':socket.gethostname()})
+        net.send(addr, tosend)
+        
+    elif data_dict['msg'] == 'signup_ack':
+        
+        #print('SIGNUP ACK FROM', addr, data_dict['data'])
+        #net.cb_signup(data_dict)
+        Clock.schedule_once(partial(net.cb_signup, data_dict))
+        
+    elif data_dict['msg'] == 'login_ack':
+        
+        #print('SIGNUP ACK FROM', addr, data_dict['data'])
+        #net.cb_login(data_dict)
+        Clock.schedule_once(partial(net.cb_login, data_dict))
+
+    elif data_dict['msg'] == 'sync_ack':
+        
+        #print('SIGNUP ACK FROM', addr, data_dict['data'])
+        #net.cb_login(data_dict)
+        Clock.schedule_once(partial(net.cb_sync, data_dict))
+
+    #------------------
+    #ONLY SERVERS ACTIONS
+    elif data_dict['msg'] == 'signup':
+        
+        print('SIGNUP FROM ', addr, data_dict['data'])
+        
+        #try to sign up this new user
+        print(data_dict['data']['username'])
+
+        q = Query(className="users")
+        q.equalTo('username', data_dict['data']['username'])
+        result = q.find()
+
+        #check that username does not exist
+        if len( result ):
+            #user already exists
+
+            tosend = json.dumps({'msg':'signup_ack', 'data':"already_used"})
+            net.send(addr, tosend)
+            return
+            
+        sessiontoken = os.urandom(32)
+
+        #new user initialization
+        newuser = create("users")
+        newuser.setval('username', data_dict['data']['username'])
+        newuser.setval('password', data_dict['data']['password'])
+        newuser.setval('email', data_dict['data']['email'])
+        newuser.setval('sessiontoken', sessiontoken)
+
+        #it is done in the server, can be syncronously
+        if(newuser.save() ):
+            tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":json.dumps(newuser.values)})
+        else:
+            tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
+
+        net.send(addr, tosend)
+        
+    elif data_dict['msg'] == 'login':
+        
+        print('LOGIN FROM ', addr, data_dict['data'])
+        
+        #try to sign up this new user
+        print(data_dict['data']['username'])
+
+        q = Query(className="users")
+        q.equalTo('username', data_dict['data']['username'])
+        result = q.find()
+
+        #check that username exists
+        if len( result ):
+            '''
+            #yes, you can send messages async
+            tosend = json.dumps({'msg':'login_ack', 'data':"already_used"})
+            net.send(addr, tosend)
+            return
+            '''
+            
+            #user = NGVar(values=result[0]["values"])
+            user = result[0]
+            
+            print(result)
+            
+            print("User received pass: " + data_dict['data']['password'] )
+            print("User real pass: " + user.getval("password") )
+            
+            hashed = user.getval("password")
+            
+            #verify that password is correct
+            #if data_dict['data']['password'] == user.getval("password"):            
+            if bcrypt.hashpw( data_dict['data']['password'].encode("latin1"), hashed ) == hashed:
+                
+                #great, everithing is ok!, starting session
+            
+                #sessiontoken = os.urandom(32)
+
+                #user.setval('sessiontoken', sessiontoken)
+
+                #DISABLE IT !!!
+                #THIS IS NEED BECAUSE datetime IS NOT SERIALIZABLE FOR JSON
+                user.fix_to_json()
+
+                #print (user.values)
+
+                tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":json.dumps(user.values)})
+                net.send(addr, tosend)
+                
+                return
+                
+            else:
+                tosend = json.dumps({'msg':'login_ack', 'result':"error", "errormsg":"Passwords does not match"})
+                net.send(addr, tosend)        
+                return        
+        
+        #todo: check if the next result.error is correct
+        tosend = json.dumps({'msg':'login_ack', 'result':"error", "errormsg":"User does not exists"})
+        net.send(addr, tosend)
+        return
+
+
+    elif data_dict['msg'] == 'sync':
+        
+        print('SYNC FROM ', addr, data_dict['data'])
+
+        data = data_dict['data']
+        
+        #obtener los registros mayores al ultimo existente en el cliente remoto
+        q = Query(className=data['className'])
+        q.where(data['where'])
+        q.greaterThan(data['latest_field'], data['latest_value'])
+        #print("RESULT: ", len(q.find()) )
+        
+        '''
+        #debug
+        result = q.find(raw=True)
+        for i in result:
+            print (i)
+            print (json.dumps(i, encoding='latin1'))
+            #print (json.dumps(i))
+        '''
+        
+        tosend = json.dumps({'msg':'sync_ack', 'result':q.find(raw=True), "className":data['className']}, encoding='latin1')
+        
+        print(tosend)
+        
+        net.send(addr, tosend)
+        
+        
+
+print("Creating network")
+
+#network
+net = Network()  
+net.create_connection(receiver)
