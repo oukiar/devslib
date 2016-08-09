@@ -489,14 +489,13 @@ class Query:
         if self.conditions != "":
             self.conditions += " AND "
         
-        '''
         if pymysql != None:
             self.conditions += "`" + field + "`=%s"
         else:
             self.conditions += field + "=?"
-        '''
         
-        self.conditions += field + "=?"
+        
+        #self.conditions += field + "=?"
             
         #self.params.append(field)
         self.params.append(value)
