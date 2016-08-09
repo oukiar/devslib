@@ -784,9 +784,12 @@ def receiver(data, addr):
             #print (json.dumps(i))
         '''
         
-        tosend = json.dumps({'msg':'sync_ack', 'result':q.find(raw=True), "className":data['className']}, encoding='latin1')
+        result = q.find(raw=True)
         
-        print(tosend)
+        tosend = json.dumps({'msg':'sync_ack', 'result':result, "className":data['className']}, encoding='latin1')
+        
+        #print(tosend)
+        print("Result: " = str(len(result)) )
         
         net.send(addr, tosend)
         
