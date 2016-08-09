@@ -274,17 +274,6 @@ class NGVar:
     	'''
     	pass
         
-    def setval(self, field, value):
-        '''
-        TODO: This is the function in that write operations must be validated, and or maybe on the save function
-        '''
-        self.values[field] = value
-        
-    def getval(self, field):
-        '''
-        TODO: This is the function in that read operations must be validated, and or maybe on the save function
-        '''
-        return self.values[field]
         
     def create_ss(self, arr):
         ss = ""
@@ -724,9 +713,9 @@ def receiver(data, addr):
             print(result)
             
             print("User received pass: " + data_dict['data']['password'] )
-            print("User real pass: " + user.getval("password") )
+            print("User real pass: " + user.password )
             
-            hashed = user.getval("password")
+            hashed = user.password
             
             #verify that password is correct
             #if data_dict['data']['password'] == user.getval("password"):            
@@ -744,7 +733,7 @@ def receiver(data, addr):
 
                 #print (user.values)
 
-                tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":json.dumps(user.values)})
+                tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":json.dumps(user)})
                 net.send(addr, tosend)
                 
                 return
