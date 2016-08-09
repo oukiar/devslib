@@ -744,7 +744,7 @@ def receiver(data, addr):
 
                 #user.setval('sessiontoken', sessiontoken)
 
-                tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":json.dumps(user.fix_to_json() )})
+                tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":user.fix_to_json()})
                 net.send(addr, tosend)
                 
                 return
