@@ -370,6 +370,8 @@ def init_server():
         if print_debug:
             print("Found %s tables" % str(len(result_tables)) )
             print("Tables: ", result_tables )
+            
+        return
         
         #fetch all fields on all tables
         for i in result_tables:
