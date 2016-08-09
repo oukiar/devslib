@@ -735,7 +735,7 @@ def receiver(data, addr):
 
                 #DISABLE IT !!!
                 #THIS IS NEED BECAUSE datetime IS NOT SERIALIZABLE FOR JSON
-                user.fix_to_json()
+                #user.fix_to_json()
 
                 #print (user.values)
 
