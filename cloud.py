@@ -789,7 +789,7 @@ def receiver(data, addr):
         tosend = json.dumps({'msg':'sync_ack', 'result':result, "className":data['className']}, encoding='latin1')
         
         #print(tosend)
-        print("Result: " = str(len(result)) )
+        print("Result: " + str(len(result)) )
         
         net.send(addr, tosend)
         
