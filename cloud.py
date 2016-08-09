@@ -315,6 +315,11 @@ class NGVar:
 #use sqlite for local storage
 import sqlite3
 
+try:
+    import pymysql
+except:
+    pymysql = None
+
 cnx = None
 tables = []
 autocommit = True
@@ -348,7 +353,7 @@ def init_server():
     global tables
     
     if True:
-        import pymysql
+        
         
         dbIntegrityError = pymysql.IntegrityError
                                       
