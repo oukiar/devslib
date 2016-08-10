@@ -489,6 +489,7 @@ class Query:
             self.params = []
             self.conditions = ""
             self.order = ""
+            self.group = ""
 
     def equalTo(self, field, value):
         if self.conditions != "":
@@ -516,6 +517,10 @@ class Query:
         if self.order != "":
             self.sql += " " + self.order
             self.order = ""
+            
+        if self.group != "":
+            self.sql += " " + self.group
+            self.group = ""
         
         cursor = cnx.cursor()
         print( (self.sql, self.params) )
@@ -594,6 +599,12 @@ class Query:
             self.order = " ORDER BY " + field + " " + order + " "
         else:
             self.order += ", " + field + " " + order + " "
+            
+    def groupby(self, field):
+        if self.group == "":
+            self.group = " GROUP BY " + field " "
+        else:
+            self.group += ", " + field + " "
         
     def where(self, where_dict):
         #print('WHERE')
