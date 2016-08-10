@@ -602,7 +602,7 @@ class Query:
             
     def groupby(self, field):
         if self.group == "":
-            self.group = " GROUP BY " + field " "
+            self.group = " GROUP BY " + field + " "
         else:
             self.group += ", " + field + " "
         
