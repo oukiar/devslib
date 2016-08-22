@@ -665,22 +665,26 @@ class Network:
         print("Discovering IP netifaces: " + str(netifaces))
         
         if netifaces != None:
-        
-            #new way again with netifaces     
-            #print(netifaces.interfaces())   
             
             ip_list = []
-            #print("1")
+            
             for interface in netifaces.interfaces():
                 
-                #print(interface)
-                if True:
-                    for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
-                        #print (netifaces.ifaddresses(interface)[netifaces.AF_INET])
-                        if link['addr'] != "127.0.0.1":
-                            ip_list.append(link['addr'])
-                else:
-                    print("Error ...")
+                interface_item = netifaces.ifaddresses(interface)
+                
+                if netifaces.AF_INET not in interface_item:
+                    continue
+                                    
+                for link in interface_item[netifaces.AF_INET]:
+                    #print (link)
+            
+                    if 'netmask' not in link:
+                        print("skiping")
+                        continue
+                       
+                    if link['addr'] != "127.0.0.1":
+                        ip_list.append(link['addr'])
+
 
             #print(ip_list)
             #raw_input()
