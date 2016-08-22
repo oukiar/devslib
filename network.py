@@ -668,18 +668,19 @@ class Network:
         
             #new way again with netifaces     
             #print(netifaces.interfaces())   
+            
             ip_list = []
             #print("1")
             for interface in netifaces.interfaces():
                 
                 #print(interface)
-                try:
+                if True:
                     for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
                         #print (netifaces.ifaddresses(interface)[netifaces.AF_INET])
                         if link['addr'] != "127.0.0.1":
                             ip_list.append(link['addr'])
-                except:
-                    pass
+                else:
+                    print("Error ...")
 
             #print(ip_list)
             #raw_input()

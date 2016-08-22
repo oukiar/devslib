@@ -348,6 +348,13 @@ def init(dbname='database.db'):
     
     print("Database schema loaded: " + json.dumps(tables) )
     
+    
+    print("Creating network")
+
+    #network
+    net = Network()  
+    net.create_connection(receiver)
+    
 def init_server():
     global cnx
     global tables
@@ -804,10 +811,5 @@ def receiver(data, addr):
         
         net.send(addr, tosend)
         
-        
+    
 
-print("Creating network")
-
-#network
-net = Network()  
-net.create_connection(receiver)
