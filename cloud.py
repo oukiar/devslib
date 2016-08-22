@@ -27,6 +27,7 @@ session_token = None
 #server_ip = "104.236.181.245"
 server_ip = "162.243.152.20"
 user = None
+net = None
 
 class NGVar:
     '''
@@ -327,6 +328,7 @@ autocommit = True
 def init(dbname='database.db'):
     global cnx
     global tables
+    global net
     
     cnx = sqlite3.connect(dbname)
     
