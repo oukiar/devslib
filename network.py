@@ -116,7 +116,7 @@ Netget presentation format
 #udp_max_size=512    #with this value we think that the netget_packet never reach 512 bytes (UDP best minimal legacy size) ... FIXME?
 
 #EXPERIMENTAL
-udp_max_size=2048    
+udp_max_size=1024    
 
 
 
