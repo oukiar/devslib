@@ -407,7 +407,7 @@ class RecvThread(threading.Thread):
         while True:
             try:
                 #data, addr = self.sock.recvfrom(udp_max_size)
-                data, addr = self.sock.recvfrom(1024)
+                data, addr = self.sock.recvfrom(2048)
                                 
                 self.callback(data, addr)
                 
