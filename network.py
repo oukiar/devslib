@@ -113,7 +113,11 @@ Netget presentation format
 
 
 #fix it ... the udp packet overflow 512 bytes, check if this is a problem
-udp_max_size=512    #with this value we think that the netget_packet never reach 512 bytes (UDP best minimal legacy size) ... FIXME?
+#udp_max_size=512    #with this value we think that the netget_packet never reach 512 bytes (UDP best minimal legacy size) ... FIXME?
+
+#EXPERIMENTAL
+udp_max_size=2048    
+
 
 
 #research if is possible determinate the max udp size with a trick
