@@ -259,6 +259,9 @@ class SendThread(threading.Thread):
             try:
                 packet_data = self.safe_pop_packet()
                 
+                #EXPERIMENTAL
+                sleep(.1)
+                
                 #si no hubo paquetes
                 if packet_data == None:
                     sleep(.01)
@@ -535,6 +538,7 @@ class NetworkIn:
         trans = peer.recv(data_dict)
         
         print("RECIBIENDO: " + str(len(trans.packets) ))
+        print("Total: " + str(data_dict['tp'] ))
         
         #ya se recibieron todos los paquetes?
         if len(trans.packets) == data_dict['tp']:
