@@ -691,7 +691,7 @@ def receiver(data, addr):
 
     elif data_dict['msg'] == 'sync_ack':
         
-        #print('SIGNUP ACK FROM', addr, data_dict['data'])
+        print('SIGNUP ACK FROM', addr, data_dict['data'])
         #net.cb_login(data_dict)
         Clock.schedule_once(partial(net.cb_sync, data_dict))
 
