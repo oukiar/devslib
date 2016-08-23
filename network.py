@@ -188,7 +188,7 @@ class Transmission:
             
             packet_counter += 1
             
-        print 'Enviados ' + str(len(self.packets) ) + ' paquetes'
+        print('Enviados ' + str(len(self.packets) ) + ' paquetes')
         
 class Peer:
     def __init__(self, **kwargs):
