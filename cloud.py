@@ -360,6 +360,7 @@ def init(dbname='database.db'):
 def init_server():
     global cnx
     global tables
+    global net
     
     if True:
         
@@ -393,6 +394,11 @@ def init_server():
         if print_debug:
             print("Found %s tables" % str(len(tables)) )
             print("Database schema loaded: " + json.dumps(tables) )
+            
+                
+        #network
+        net = Network()  
+        net.create_connection(receiver)
             
         print("Orgboat server init success")
             
