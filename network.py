@@ -264,7 +264,7 @@ class SendThread(threading.Thread):
                 
                 #si no hubo paquetes
                 if packet_data == None:
-                    sleep(.01)
+                    sleep(.02)
                     continue
                                  
                 try:
