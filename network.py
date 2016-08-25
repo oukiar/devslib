@@ -264,7 +264,7 @@ class SendThread(threading.Thread):
                 packet_data = self.safe_pop_packet()
                 
                 #EXPERIMENTAL
-                sleep(.1)
+                sleep(.01)
                 
                 #si no hubo paquetes
                 if packet_data == None:
