@@ -479,6 +479,10 @@ def sync(className, target_ip=server_ip, **kwargs):
     net.cb_sync = kwargs.get("callback")
     net.send((target_ip, 31415), tosend)
     
+def sync_callback(result, className, dt):
+    print("Sync done with: " + className)
+    print("Total rows: " + str(len(result)) )
+    
 def get_max(className, field):
     '''
     Get the max value of all rows on field
@@ -693,7 +697,7 @@ def receiver(data, addr):
         
         #print('SIGNUP ACK FROM', addr, data_dict['result'])
         #net.cb_login(data_dict)
-        Clock.schedule_once(partial(net.cb_sync, data_dict['result']))
+        Clock.schedule_once(partial(net.cb_sync, data_dict['result'], data_dict['className']))
 
     #------------------
     #ONLY SERVERS ACTIONS
