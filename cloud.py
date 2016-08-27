@@ -246,7 +246,7 @@ def sync_callback(result, className, dt):
     
     #call the callback
     cb_func = sync_callbacks[className]
-    cb_func(None, result, dt)
+    cb_func(result, dt)
     
 def get_max(className, field):
     '''
@@ -285,6 +285,7 @@ class NGVar:
     def __init__(self, **kwargs):
         self.sql = ""
         self.className = kwargs.get("className")
+        self.objectId_key = kwargs.get("objectId_key", None) #this is usefull for compatibility with non standar key fields, is mandatory autoincrement with this mode
         self.objectId = kwargs.get("objectId", "")
                 
         self.members_backlist = dir(self)
@@ -305,6 +306,9 @@ class NGVar:
     def save(self):
         '''
         Insertion and Update in the save function, the object must be valid
+        
+        Be carefull here, because we are compatible with objectId and non standar, the save
+            must avoid problems of fields existence
         '''
         if self.objectId != "":
             #update
