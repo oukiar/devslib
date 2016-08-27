@@ -29,6 +29,255 @@ server_ip = "162.243.152.20"
 user = None
 net = None
 
+
+#-----------------
+#MODULE FUNCTIONS
+
+#use sqlite for local storage
+import sqlite3
+
+try:
+    import pymysql
+except:
+    pymysql = None
+
+cnx = None
+tables = []
+autocommit = True
+
+
+sync_callbacks = {}
+
+def init(dbname='database.db'):
+    '''
+    Local database initialization, most used on devices
+    '''
+    global cnx
+    global tables
+    global net
+    
+    cnx = sqlite3.connect(dbname)
+    
+    print(cnx)    
+    
+    '''
+    #check if users table exists
+    cursor = cnx.cursor()
+    #cursor.execute( "SELECT name FROM sqlite_master WHERE type='table' AND name='users'" )
+    cursor.execute( "SELECT name FROM sqlite_master WHERE type='table'" )
+    
+    tables = cursor.fetchall()
+    '''
+    
+    query = Query(className="sqlite_master")
+    query.equalTo("type", "table")
+    for i in query.find():
+        tables.append(i.name)
+    
+    print("Database schema loaded: " + json.dumps(tables) )
+    
+    
+    print("Creating network")
+
+    #network
+    net = Network()  
+    net.create_connection(receiver)
+    
+def init_server():
+    '''
+    Server backend is working under mysql server
+    '''
+    global cnx
+    global tables
+    global net
+    
+    if True:
+        
+        
+        dbIntegrityError = pymysql.IntegrityError
+                                      
+        cnx = pymysql.connect(host='localhost',
+                                 user='root',
+                                 password='CrkXhlHeix',
+                                 db='orgboat')
+                           
+        #autocommit feature enabled
+        cnx.autocommit(1)
+        
+        print_debug = True
+        #print_debug = False
+        
+        #fetch all tables on the database        
+        cursor = cnx.cursor()
+        cursor.execute("SHOW TABLES")
+
+        result_tables = cursor.fetchall()
+        
+            
+        
+        #fetch all fields on all tables
+        for i in result_tables:
+            tables.append(i[0])
+            
+            
+        if print_debug:
+            print("Found %s tables" % str(len(tables)) )
+            print("Database schema loaded: " + json.dumps(tables) )
+            
+                
+        #network
+        net = Network()  
+        net.create_connection(receiver)
+            
+        print("Orgboat server init success")
+            
+    else:
+        print("Error initializing server")
+
+def create(className, objectId=None):
+    '''
+    Create using their objectId
+
+    If classname does not exist, it is created as a table on the database
+    '''
+    if objectId != None:
+        '''
+        Create for and existing register on the database
+        '''
+        pass
+    else:
+        ngvar = NGVar()
+        ngvar.className = className
+        
+        
+    return ngvar
+
+def login(username, password, **kwargs):
+    '''
+    Request login always on the main server
+    '''
+    data = {'username':username, 'password':password}
+
+    tosend = json.dumps({'msg':'login', 'data':data })
+
+    net.cb_login = kwargs.get("callback")
+    net.send((server_ip, 31415), tosend)
+    
+def signup(username, password, email, **kwargs):
+    '''
+    Request signup always on the main server
+    '''
+    data = {'username':username, 'password':password, 'email':email}
+
+    tosend = json.dumps({'msg':'signup', 'data':data })
+
+    net.cb_signup = kwargs.get("callback")
+    net.send((server_ip, 31415), tosend)
+
+def quit():
+    net.shutdown_network()
+    
+def sync(className, target_ip=server_ip, **kwargs):
+    '''
+    Syncs local table and main server table on this device database
+    where is the parameters for filter results to minimum values for this user
+    latest is the field to test as max latest row
+    target_ip is the server for sync
+    '''
+    print("Sync with: " + target_ip)
+    print("Classname: " + className)
+    
+    where = kwargs.get('where')
+    latest = kwargs.get('latest')
+    
+    #get the local top index row for this user-database where condition
+    q = Query(className=className)
+    q.where( where )    #where can be a dictionary, see the documentation for more details
+    q.orderby( latest )
+    result = q.find()
+    print(result)
+    
+    if len(result):
+        localmaxindex = getattr(result[0], latest)
+    else:
+        localmaxindex = 0
+    
+    #get the difference between local index and latest index on the remote database
+    data = {'className':className, 'where':where, 'latest_field':latest, 'latest_value':localmaxindex }
+    tosend = json.dumps({'msg':'sync', 'data':data })
+    
+    if className not in sync_callbacks:
+        sync_callbacks[className] = kwargs.get("callback")
+    
+    net.cb_sync = sync_callback
+    
+    net.send((target_ip, 31415), tosend)
+    
+def sync_callback(result, className, dt):
+    print("Sync done with: " + className)
+    print("Total rows: " + str(len(result)) )
+    
+    
+    for i in result:
+        ngvar_item = NGVar()
+        ngvar_item.from_values(i)
+        ngvar_item.save()
+    
+    '''
+    #if the table is not on the schema, create one row for the table creation success
+    if className not in tables:
+        item = result.pop(0)
+        
+        ngvar_item = NGVar()
+        ngvar_item.from_values(item)
+        ngvar_item.save()
+    
+    if len(result):
+        
+        print(result[0])
+        
+        #save this sync for local database
+        cursor = cnx.cursor()
+        
+        sql = "insert into " + className + " values(" + create_ss(result[0]) + ")"
+        print(sql)
+        cursor.executemany(sql, result)
+    '''
+    
+    #call the callback
+    cb_func = sync_callbacks[className]
+    cb_func(None, result, dt)
+    
+def get_max(className, field):
+    '''
+    Get the max value of all rows on field
+    '''
+    query = Query(className=className)
+    query.orderby(field, order="DESC")
+    res = query.find()
+    
+    if len(res):
+        return getattr(res[0], field)
+    
+    return 0
+
+def create_ss(arr):
+    '''
+    Utility function for create the string %S or %? parameters for the databse engine
+    '''
+    ss = ""
+    for i in range(0, len(arr)):
+        if ss != "":
+            ss += ","
+            
+        if pymysql != None:
+            ss += "%s"
+        else:
+            ss += "?"
+        
+        
+    return ss
+
 class NGVar:
     '''
     Another try for netget variable
@@ -276,19 +525,7 @@ class NGVar:
     	pass
         
         
-    def create_ss(self, arr):
-        ss = ""
-        for i in range(0, len(arr)):
-            if ss != "":
-                ss += ","
-                
-            if pymysql != None:
-                ss += "%s"
-            else:
-                ss += "?"
-            
-            
-        return ss
+
         
     def fix_to_json(self):
         
@@ -309,193 +546,6 @@ class NGVar:
             print(i)
             setattr(self, i, values[i])
         
-
-#-----------------
-#MODULE FUNCTIONS
-
-#use sqlite for local storage
-import sqlite3
-
-try:
-    import pymysql
-except:
-    pymysql = None
-
-cnx = None
-tables = []
-autocommit = True
-
-def init(dbname='database.db'):
-    global cnx
-    global tables
-    global net
-    
-    cnx = sqlite3.connect(dbname)
-    
-    print(cnx)    
-    
-    '''
-    #check if users table exists
-    cursor = cnx.cursor()
-    #cursor.execute( "SELECT name FROM sqlite_master WHERE type='table' AND name='users'" )
-    cursor.execute( "SELECT name FROM sqlite_master WHERE type='table'" )
-    
-    tables = cursor.fetchall()
-    '''
-    
-    query = Query(className="sqlite_master")
-    query.equalTo("type", "table")
-    for i in query.find():
-        tables.append(i.name)
-    
-    print("Database schema loaded: " + json.dumps(tables) )
-    
-    
-    print("Creating network")
-
-    #network
-    net = Network()  
-    net.create_connection(receiver)
-    
-def init_server():
-    global cnx
-    global tables
-    global net
-    
-    if True:
-        
-        
-        dbIntegrityError = pymysql.IntegrityError
-                                      
-        cnx = pymysql.connect(host='localhost',
-                                 user='root',
-                                 password='CrkXhlHeix',
-                                 db='orgboat')
-                           
-        #autocommit feature enabled
-        cnx.autocommit(1)
-        
-        print_debug = True
-        #print_debug = False
-        
-        #fetch all tables on the database        
-        cursor = cnx.cursor()
-        cursor.execute("SHOW TABLES")
-
-        result_tables = cursor.fetchall()
-        
-            
-        
-        #fetch all fields on all tables
-        for i in result_tables:
-            tables.append(i[0])
-            
-            
-        if print_debug:
-            print("Found %s tables" % str(len(tables)) )
-            print("Database schema loaded: " + json.dumps(tables) )
-            
-                
-        #network
-        net = Network()  
-        net.create_connection(receiver)
-            
-        print("Orgboat server init success")
-            
-    else:
-        print("Error initializing server")
-
-def create(className, objectId=None):
-    '''
-    Create using their objectId
-
-    If classname does not exist, it is created as a table on the database
-    '''
-    if objectId != None:
-        '''
-        Create for and existing register on the database
-        '''
-        pass
-    else:
-        ngvar = NGVar()
-        ngvar.className = className
-        
-        
-    return ngvar
-
-def login(username, password, **kwargs):
-    '''
-    Request login always on the main server
-    '''
-    data = {'username':username, 'password':password}
-
-    tosend = json.dumps({'msg':'login', 'data':data })
-
-    net.cb_login = kwargs.get("callback")
-    net.send((server_ip, 31415), tosend)
-    
-def signup(username, password, email, **kwargs):
-    '''
-    Request signup always on the main server
-    '''
-    data = {'username':username, 'password':password, 'email':email}
-
-    tosend = json.dumps({'msg':'signup', 'data':data })
-
-    net.cb_signup = kwargs.get("callback")
-    net.send((server_ip, 31415), tosend)
-
-def quit():
-    net.shutdown_network()
-    
-def sync(className, target_ip=server_ip, **kwargs):
-    '''
-    Syncs local table and main server table on this device database
-    where is the parameters for filter results to minimum values for this user
-    latest is the field to test as max latest row
-    target_ip is the server for sync
-    '''
-    print("Sync with: " + target_ip)
-    print("Classname: " + className)
-    
-    where = kwargs.get('where')
-    latest = kwargs.get('latest')
-    
-    #get the local top index row for this user-database where condition
-    q = Query(className=className)
-    q.where( where )    #where can be a dictionary, see the documentation for more details
-    q.orderby( latest )
-    result = q.find()
-    print(result)
-    
-    if len(result):
-        localmaxindex = result[0]
-    else:
-        localmaxindex = 0
-    
-    #get the difference between local index and latest index on the remote database
-    data = {'className':className, 'where':where, 'latest_field':latest, 'latest_value':localmaxindex }
-    tosend = json.dumps({'msg':'sync', 'data':data })
-    net.cb_sync = kwargs.get("callback")
-    net.send((target_ip, 31415), tosend)
-    
-def sync_callback(result, className, dt):
-    print("Sync done with: " + className)
-    print("Total rows: " + str(len(result)) )
-    
-def get_max(className, field):
-    '''
-    Get the max value of all rows on field
-    '''
-    query = Query(className=className)
-    query.orderby(field, order="DESC")
-    res = query.find()
-    
-    if len(res):
-        return getattr(res[0], field)
-    
-    return 0
-    
 
 class Query:
     '''
