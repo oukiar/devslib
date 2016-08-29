@@ -563,6 +563,7 @@ class Query:
             self.conditions = ""
             self.order = ""
             self.group = ""
+            self.maxlimit = ""
 
     def equalTo(self, field, value):
         if self.conditions != "":
@@ -594,6 +595,10 @@ class Query:
         if self.group != "":
             self.sql += " " + self.group
             self.group = ""
+            
+        if self.maxlimit != "":
+            self.sql += " " + self.maxlimit
+            self.maxlimit = ""
         
         cursor = cnx.cursor()
         print( (self.sql, self.params) )
@@ -699,7 +704,10 @@ class Query:
         
         #self.conditions += ' ' + field + '>?'
         
-        self.params.append(value)        
+        self.params.append(value)  
+        
+    def limit(n):
+        self.maxlimit = " LIMIT " + str(n)
 
 
 
