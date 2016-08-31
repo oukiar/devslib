@@ -193,14 +193,18 @@ def sync(className, target_ip=server_ip, **kwargs):
     #get the local top index row for this user-database where condition
     q = Query(className=className)
     q.where( where )    #where can be a dictionary, see the documentation for more details
-    q.orderby( latest )
+    q.orderby( latest , order="DESC")
     result = q.find()
-    print(result)
+    #print(result)
+    
     
     if len(result):
         localmaxindex = getattr(result[0], latest)
     else:
         localmaxindex = 0
+    
+    #print(localmaxindex)
+    #raw_input()
     
     #get the difference between local index and latest index on the remote database
     data = {'className':className, 'where':where, 'latest_field':latest, 'latest_value':localmaxindex }
@@ -706,7 +710,7 @@ class Query:
         
         self.params.append(value)  
         
-    def limit(n):
+    def limit(self, n):
         self.maxlimit = " LIMIT " + str(n)
 
 
