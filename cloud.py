@@ -551,7 +551,7 @@ class NGVar:
         
     def from_values(self, values):
         for i in values:
-            print(i)
+            #print(i)
             setattr(self, i, values[i])
         
 
