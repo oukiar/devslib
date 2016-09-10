@@ -546,16 +546,22 @@ class NetworkIn:
         print("Total: " + str(data_dict['tp'] ))
         
         #checar si hubo paquetes perdidos ... nota: despues se va a implementar el packet priority o type que definira el tipo de paquetes osea asegurando la entrega y asi
-        if len(trans.packets) < data_dict['pn']:
+        if len(trans.packets)-1 < data_dict['pn']:
             print("Hey hey, se pudieron perder datos")
             
-            print(max(trans.packets, key=trans.packets.get))
+            missings = 0
+            
+            for i in range(0, int(data_dict['tp'])):
+                if i not in trans.packets:
+                    missings += 1
+            
+            print("Paquetes perdidos: ", missings)
+            
             
             #checando cual paquete se perdio
-            for i in trans.packets:
-                print(trans.packets[i])
+            #for i in trans.packets:
+            #    print(trans.packets[i])
                 
-            raw_input()
         
         #ya se recibieron todos los paquetes?
         if len(trans.packets) == data_dict['tp']:
