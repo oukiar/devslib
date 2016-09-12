@@ -144,6 +144,24 @@ class Transmission:
     def __init__(self, **kwargs):
         self.trans_id = kwargs.get('trans_id')
         self.packets = {}
+        self.lostpacketstimeout = None
+        self.total_packets = 0
+    
+    def packetsTimeout(self):
+        print("Packets timeout")
+    
+        missings = []
+        
+        for i in range(0, int(self.total_packets)):
+            if i not in self.packets:
+                missings.append(i)
+                #missings += 1
+        
+        print("Paquetes perdidos: ", missings)
+        
+        #pidiendo reenvio de paquetes perdidos
+        
+        
         
     def send(self, data, bcrypt=False):
        
@@ -240,6 +258,9 @@ class Peer:
             self.transmissions[trans_id] = trans
                 
         trans.packets[data_dict['pn']] = data_dict['d']    #append only the data of this packet
+        
+        #set the total packets for this transmission, send an alert if this value change in all process (works as error and security control)
+        trans.total_packets = data_dict['tp']
         
         return trans
 
@@ -549,13 +570,13 @@ class NetworkIn:
         if len(trans.packets)-1 < data_dict['pn']:
             print("Hey hey, se pudieron perder datos")
             
-            missings = 0
+            if trans.lostpacketstimeout != None:
+                trans.lostpacketstimeout.cancel()
             
-            for i in range(0, int(data_dict['tp'])):
-                if i not in trans.packets:
-                    missings += 1
+            #iniciar timer de paquetes perdidos, 500ms
+            trans.lostpacketstimeout = Timer(.5, trans.packetsTimeout)
+            trans.lostpacketstimeout.start()
             
-            print("Paquetes perdidos: ", missings)
             
             
             #checando cual paquete se perdio
