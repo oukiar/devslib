@@ -188,12 +188,15 @@ def sync(className, target_ip=server_ip, **kwargs):
     print("Classname: " + className)
     
     where = kwargs.get('where')
-    latest = kwargs.get('latest')
+    latest = kwargs.get('latest', None)
     
     #get the local top index row for this user-database where condition
     q = Query(className=className)
     q.where( where )    #where can be a dictionary, see the documentation for more details
-    q.orderby( latest , order="DESC")
+    
+    if latest != None:
+        q.orderby( latest , order="DESC")
+    
     result = q.find()
     #print(result)
     
