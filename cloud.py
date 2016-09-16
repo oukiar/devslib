@@ -871,7 +871,9 @@ def receiver(data, addr):
         #obtener los registros mayores al ultimo existente en el cliente remoto
         q = Query(className=data['className'])
         q.where(data['where'])
-        q.greaterThan(data['latest_field'], data['latest_value'])
+        if data['latest_field'] != None:
+            q.greaterThan(data['latest_field'], data['latest_value'])
+            
         #print("RESULT: ", len(q.find()) )
         
         '''
