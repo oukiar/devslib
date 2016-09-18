@@ -201,7 +201,7 @@ def sync(className, target_ip=server_ip, **kwargs):
     #print(result)
     
     
-    if len(result):
+    if len(result) and latest != None:
         localmaxindex = getattr(result[0], latest)
     else:
         localmaxindex = 0
@@ -715,12 +715,16 @@ class Query:
         
     def limit(self, n):
         self.maxlimit = " LIMIT " + str(n)
+        
+    def subquery(self, sq):
+        print("Subquery: ", sq)
+        
 
 
 
 #--------------------------------------
 #NETWORKING STUFF
-#all this work is only for low level communications of cloud synchronizations
+#all this code is only for low level communications of cloud synchronizations
 #
 
 from devslib.network import Network
