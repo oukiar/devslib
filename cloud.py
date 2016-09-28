@@ -220,6 +220,32 @@ def sync(className, target_ip=server_ip, **kwargs):
     
     net.send((target_ip, 31415), tosend)
     
+def erase(className):
+    '''
+    Funcion ecargada de vaciar determinada tabla
+    '''
+    sql = "delete from " + className
+    
+    cursor = cnx.cursor()
+    
+    try:
+        if cursor.execute(sql):
+            
+            if autocommit:
+                cnx.commit()
+        
+    except sqlite3.Error as e:
+    
+        if 'no such table' in e.args[0]:
+            print('sqlite3 Error: No such table')
+            print (e.args[0])
+        else:
+            print('sqlite3 Error: Unknown error')
+            print (e.args[0])
+                        
+        print("Error erasing table: " + sql)
+    
+    
 def sync_callback(result, className, dt):
     print("Sync done with: " + className)
     print("Total rows: " + str(len(result)) )
