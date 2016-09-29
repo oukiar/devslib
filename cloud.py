@@ -923,6 +923,8 @@ def receiver(data, addr):
         q = Query(className=data['className'])
         q.sql = data['sql']
         
+        print(q.sql)
+        
         '''
         q.where(data['where'])
         if data['latest_field'] != None:
