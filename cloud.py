@@ -213,7 +213,7 @@ def sync(className, target_ip=server_ip, **kwargs):
     print("Classname: " + className)
     
     sql = kwargs.get('sql')
-    params = kwargs.get('params')
+    params = kwargs.get('params', [])
     
     '''
     where = kwargs.get('where')
