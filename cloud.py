@@ -742,6 +742,16 @@ class Query:
     def limit(self, n):
         self.maxlimit = " LIMIT " + str(n)
         
+    def in_values(self, field, arr):
+        
+        #if conditions are yet initialized
+        if self.conditions != "":
+            self.conditions += " AND "
+            
+        self.conditions += ' ' + field + ' in ?'
+        
+        self.params.append(arr)
+        
     def subquery(self, sq):
         print("Subquery: ", sq)
         
