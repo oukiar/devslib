@@ -213,6 +213,7 @@ def sync(className, target_ip=server_ip, **kwargs):
     print("Classname: " + className)
     
     sql = kwargs.get('sql')
+    params = kwargs.get('params')
     
     '''
     where = kwargs.get('where')
@@ -240,7 +241,7 @@ def sync(className, target_ip=server_ip, **kwargs):
     
     #get the difference between local index and latest index on the remote database
     data = {'className':className, 'sql':sql}
-    tosend = json.dumps({'msg':'sync', 'data':data })
+    tosend = json.dumps({'msg':'sync', 'data':data, 'params':params })
     
     if className not in sync_callbacks:
         sync_callbacks[className] = kwargs.get("callback")
@@ -922,6 +923,7 @@ def receiver(data, addr):
         #obtener los registros mayores al ultimo existente en el cliente remoto
         q = Query(className=data['className'])
         q.sql = data['sql']
+        q.params = data['params']
         
         print(q.sql)
         
