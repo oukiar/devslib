@@ -765,7 +765,7 @@ class Query:
         
         self.params.append(arr)
         
-    def subquery(self, sq):
+    def subquery(self, field, sq):
         print("Subquery: ", sq.generate_sql() )
         
         #if conditions are yet initialized
