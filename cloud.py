@@ -594,8 +594,9 @@ class Query:
     '''
     def __init__(self, **kwargs):
         self.className = kwargs.get('className', False)
+        self.field = kwargs.get('field', "*")
         if self.className:
-            self.sql = "select * from " + self.className
+            self.sql = "select " + self.field + " from " + self.className
             self.params = []
             self.conditions = ""
             self.order = ""
@@ -922,18 +923,16 @@ def receiver(data, addr):
         
         #obtener los registros mayores al ultimo existente en el cliente remoto
         q = Query(className=data['className'])
-        q.sql = data['sql'].replace("?", "%s")
+        q.sql = data['sql'].replace("?", "%s")  #esto es debido a que en app se usa sqlite y en servidor mysql
         q.params = data['params']
         
-        print(q.sql)
+        #print(q.sql)
         
         '''
         q.where(data['where'])
         if data['latest_field'] != None:
             q.greaterThan(data['latest_field'], data['latest_value'])
         '''
-        
-        
         
         #print("RESULT: ", len(q.find()) )
         
