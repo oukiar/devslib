@@ -240,8 +240,8 @@ def sync(className, target_ip=server_ip, **kwargs):
     '''
     
     #get the difference between local index and latest index on the remote database
-    data = {'className':className, 'sql':sql}
-    tosend = json.dumps({'msg':'sync', 'data':data, 'params':params })
+    data = {'className':className, 'sql':sql, 'params':params}
+    tosend = json.dumps({'msg':'sync', 'data':data })
     
     if className not in sync_callbacks:
         sync_callbacks[className] = kwargs.get("callback")
