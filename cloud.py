@@ -922,7 +922,7 @@ def receiver(data, addr):
         
         #obtener los registros mayores al ultimo existente en el cliente remoto
         q = Query(className=data['className'])
-        q.sql = data['sql']
+        q.sql = data['sql'].replace("?", "%s")
         q.params = data['params']
         
         print(q.sql)
