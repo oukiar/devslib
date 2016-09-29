@@ -177,49 +177,6 @@ def signup(username, password, email, **kwargs):
 def quit():
     net.shutdown_network()
     
-def sync(className, target_ip=server_ip, **kwargs):
-    '''
-    Syncs local table and main server table on this device database
-    where is the parameters for filter results to minimum values for this user
-    latest is the field to test as max latest row
-    target_ip is the server for sync
-    '''
-    print("Sync with: " + target_ip)
-    print("Classname: " + className)
-    
-    where = kwargs.get('where')
-    latest = kwargs.get('latest', None)
-    
-    #get the local top index row for this user-database where condition
-    q = Query(className=className)
-    q.where( where )    #where can be a dictionary, see the documentation for more details
-    
-    if latest != None:
-        q.orderby( latest , order="DESC")
-    
-    result = q.find()
-    #print(result)
-    
-    
-    if len(result) and latest != None:
-        localmaxindex = getattr(result[0], latest)
-    else:
-        localmaxindex = 0
-    
-    #print(localmaxindex)
-    #raw_input()
-    
-    #get the difference between local index and latest index on the remote database
-    data = {'className':className, 'where':where, 'latest_field':latest, 'latest_value':localmaxindex }
-    tosend = json.dumps({'msg':'sync', 'data':data })
-    
-    if className not in sync_callbacks:
-        sync_callbacks[className] = kwargs.get("callback")
-    
-    net.cb_sync = sync_callback
-    
-    net.send((target_ip, 31415), tosend)
-    
 def erase(className):
     '''
     Funcion ecargada de vaciar determinada tabla
@@ -245,6 +202,52 @@ def erase(className):
                         
         print("Error erasing table: " + sql)
     
+def sync(className, target_ip=server_ip, **kwargs):
+    '''
+    Syncs local table and main server table on this device database
+    where is the parameters for filter results to minimum values for this user
+    latest is the field to test as max latest row
+    target_ip is the server for sync
+    '''
+    print("Sync with: " + target_ip)
+    print("Classname: " + className)
+    
+    sql = kwargs.get('sql')
+    
+    '''
+    where = kwargs.get('where')
+    latest = kwargs.get('latest', None)
+    
+    #get the local top index row for this user-database where condition
+    q = Query(className=className)
+    q.where( where )    #where can be a dictionary, see the documentation for more details
+    
+    if latest != None:
+        q.orderby( latest , order="DESC")
+    
+    result = q.find()
+    #print(result)
+    
+    
+    if len(result) and latest != None:
+        localmaxindex = getattr(result[0], latest)
+    else:
+        localmaxindex = 0
+    
+    #print(localmaxindex)
+    #raw_input()
+    '''
+    
+    #get the difference between local index and latest index on the remote database
+    data = {'className':className, 'sql':sql}
+    tosend = json.dumps({'msg':'sync', 'data':data })
+    
+    if className not in sync_callbacks:
+        sync_callbacks[className] = kwargs.get("callback")
+    
+    net.cb_sync = sync_callback
+    
+    net.send((target_ip, 31415), tosend)
     
 def sync_callback(result, className, dt):
     print("Sync done with: " + className)
@@ -613,9 +616,7 @@ class Query:
         #self.params.append(field)
         self.params.append(value)
 
-    def find(self, **kwargs):
-        
-        raw = kwargs.get("raw", False)
+    def generate_sql(self):
         
         if self.conditions != "":
             self.sql += " where " + self.conditions 
@@ -632,6 +633,16 @@ class Query:
         if self.maxlimit != "":
             self.sql += " " + self.maxlimit
             self.maxlimit = ""
+        
+        return self.sql
+
+    def find(self, **kwargs):
+        
+        raw = kwargs.get("raw", False)
+        customsql = kwargs.get("customsql", False)
+        
+        if customsql == False:
+            self.generate_sql()
         
         cursor = cnx.cursor()
         print( (self.sql, self.params) )
@@ -910,10 +921,16 @@ def receiver(data, addr):
         
         #obtener los registros mayores al ultimo existente en el cliente remoto
         q = Query(className=data['className'])
+        q.sql = data['sql']
+        
+        '''
         q.where(data['where'])
         if data['latest_field'] != None:
             q.greaterThan(data['latest_field'], data['latest_value'])
-            
+        '''
+        
+        
+        
         #print("RESULT: ", len(q.find()) )
         
         '''
@@ -925,7 +942,7 @@ def receiver(data, addr):
             #print (json.dumps(i))
         '''
         
-        result = q.find(raw=True)
+        result = q.find(raw=True, customsql=True)
         
         tosend = json.dumps({'msg':'sync_ack', 'result':result, "className":data['className']}, encoding='latin1')
         
