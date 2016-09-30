@@ -593,49 +593,35 @@ class Query:
     This is the class that will let you get data from the cloud
     '''
     def __init__(self, **kwargs):
-        self.className = kwargs.get('className', False)
-        self.field = kwargs.get('field', "*")
+        self.className = kwargs.get('className')
+        self.select = kwargs.get('select', "*")
+        
+        self.conditions = []
+        
+        '''
         if self.className:
-            self.sql = "select " + self.field + " from " + self.className
+            self.sql = "select " + self.select + " from " + self.className
             self.params = []
             self.conditions = ""
             self.order = ""
             self.group = ""
             self.maxlimit = ""
-
-    def equalTo(self, field, value):
-        if self.conditions != "":
-            self.conditions += " AND "
-        
-        if pymysql != None:
-            self.conditions += "`" + field + "`=%s"
-        else:
-            self.conditions += field + "=?"
-        
-        
-        #self.conditions += field + "=?"
-            
-        #self.params.append(field)
-        self.params.append(value)
+        '''
 
     def generate_sql(self):
         
-        if self.conditions != "":
-            self.sql += " where " + self.conditions 
-            self.conditions = ""
+        self.sql = "select " + self.select + " from " + self.className
         
-        if self.order != "":
-            self.sql += " " + self.order
-            self.order = ""
+        if len(self.conditions):
+            self.sql += " where 1=1 "
             
-        if self.group != "":
-            self.sql += " " + self.group
-            self.group = ""
-            
-        if self.maxlimit != "":
-            self.sql += " " + self.maxlimit
-            self.maxlimit = ""
-        
+            for i in self.conditions:
+                if i["condition"] in ("=", "<", ">"):
+                    self.sql += " AND "  + i["field"] + i["condition"] + i["value"] 
+                    
+                elif i["condition"] in ("=", "<", ">"):
+                    pass
+                
         return self.sql
 
     def find(self, **kwargs):
@@ -717,18 +703,45 @@ class Query:
                 
 
         return results
+
+    def equalTo(self, field, value):
+        
+        self.conditions.append({"field":field, "condition":"==", "value":value})
+        '''
+        if self.conditions != "":
+            self.conditions += " AND "
+        
+        if pymysql != None:
+            self.conditions += "`" + field + "`=%s"
+        else:
+            self.conditions += field + "=?"
+        
+        
+        #self.conditions += field + "=?"
+            
+        #self.params.append(field)
+        self.params.append(value)
+        '''
         
     def orderby(self, field, order='ASC'):
+        
+        self.conditions.append({"field":field, "condition":"ORDER BY", "value":order})
+        '''
         if self.order == "":
             self.order = " ORDER BY " + field + " " + order + " "
         else:
             self.order += ", " + field + " " + order + " "
+        '''
             
     def groupby(self, field):
+        
+        self.conditions.append({"field":field, "condition":"GROUP BY", "value":None})
+        '''
         if self.group == "":
             self.group = " GROUP BY " + field + " "
         else:
             self.group += ", " + field + " "
+        '''
         
     def where(self, where_dict):
         #print('WHERE')
@@ -737,6 +750,9 @@ class Query:
             self.equalTo(i, where_dict[i])
             
     def greaterThan(self, field, value):
+        
+        self.conditions.append({"field":field, "condition":">", "value":value})
+        '''
         #if conditions are yet initialized
         if self.conditions != "":
             self.conditions += " AND "
@@ -751,19 +767,30 @@ class Query:
         #self.conditions += ' ' + field + '>?'
         
         self.params.append(value)  
+        '''
         
     def limit(self, n):
+        
+        self.conditions.append({"field":None, "condition":"LIMIT", "value":n})
+        '''
         self.maxlimit = " LIMIT " + str(n)
+        '''
         
     def in_values(self, field, arr):
         
+        self.conditions.append({"field":field, "condition":"IN", "value":arr})
+        '''
         #if conditions are yet initialized
         if self.conditions != "":
             self.conditions += " AND "
             
-        self.conditions += ' ' + field + ' in ?'
+        if pymysql != None:
+            self.conditions += ' ' + field + ' in %s'
+        else:
+            self.conditions += ' ' + field + ' in ?'
         
         self.params.append(arr)
+        '''
         
     def subquery(self, field, sq):
         print("Subquery: ", sq.generate_sql() )
@@ -780,7 +807,7 @@ class Query:
 #all this code is only for low level communications of cloud synchronizations
 #
 
-from devslib.network import Network
+from network import Network
 import socket
 
 
@@ -958,5 +985,18 @@ def receiver(data, addr):
         
         net.send(addr, tosend)
         
+
+if __name__ == "__main__":
+    
+    '''
+    Cloud basic operations
+    '''
+    
+    init(dbname="testing.db")
+    
+    myvar = create(className="Post")
+    myvar.Title = "Hi this is a post"
+    myvar.Message = "Testing the data using our backend"
+    myvar.save()
     
 
