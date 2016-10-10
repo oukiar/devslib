@@ -633,10 +633,10 @@ class Query:
             self.generate_sql()
         
         cursor = cnx.cursor()
-        print( (self.sql, self.params) )
+        print( (self.sql) )
 
         try:
-            cursor.execute(self.sql, self.params)
+            cursor.execute(self.sql)
         except sqlite3.Error as e:
             
             if 'no such table' in e.args[0]:
