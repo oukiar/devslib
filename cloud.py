@@ -612,14 +612,17 @@ class Query:
         
         self.sql = "select " + self.select + " from " + self.className
         
+        print(self.conditions)
+        
         if len(self.conditions):
-            self.sql += " where 1=1 "
+            self.sql += " where 1=1"
             
             for i in self.conditions:
+                print(i)
                 if i["condition"] in ("=", "<", ">"):
-                    self.sql += " AND "  + i["field"] + i["condition"] + i["value"] 
+                    self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
-                elif i["condition"] in ("=", "<", ">"):
+                elif i["condition"] in ("ORDER BY", "GROUP BY", "LIMIT"):
                     pass
                 
         return self.sql
@@ -706,7 +709,7 @@ class Query:
 
     def equalTo(self, field, value):
         
-        self.conditions.append({"field":field, "condition":"==", "value":value})
+        self.conditions.append({"field":field, "condition":"=", "value":value})
         '''
         if self.conditions != "":
             self.conditions += " AND "
