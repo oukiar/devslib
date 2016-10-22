@@ -612,18 +612,18 @@ class Query:
         
         self.sql = "select " + self.select + " from " + self.className
         
-        print(self.conditions)
+        #print(self.conditions)
         
         if len(self.conditions):
             self.sql += " where 1=1"
             
             for i in self.conditions:
-                print(i)
-                if i["condition"] in ("=", "<", ">"):
+                #print(i)
+                if i["condition"] in ("=", "<", ">", " LIKE "):
                     self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
                 elif i["condition"] in ("ORDER BY", "GROUP BY", "LIMIT"):
-                    pass
+                    self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
                 
         return self.sql
 
@@ -636,7 +636,7 @@ class Query:
             self.generate_sql()
         
         cursor = cnx.cursor()
-        print( (self.sql) )
+        #print( (self.sql) )
 
         try:
             cursor.execute(self.sql)
@@ -725,6 +725,9 @@ class Query:
         #self.params.append(field)
         self.params.append(value)
         '''
+        
+    def like(self, field, value):
+        self.conditions.append({"field":field, "condition":" LIKE ", "value":value})
         
     def orderby(self, field, order='ASC'):
         
