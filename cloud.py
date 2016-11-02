@@ -624,6 +624,9 @@ class Query:
                     
                 elif i["condition"] in ("ORDER BY", "GROUP BY", "LIMIT"):
                     self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
+                    
+                elif i["condition"] in ("IN"):
+					self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
                 
         return self.sql
 
