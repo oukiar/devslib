@@ -626,7 +626,7 @@ class Query:
                     self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
                     
                 elif i["condition"] in ("IN"):
-					self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
+					self.sql +=  " AND "  + i["field"] + " " + i["condition"] + " (" + str(i["value"]) + ") "
                 
         return self.sql
 
