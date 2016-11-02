@@ -618,7 +618,7 @@ class Query:
             self.sql += " where 1=1"
             
             for i in self.conditions:
-                #print(i)
+                #print("I:", i)
                 if i["condition"] in ("=", "<", ">", " LIKE "):
                     self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
@@ -799,13 +799,17 @@ class Query:
         '''
         
     def subquery(self, field, sq):
-        print("Subquery: ", sq.generate_sql() )
+        #print("Subquery: ", sq.generate_sql() )
         
+        self.conditions.append({"field":field, "condition":"IN", "value":sq.generate_sql()})
+        
+        '''
         #if conditions are yet initialized
         if self.conditions != "":
             self.conditions += " AND "
 
         self.conditions += ' ' + field + ' in (' + sq.generate_sql() + ")"
+        '''
 
 
 #--------------------------------------
