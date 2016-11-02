@@ -677,7 +677,7 @@ class NetgetSocket:
         
     def __del__(self):
         
-        print ('Finalizando socket: ', self.port)
+        print ('Finalizando socket: ', self.ip, self.port)
 
         try:
             self.ngin.recv_thread.shutdown()
