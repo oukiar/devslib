@@ -820,7 +820,11 @@ class Query:
 #all this code is only for low level communications of cloud synchronizations
 #
 
-from network import Network
+try:
+    from network import Network
+except:
+    from devslib.network import Network
+
 import socket
 
 
