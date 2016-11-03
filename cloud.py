@@ -1,7 +1,7 @@
 '''
 State of the art in "cloud storage" proof of concept technology, pythonic and object oriented
 
-Primer solucion de almacenamiento de informacion basado en modelo de objetos con 
+Solucion de almacenamiento de informacion basado en modelo de objetos con 
 cloud on/offline automatico y sync basado en versiones con solucion automatica de colisiones (duplicacion)
 
 Se cuenta con un esquema distribuido de la base de datos en relacion a los users y devices
@@ -626,7 +626,7 @@ class Query:
                     self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
                     
                 elif i["condition"] in ("IN"):
-					self.sql +=  " AND "  + i["field"] + " " + i["condition"] + " (" + str(i["value"]) + ") "
+                    self.sql +=  " AND "  + i["field"] + " " + i["condition"] + " (" + str(i["value"]) + ") "
                 
         return self.sql
 
