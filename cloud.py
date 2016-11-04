@@ -917,6 +917,12 @@ def receiver(data, addr):
         q = Query(className="users")
         q.equalTo('username', data_dict['data']['username'])
         result = q.find()
+        
+        if len( result ) == 0:
+            q = Query(className="users")
+            q.equalTo('email', data_dict['data']['username'])
+            result = q.find()
+        
 
         #check that username exists
         if len( result ):
