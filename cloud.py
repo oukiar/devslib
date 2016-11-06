@@ -623,7 +623,7 @@ class Query:
                     self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
                 elif i["condition"] in ("ORDER BY", "GROUP BY", "LIMIT"):
-                    self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
+                    self.sql +=  " " + i["condition"] + " " +  i["field"] + " " + str(i["value"]) + " "
                     
                 elif i["condition"] in ("IN"):
                     self.sql +=  " AND "  + i["field"] + " " + i["condition"] + " (" + str(i["value"]) + ") "
