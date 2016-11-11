@@ -787,7 +787,7 @@ class Query:
         
     def in_values(self, field, arr):
         
-        self.conditions.append({"field":field, "condition":"IN", "value":arr})
+        self.conditions.append({"field":field, "condition":"IN", "value":str(tuple(arr))[1:-1]})
         '''
         #if conditions are yet initialized
         if self.conditions != "":
