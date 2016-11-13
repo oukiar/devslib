@@ -622,11 +622,14 @@ class Query:
                 if i["condition"] in ("=", "<", ">", " LIKE "):
                     self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
-                elif i["condition"] in ("ORDER BY", "GROUP BY", "LIMIT"):
+                elif i["condition"] in ("ORDER BY", "GROUP BY"):
                     self.sql +=  " " + i["condition"] + " " +  i["field"] + " " + str(i["value"]) + " "
                     
                 elif i["condition"] in ("IN"):
                     self.sql +=  " AND "  + i["field"] + " " + i["condition"] + " (" + str(i["value"]) + ") "
+                    
+                elif i["condition"] in ("LIMIT"):
+                    self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
                 
         return self.sql
 
@@ -780,7 +783,7 @@ class Query:
         
     def limit(self, n):
         
-        self.conditions.append({"field":None, "condition":"LIMIT", "value":n})
+        self.conditions.append({"field":None, "condition":"LIMIT", "value":str(n)})
         '''
         self.maxlimit = " LIMIT " + str(n)
         '''
