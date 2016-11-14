@@ -35,6 +35,8 @@ class Alert(Popup):
         bigmessage = kwargs.get("bigmessage", "Ops")
         image = kwargs.get("image", "imgs/information.png")
         timeout = kwargs.get("timeout", 0)
+        confirm = kwargs.get("confirm", False)
+        self.confirm_callback = kwargs.get("confirm_callback", None)
         
         super(Alert, self).__init__(**kwargs)
         
@@ -43,10 +45,19 @@ class Alert(Popup):
         self.bigmsg.text = bigmessage
         self.img.source = image
         
+        if confirm:
+            self.layout.add_widget(Button(text="Aceptar", on_release=self.on_confirmation) )
+            self.layout.add_widget(Button(text="Cancelar", on_release=self.dismiss) )
+        
         if timeout == 0:
             Clock.schedule_once(self.dismiss, 2)
         elif timeout != -1:
             Clock.schedule_once(self.dismiss, timeout)
+            
+    def on_confirmation(self, w):
+        self.confirm_callback()
+        self.dismiss()
+        
 
 class RotatedImage(Image):
     angle = NumericProperty()

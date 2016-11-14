@@ -18,3 +18,23 @@
     canvas.after:
         PopMatrix
     
+<Alert>:
+    size_hint: None, None
+    size: 400,250
+    layout:layout
+    msg:msg
+    bigmsg:bigmsg
+    img:img
+    BoxLayout:
+        orientation: "vertical"
+        id: layout
+        Image:
+            id: img
+            source: "imgs/musicplay.png"
+        Label:
+            id: bigmsg
+            text: "Cancion agregada"
+            font_size: 28
+        Label:
+            id: msg
+            text: "Titulo de la cancion"
