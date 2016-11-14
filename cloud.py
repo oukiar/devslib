@@ -144,7 +144,7 @@ def create(className, objectId=None):
         '''
         Create for and existing register on the database
         '''
-        pass
+        ngvar = NGVar(className=className, objectId=objectId)
     else:
         ngvar = NGVar()
         ngvar.className = className
@@ -330,15 +330,18 @@ class NGVar:
         #if objectId is comming on kwargs, initialize with values from database
         if self.objectId != "":
             #get values from the database
-            query = cloud.Query(className=self.className)
+            query = Query(className=self.className)
             query.equalTo("objectId", self.objectId)
             result = query.find()
             if len(result):
                 row = result[0]
-                '''
+                
                 for i in dir(row):
-                    print(i)
-                '''
+                    if i not in self.members_backlist:  
+                        setattr(self, i, getattr(row, i) )
+                        
+                    #print(i)
+                
     
     def save(self):
         '''

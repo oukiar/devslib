@@ -27,6 +27,27 @@ import os
 
 from threading import Thread
 
+class Alert(Popup):
+    def __init__(self, **kwargs):
+        
+        title = kwargs.get("title", "Hey hey")
+        message = kwargs.get("message", "Someting was happen")
+        bigmessage = kwargs.get("bigmessage", "Ops")
+        image = kwargs.get("image", "imgs/information.png")
+        timeout = kwargs.get("timeout", 0)
+        
+        super(Alert, self).__init__(**kwargs)
+        
+        self.title = title
+        self.msg.text = message
+        self.bigmsg.text = bigmessage
+        self.img.source = image
+        
+        if timeout == 0:
+            Clock.schedule_once(self.dismiss, 2)
+        elif timeout != -1:
+            Clock.schedule_once(self.dismiss, timeout)
+
 class RotatedImage(Image):
     angle = NumericProperty()
 
