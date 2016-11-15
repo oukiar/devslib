@@ -33,8 +33,8 @@ class Alert(Popup):
         title = kwargs.get("title", "Hey hey")
         message = kwargs.get("message", "Someting was happen")
         bigmessage = kwargs.get("bigmessage", "Ops")
-        image = kwargs.get("image", "imgs/information.png")
-        timeout = kwargs.get("timeout", 0)
+        image = kwargs.get("image", "images/infoicon.png")
+        timeout = kwargs.get("timeout", 2)
         confirm = kwargs.get("confirm", False)
         self.confirm_callback = kwargs.get("confirm_callback", None)
         
@@ -49,9 +49,7 @@ class Alert(Popup):
             self.layout.add_widget(Button(text="Aceptar", on_release=self.on_confirmation) )
             self.layout.add_widget(Button(text="Cancelar", on_release=self.dismiss) )
         
-        if timeout == 0:
-            Clock.schedule_once(self.dismiss, 2)
-        elif timeout != -1:
+        if timeout != -1:
             Clock.schedule_once(self.dismiss, timeout)
             
     def on_confirmation(self, w):
