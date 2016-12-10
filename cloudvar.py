@@ -26,11 +26,20 @@ net = Network()
 net.create_connection(receiver)
 
 class CloudVar():
-	
+	'''
+    Variable autosincronizable entre diferentes nodos de la red usando el
+    networking p2p
+    '''
 	def link(self, serverip, data_id):
+        '''
+        Establece enlace hacia determinado bloque de datos
+        '''
 		pass
 		
 	def sync(self):
+        '''
+        
+        '''
 		pass
 		
 	def unlink(self):
@@ -38,8 +47,8 @@ class CloudVar():
 		
 if __name__ == "__main__":
 	
-	def cb_sync(sync_data):
-		print sync_data
+	def cb_sync(var):
+		print var.colorval
 	
 	print("Probando cloudvars")
 	
