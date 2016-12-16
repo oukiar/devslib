@@ -373,8 +373,8 @@ def get_count(className, where=""):
         print("Error COUNT: " + sql)
         #print("Values: " + json.dumps(lst_values) )
         
-    #fail return None
-    return None
+    #fail return 0
+    return 0
     
 def create_ss(arr):
     '''
