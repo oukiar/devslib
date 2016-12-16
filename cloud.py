@@ -712,7 +712,7 @@ class Query:
                 elif i["condition"] in ("LIMIT", "OFFSET"):
                     self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
                 
-        print self.sql
+        #print self.sql
         return self.sql
 
     def find(self, **kwargs):
