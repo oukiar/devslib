@@ -343,6 +343,39 @@ def get_sum(className, field, where=""):
     #fail return None
     return None
 
+
+def get_count(className, where=""):
+    
+    sql = "select count(*) from " + className
+    
+    if where != "":
+        sql += " where " + where
+    
+    try:
+        cursor = cnx.cursor()
+        if cursor.execute(sql):
+            #print("SQL: " + sql)
+            
+            res = cursor.fetchall()
+            
+            if len(res):
+                return res[0][0]
+                              
+    except sqlite3.Error as e:
+    
+        if 'no such table' in e.args[0]:
+            print('sqlite3 Error: No such table')
+            print (e.args[0])
+        else:
+            print('sqlite3 Error: Unknown error')
+            print (e.args[0])
+                        
+        print("Error COUNT: " + sql)
+        #print("Values: " + json.dumps(lst_values) )
+        
+    #fail return None
+    return None
+    
 def create_ss(arr):
     '''
     Utility function for create the string %S or %? parameters for the databse engine
@@ -676,9 +709,10 @@ class Query:
                 elif i["condition"] in ("IN"):
                     self.sql +=  " AND "  + i["field"] + " " + i["condition"] + " (" + str(i["value"]) + ") "
                     
-                elif i["condition"] in ("LIMIT"):
+                elif i["condition"] in ("LIMIT", "OFFSET"):
                     self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
                 
+        print self.sql
         return self.sql
 
     def find(self, **kwargs):
@@ -835,6 +869,9 @@ class Query:
         '''
         self.maxlimit = " LIMIT " + str(n)
         '''
+        
+    def skip(self, n):
+        self.conditions.append({"field":None, "condition":"OFFSET", "value":str(n)})
         
     def in_values(self, field, arr):
         
