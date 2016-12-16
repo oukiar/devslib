@@ -48,6 +48,10 @@ autocommit = True
 
 sync_callbacks = {}
 
+def initialized():
+    global cnx
+    return cnx
+
 def init(dbname='database.db'):
     '''
     Local database initialization, most used on devices
@@ -175,7 +179,16 @@ def signup(username, password, email, **kwargs):
     net.send((server_ip, 31415), tosend)
 
 def quit():
+    global cnx
+    global net
+    global tables
+    
     net.shutdown_network()
+    cnx.close()
+    
+    cnx = None
+    net = None
+    tables = []
     
 def erase(className):
     '''
