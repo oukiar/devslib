@@ -310,6 +310,38 @@ def get_max(className, field):
         return getattr(res[0], field)
     
     return 0
+    
+def get_sum(className, field, where=""):
+    
+    sql = "select sum(" + field + ") from " + className
+    
+    if where != "":
+        sql += " where " + where
+    
+    try:
+        cursor = cnx.cursor()
+        if cursor.execute(sql):
+            #print("SQL: " + sql)
+            
+            res = cursor.fetchall()
+            
+            if len(res):
+                return res[0][0]
+                              
+    except sqlite3.Error as e:
+    
+        if 'no such table' in e.args[0]:
+            print('sqlite3 Error: No such table')
+            print (e.args[0])
+        else:
+            print('sqlite3 Error: Unknown error')
+            print (e.args[0])
+                        
+        print("Error SUM: " + sql)
+        #print("Values: " + json.dumps(lst_values) )
+        
+    #fail return None
+    return None
 
 def create_ss(arr):
     '''
