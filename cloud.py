@@ -703,6 +703,9 @@ class Query:
                 if i["condition"] in ("=", "<", ">", " LIKE "):
                     self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
+                elif i["condition"] in ("f=", "f<", "f>"):
+                    self.sql += " AND "  + i["field"] + i["condition"][1] + i["value"] 
+                    
                 elif i["condition"] in ("ORDER BY", "GROUP BY"):
                     self.sql +=  " " + i["condition"] + " " +  i["field"] + " " + str(i["value"]) + " "
                     
@@ -862,6 +865,12 @@ class Query:
         
         self.params.append(value)  
         '''
+        
+    def lessThan(self, field, value):
+        self.conditions.append({"field":field, "condition":"<", "value":value})
+        
+    def fieldLessThan(self, field, field2):
+        self.conditions.append({"field":field, "condition":"f<", "value":field2})
         
     def limit(self, n):
         
