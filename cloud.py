@@ -912,23 +912,27 @@ class Query:
         '''
 
 
-channels = []
+#cada canal contiene la lista de clientes conectados y el valor asociado
+channels = {}
 
 
 class CloudVar():
     '''
     Variable autosincronizable entre diferentes nodos de la red usando el
     networking p2p
+    
+    Dado a la naturaleza de las sincronizaciones, este objeto esta enfocado
+    a sincronizar variables ya sea string, entero o float
     '''
     
     def __init__(self, **kwargs):
         super(CloudVar, self).__init__(**kwargs)
         
-        self.sync_callback = kwargs.get("sync_callback", None)
+        self.sync_callback = kwargs.get("callback", None)
     
     def link(self, serverip, channel):
         '''
-        Establece enlace hacia determinado bloque de datos
+        Establece enlace de una variable usando el concepto de canal de comunicacion
         '''
         global channels
         
@@ -937,8 +941,10 @@ class CloudVar():
 
         #conectar al servidor en el canal especificado
         if channel not in channels:
-            channels.append(channel)
+            channels[channel] = {"clients":, "data":None}
             
+        #enviar mensaje al servidor de conexion al canal 
+        
         
     def sync(self):
         '''
