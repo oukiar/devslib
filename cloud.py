@@ -941,7 +941,7 @@ class CloudVar():
 
         #conectar al servidor en el canal especificado
         if channel not in channels:
-            channels[channel] = {"clients":, "data":None}
+            channels[channel] = {"clients":None, "data":None}
             
         #enviar mensaje al servidor de conexion al canal 
         
