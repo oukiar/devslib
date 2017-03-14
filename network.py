@@ -562,9 +562,9 @@ class NetworkIn:
         #store in our way
         trans = peer.recv(data_dict)
         
-        print("RECIBIENDO: " + str(data_dict['pn'] ))
-        print("Recibidos: " + str(len(trans.packets) )  )
-        print("Total: " + str(data_dict['tp'] ))
+        #print("RECIBIENDO: " + str(data_dict['pn'] ))
+        #print("Recibidos: " + str(len(trans.packets) )  )
+        #print("Total: " + str(data_dict['tp'] ))
         
         #checar si hubo paquetes perdidos ... nota: despues se va a implementar el packet priority o type que definira el tipo de paquetes osea asegurando la entrega y asi
         if len(trans.packets)-1 < data_dict['pn']:
