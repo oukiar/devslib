@@ -409,7 +409,12 @@ class NGVar:
         if self.objectId != "":
             #get values from the database
             query = Query(className=self.className)
-            query.equalTo("objectId", self.objectId)
+            
+            if self.objectId_key == None:
+                query.equalTo("objectId", self.objectId)
+            else:
+                query.equalTo(self.objectId_key, self.objectId)
+                
             result = query.find()
             if len(result):
                 row = result[0]
