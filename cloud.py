@@ -221,6 +221,9 @@ def sync(className, target_ip=server_ip, **kwargs):
     where is the parameters for filter results to minimum values for this user
     latest is the field to test as max latest row
     target_ip is the server for sync
+    
+    **NEW: En el servidor se lleva una tabla de control de versiones en
+    relacion a los usuarios y las tablas
     '''
     print("Sync with: " + target_ip)
     print("Classname: " + className)
