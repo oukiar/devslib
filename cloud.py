@@ -501,9 +501,12 @@ class NGVar:
                 tables.append(self.className)
                 
                 #create table
-                sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL" % (self.className)
+                #sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL" % (self.className)
                 
                 print("Recorriendo elementos de self")
+                
+                right_sql = ""
+                has_autoincrement = False
                 
                 #recorrer con dir los elementos de nuestro objeto, para saber que campos llevara
                 for i in dir(self):
@@ -511,17 +514,25 @@ class NGVar:
                         
                         #print(i, type(getattr(self, i) ) )
                         
-                        if str(type(getattr(self, i) )) in ["<type 'str'>", "<type 'unicode'>", "<class 'str'>"]:
+                        if getattr(self, i) == "[AUTO_INCREMENT]":
+                            tp = "INTEGER PRIMARY KEY" #esto es para autoincrement en sqlite3, posiblemente manejemos este backend primariamente
+                            has_autoincrement = True
+                        elif str(type(getattr(self, i) )) in ["<type 'str'>", "<type 'unicode'>", "<class 'str'>"]:
                             tp = "TEXT"
                         elif str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
                             tp = "INT"
                         else:
                             tp = "" #esto quizas provoca error al no definir tipo del campo
                         
-                        #
-                        sql += ", " + i + " " + tp
+                        if right_sql == "":
+                            right_sql = i + " " + tp
+                        else:
+                            right_sql += ", " + i + " " + tp
                 
-                sql += ");"
+                if has_autoincrement:
+                    sql = "CREATE TABLE %s (" % (self.className) + right_sql + ");"
+                else:
+                    sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL" % (self.className)  + right_sql +   ");"
                 
                 #crear tabla
                 cursor = cnx.cursor()
@@ -535,65 +546,34 @@ class NGVar:
                 #print("Table already exists")
                 
             
-            '''
-            #check if table already exists
-            sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='%s'" % self.className
-            #print("Checking: " + sql)
-            
-            cursor = cnx.cursor()
-            if cursor.execute(sql):
-                
-                #if table does not exists
-                if len(cursor.fetchall() ) == 0:
-                    
-                    #create table
-                    sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL" % (self.className)
-                    
-                    print("Recorriendo elementos de self")
-                    
-                    #recorrer con dir los elementos de nuestro objeto, para saber que campos llevara
-                    for i in dir(self):
-                        if i not in self.members_backlist and i != "members_backlist":
-                            
-                            #print(i, type(getattr(self, i) ) )
-                            
-                            if str(type(getattr(self, i) )) in ["<type 'str'>", "<type 'unicode'>", "<class 'str'>"]:
-                                tp = "TEXT"
-                            elif str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
-                                tp = "INT"
-                            else:
-                                tp = "" #esto quizas provoca error al no definir tipo del campo
-                            
-                            #
-                            sql += ", " + i + " " + tp
-                    
-                    sql += ");"
-                    
-                    #crear tabla
-                    cursor = cnx.cursor()
-                    
-                    if cursor.execute(sql):
-                        print("Tabla creada")
-                    else:
-                        print("Error creando tabla SQL: " + sql)
-                else:
-                    print("Table already exists")
-            '''
-            
-            
-            #insert
-            sql = "insert into " + self.className + "(objectId"
+            #-------- INSERCION 
             
             values = ""
             lst_values = []
             
+            has_autoincrement = False
+            sqlfields = ""
+            
             for i in dir(self):
                 if i not in self.members_backlist and i != "members_backlist":
-                    sql += ", " + i #HERE: avoid the sqlinjection
+                    
+                    if getattr(self, i) == "[AUTO_INCREMENT]":
+                        has_autoincrement = True
+                        continue
+                    
+                    if sqlfields == "":
+                        sqlfields += " " + i #HERE: avoid the sqlinjection
+                    else:
+                        sqlfields += ", " + i #HERE: avoid the sqlinjection
                     
                     #print (str(type(getattr(self, i) )))
-                    values += ", ?" 
+                    if values == "":
+                        values += "?" 
+                    else:
+                        values += ", ?"
+                         
                     lst_values.append(getattr(self, i))
+                
                     
                     '''
                     if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
@@ -604,9 +584,13 @@ class NGVar:
                         except:
                             values += ", '" + str(getattr(self, i).encode('utf8') ) + "'"
                     '''
-                    
-            sql += ") values('"+ self.objectId + "'" + values + ")" 
             
+            if has_autoincrement:
+                sql = "insert into " + self.className + "(" + sqlfields + ") values(" + values + ")" 
+            else:
+                sql = "insert into " + self.className + "(objectId, " + sqlfields + ") values('"+ self.objectId + "', " + values + ")" 
+            
+            #print sql
             
             try:
                 cursor = cnx.cursor()
@@ -616,7 +600,7 @@ class NGVar:
                 if cursor.execute(sql, lst_values):
                     if autocommit:
                         cnx.commit()
-                    return True
+                    return cursor.lastrowid
                     
             except sqlite3.Error as e:
             
