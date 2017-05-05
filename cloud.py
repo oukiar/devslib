@@ -799,7 +799,7 @@ class Query:
                 elif i["condition"] in ("BETWEEN"):
                     self.sql +=  " AND " + i["field"] + " " + i["condition"] + " '" + str(i["value"][0]) + "' AND '" + str(i["value"][1]) + "' "
                 
-        #print self.sql
+        print self.sql
         return self.sql
 
     def find(self, **kwargs):
