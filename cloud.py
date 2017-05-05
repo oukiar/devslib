@@ -25,7 +25,8 @@ except:
 #session token
 session_token = None
 #server_ip = "104.236.181.245"
-server_ip = "162.243.152.20"
+server_ip = "162.243.152.20" #orgboat server ip
+server_port = 11235 #fibonacci sequencie port number by default
 user = None
 net = None
 
@@ -36,14 +37,18 @@ net = None
 #use sqlite for local storage
 import sqlite3
 
+'''
 try:
     import pymysql
 except:
     pymysql = None
+'''
 
 cnx = None
 tables = []
 autocommit = True
+
+channels = {} #every channel has a name and the value of the callback
 
 
 sync_callbacks = {}
@@ -52,14 +57,26 @@ def initialized():
     global cnx
     return cnx
 
-def init(dbname='database.db'):
+def init(dbname='database.db', server=None, serverport=None, local_port=None):
     '''
     Local database initialization, most used on devices
     '''
     global cnx
     global tables
     global net
+    global server_ip
+    global server_port
     
+    if server != None:
+        server_ip = server
+    
+    if serverport != None:
+        server_port = serverport
+        
+    if local_port == None:
+        local_port = server_port
+    
+    #conexion sqlite para base de datos local
     cnx = sqlite3.connect(dbname)
     
     print(cnx)    
@@ -85,16 +102,23 @@ def init(dbname='database.db'):
 
     #network
     net = Network()  
-    net.create_connection(receiver)
+    net.create_connection(receiver, local_port)
     
-def init_server():
+def init_server(dbname='database.db', port=None):
     '''
     Server backend is working under mysql server
     '''
     global cnx
     global tables
     global net
+    global server_port
     
+    if port == None:
+        port = server_port
+    else:
+        server_port = port
+    
+    '''
     if True:
         
         
@@ -131,12 +155,77 @@ def init_server():
                 
         #network
         net = Network()  
-        net.create_connection(receiver)
+        net.create_connection(receiver, port) #dispatcher, server_port
             
-        print("Orgboat server init success")
+        print("Cloud server init success")
             
     else:
         print("Error initializing server")
+    '''
+    
+    #nuevo backend en el serverm solo usando sqlite3
+    cnx = sqlite3.connect(dbname)
+    
+    print(cnx)    
+    
+    '''
+    #check if users table exists
+    cursor = cnx.cursor()
+    #cursor.execute( "SELECT name FROM sqlite_master WHERE type='table' AND name='users'" )
+    cursor.execute( "SELECT name FROM sqlite_master WHERE type='table'" )
+    
+    tables = cursor.fetchall()
+    '''
+    
+    query = Query(className="sqlite_master")
+    query.equalTo("type", "table")
+    for i in query.find():
+        tables.append(i.name)
+    
+    print("Database schema loaded: " + json.dumps(tables) )
+    
+    
+    print("Creating network")
+
+    #network
+    net = Network()  
+    net.create_connection(receiver, port)
+        
+def create_channel(channel_name, callback, callback_connection=None, callback_disconnect=None):
+    '''
+    Channels creation only for servers
+    '''
+    
+    global channels
+    
+    print("Creating channel " + channel_name)
+    
+    channels[channel_name] = {"callback":callback, 
+                                "callback_connection":callback_connection, 
+                                "callback_disconnect":callback_disconnect, 
+                                "clients":[]}
+    
+def connect_channel(channel_name, callback_notification, callback_connection=None, callback_disconnect=None):
+    
+    #crear canal en cloud local
+    create_channel(channel_name, callback_notification, callback_connection, callback_disconnect)
+    
+    #conectar al servidor en el canal
+    data = {'channel_name':channel_name}
+
+    tosend = json.dumps({'msg':'connect_channel', 'data':data })
+
+    #net.cb_login = kwargs.get("callback")
+    net.send((server_ip, server_port), tosend)
+    
+    
+def write_channel(channel_name, data):
+    #enviar estos datos al servidor
+
+    tosend = json.dumps({'msg':'write_channel', 'channel_name':channel_name, 'data':data })
+
+    #net.cb_login = kwargs.get("callback")
+    net.send((server_ip, server_port), tosend)
 
 def create(className, objectId=None):
     '''
@@ -966,6 +1055,9 @@ except:
     bcrypt = None
 
 def receiver(data, addr):
+    
+    global channels
+    
     data_dict = json.loads(data)
 
     if data_dict['msg'] == 'ping_ack':        
@@ -1140,11 +1232,61 @@ def receiver(data, addr):
         
         net.send(addr, tosend)
         
-    elif data_dict['msg'] == 'set_channel':
+    elif data_dict['msg'] == 'connect_channel': 
         
-        print('CHANNEL FROM ', addr, data_dict['data'])
+        print('CHANNEL CONNECTION FROM: ', addr, data_dict['data'])
 
         data = data_dict['data']
+        
+        channel_name = data["channel_name"]
+        
+        #agregar este cliente a channel para hacer las notificaciones cuando hagan channel_write
+        if addr not in channels[channel_name]["clients"]:
+            channels[channel_name]["clients"].append(addr)
+
+        #RESPUESTA
+        tosend = json.dumps({'msg':'connect_channel_ack', 'result':"OK", "channel_name":channel_name}, encoding='latin1')
+        
+        #print(tosend)
+        #print("Result: " + str(len(result)) )
+        
+        net.send(addr, tosend)
+
+    elif data_dict['msg'] == 'connect_channel_ack': 
+        
+        print('CHANNEL CONNECTION ACK FROM: ', addr, data_dict['result'])
+        
+        channel_name = data_dict["channel_name"]
+        
+        channels[channel_name]["callback_connection"](data_dict['result'])
+        
+    elif data_dict['msg'] == 'write_channel': 
+        
+        print('CHANNEL WRITE FROM: ', addr, data_dict['data'])
+        
+        data = data_dict['data']
+        
+        channel_name = data_dict["channel_name"]
+        
+        #recorrer lista de clientes conectados al canal
+        for i in channels[channel_name]["clients"]:
+
+            #dont send notification to the sender
+            if i != addr:
+                
+                print("Enviando notificacion a: ", i)
+                
+                tosend = json.dumps({'msg':'inputfrom_channel', 'data':data, "channel_name":channel_name}, encoding='latin1')
+                
+                net.send(i, tosend)
+            
+    elif data_dict['msg'] == 'inputfrom_channel': 
+        
+        print('CHANNEL INPUT FROM: ', addr, data_dict['data'])
+        
+        channel_name = data_dict["channel_name"]
+        
+        channels[channel_name]["callback"](data_dict["data"])
 
 if __name__ == "__main__":
     

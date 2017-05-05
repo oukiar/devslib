@@ -841,7 +841,7 @@ class Network:
                 sock.ngout.send((ip, netget_port), tosend)
                 
                 
-    def create_connection(self, dispatcher):
+    def create_connection(self, dispatcher, port=netget_port):
         '''
         Intenta obtener una conexion valida. Util cuando solo se dispone de una conexion
         
@@ -855,7 +855,7 @@ class Network:
         if len(ips) >= 0:
             
             #we will try to create a socket initiating the netget port
-            c = netget_port
+            c = port
             
             self.ngsock = None
             
