@@ -795,6 +795,9 @@ class Query:
                     
                 elif i["condition"] in ("LIMIT", "OFFSET"):
                     self.sql +=  " " + i["condition"] + " " + str(i["value"]) + " "
+                    
+                elif i["condition"] in ("BETWEEN"):
+                    self.sql +=  " AND " + i["field"] + " " + i["condition"] + " '" + str(i["value"][0]) + "' AND '" + str(i["value"][1]) + "' "
                 
         #print self.sql
         return self.sql
@@ -952,6 +955,9 @@ class Query:
         
     def fieldLessThan(self, field, field2):
         self.conditions.append({"field":field, "condition":"f<", "value":field2})
+        
+    def between(self, field, field2, field3):
+        self.conditions.append({"field":field, "condition":"BETWEEN", "value":(field2, field3)})
         
     def limit(self, n):
         
