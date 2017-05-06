@@ -1296,16 +1296,16 @@ def receiver(data, addr):
         
         channel_name = data_dict["channel_name"]
         
-        channels[channel_name]["callback_connection"](data_dict['result'])
+        channels[channel_name]["callback_connection"](data_dict['result'], data_dict["clients_connected"])
         
     elif data_dict['msg'] == 'new_client_connected': 
     
-        print('CHANNEL CONNECTION ACK FROM: ', addr, data_dict['data'])
+        print('NEW CLIENT CONNECTED FROM: ', addr, data_dict['data'])
         
         channel_name = data_dict["channel_name"]
         
-        if channels[channel_name]["new_client_connected"] != None:
-            channels[channel_name]["new_client_connected"](data_dict['data'])
+        if channels[channel_name]["callback_new_client_connected"] != None:
+            channels[channel_name]["callback_new_client_connected"](data_dict['data'])
         
     elif data_dict['msg'] == 'write_channel': 
         
