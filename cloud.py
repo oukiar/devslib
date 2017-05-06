@@ -1331,7 +1331,7 @@ def receiver(data, addr):
                 net.send(i, tosend)
                 
                 
-        tosend = json.dumps({'msg':'write_channel_ack', 'request_id':data_dict["request_id"]}, encoding='latin1')
+        tosend = json.dumps({'msg':'write_channel_ack', 'data':data, 'request_id':data_dict["request_id"]}, encoding='latin1')
         
         net.send(addr, tosend)
                 
@@ -1341,7 +1341,7 @@ def receiver(data, addr):
         
         request_id = data_dict["request_id"]
         
-        write_callbacks[request_id]()
+        write_callbacks[request_id](request_id)
             
     elif data_dict['msg'] == 'inputfrom_channel': 
         
