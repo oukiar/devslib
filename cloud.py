@@ -1285,7 +1285,10 @@ def receiver(data, addr):
                 
                 print("Enviando connection notificacion a: ", i)
                 
-                tosend = json.dumps({'msg':'new_client_connected', 'data':data, "channel_name":channel_name}, encoding='latin1')
+                tosend = json.dumps({'msg':'new_client_connected', 
+                                        'data':data, 
+                                        "clients_connected":len(channels[channel_name]["clients"]),
+                                        "channel_name":channel_name}, encoding='latin1')
                 
                 net.send(i, tosend)
         
@@ -1305,7 +1308,7 @@ def receiver(data, addr):
         channel_name = data_dict["channel_name"]
         
         if channels[channel_name]["callback_new_client_connected"] != None:
-            channels[channel_name]["callback_new_client_connected"](data_dict['data'])
+            channels[channel_name]["callback_new_client_connected"](data_dict['data'], data_dict["clients_connected"])
         
     elif data_dict['msg'] == 'write_channel': 
         
