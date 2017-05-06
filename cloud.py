@@ -193,7 +193,7 @@ def init_server(dbname='database.db', port=None):
     net = Network()  
     net.create_connection(receiver, port)
         
-def create_channel(channel_name, callback, callback_connection=None, callback_disconnect=None):
+def create_channel(channel_name, callback, callback_connection=None, callback_new_client_connected=None, callback_disconnect=None):
     '''
     Channels creation only for servers
     '''
@@ -204,13 +204,14 @@ def create_channel(channel_name, callback, callback_connection=None, callback_di
     
     channels[channel_name] = {"callback":callback, 
                                 "callback_connection":callback_connection, 
+                                "callback_new_client_connected":callback_new_client_connected, 
                                 "callback_disconnect":callback_disconnect, 
                                 "clients":[]}
     
-def connect_channel(channel_name, callback_notification, callback_connection=None, callback_disconnect=None):
+def connect_channel(channel_name, callback_notification, callback_connection=None, callback_new_client_connected=None, callback_disconnect=None):
     
     #crear canal en cloud local
-    create_channel(channel_name, callback_notification, callback_connection, callback_disconnect)
+    create_channel(channel_name, callback_notification, callback_connection, callback_new_client_connected, callback_disconnect)
     
     #conectar al servidor en el canal
     data = {'channel_name':channel_name}
@@ -1263,12 +1264,31 @@ def receiver(data, addr):
             channels[channel_name]["clients"].append(addr)
 
         #RESPUESTA
-        tosend = json.dumps({'msg':'connect_channel_ack', 'result':"OK", "channel_name":channel_name}, encoding='latin1')
+        tosend = json.dumps({'msg':'connect_channel_ack', 
+                                'result':"OK", 
+                                "channel_name":channel_name, 
+                                "clients_connected":len(channels[channel_name]["clients"])
+                                }, encoding='latin1')
         
         #print(tosend)
         #print("Result: " + str(len(result)) )
         
         net.send(addr, tosend)
+        
+        #avisar a todos los demas clientes que un nuevo integrante se ha sincronizado al channel
+        
+        #recorrer lista de clientes conectados al canal
+        for i in channels[channel_name]["clients"]:
+
+            #dont send notification to the sender
+            if i != addr:
+                
+                print("Enviando connection notificacion a: ", i)
+                
+                tosend = json.dumps({'msg':'new_client_connected', 'data':data, "channel_name":channel_name}, encoding='latin1')
+                
+                net.send(i, tosend)
+        
 
     elif data_dict['msg'] == 'connect_channel_ack': 
         
@@ -1277,6 +1297,15 @@ def receiver(data, addr):
         channel_name = data_dict["channel_name"]
         
         channels[channel_name]["callback_connection"](data_dict['result'])
+        
+    elif data_dict['msg'] == 'new_client_connected': 
+    
+        print('CHANNEL CONNECTION ACK FROM: ', addr, data_dict['data'])
+        
+        channel_name = data_dict["channel_name"]
+        
+        if channels[channel_name]["new_client_connected"] != None:
+            channels[channel_name]["new_client_connected"](data_dict['data'])
         
     elif data_dict['msg'] == 'write_channel': 
         
