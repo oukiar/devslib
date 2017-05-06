@@ -53,6 +53,8 @@ channels = {} #every channel has a name and the value of the callback
 
 sync_callbacks = {}
 
+write_callbacks = {}
+
 def initialized():
     global cnx
     return cnx
@@ -106,7 +108,7 @@ def init(dbname='database.db', server=None, serverport=None, local_port=None):
     
 def init_server(dbname='database.db', port=None):
     '''
-    Server backend is working under mysql server
+    Server backend is working under sqlite3
     '''
     global cnx
     global tables
@@ -219,13 +221,23 @@ def connect_channel(channel_name, callback_notification, callback_connection=Non
     net.send((server_ip, server_port), tosend)
     
     
-def write_channel(channel_name, data):
+def write_channel(channel_name, data, write_callback=None):
+    
+    global write_callbacks
+    
     #enviar estos datos al servidor
+    
+    #request id
+    request_id = str(uuid.uuid4())
 
-    tosend = json.dumps({'msg':'write_channel', 'channel_name':channel_name, 'data':data })
+    tosend = json.dumps({'msg':'write_channel', 'channel_name':channel_name, 'data':data, 'request_id':request_id })
 
     #net.cb_login = kwargs.get("callback")
     net.send((server_ip, server_port), tosend)
+    
+    write_callbacks[request_id] = write_callback
+    
+    return request_id
 
 def create(className, objectId=None):
     '''
@@ -1285,6 +1297,19 @@ def receiver(data, addr):
                 tosend = json.dumps({'msg':'inputfrom_channel', 'data':data, "channel_name":channel_name}, encoding='latin1')
                 
                 net.send(i, tosend)
+                
+                
+        tosend = json.dumps({'msg':'write_channel_ack', 'request_id':data["request_id"]}, encoding='latin1')
+        
+        net.send(addr, tosend)
+                
+    elif data_dict['msg'] == 'write_channel_ack': 
+        
+        print('CHANNEL WRITE ACK FROM: ', addr, data_dict['data'])
+        
+        request_id = data_dict["request_id"]
+        
+        write_callbacks[request_id]()
             
     elif data_dict['msg'] == 'inputfrom_channel': 
         
