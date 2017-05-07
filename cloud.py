@@ -1072,10 +1072,16 @@ try:
     import bcrypt
 except:
     bcrypt = None
+    
+
+def callback_bridge(self, *args, **kwargs):
+    callback = kwargs.get("callback")
+    callback(**kwargs)
 
 def receiver(data, addr):
     
     global channels
+    global callback_bridge
     
     data_dict = json.loads(data)
 
@@ -1299,7 +1305,11 @@ def receiver(data, addr):
         
         channel_name = data_dict["channel_name"]
         
-        channels[channel_name]["callback_connection"](data_dict['result'], data_dict["clients_connected"])
+        #channels[channel_name]["callback_connection"](data_dict['result'], data_dict["clients_connected"])
+        Clock.schedule_once(partial(callback_bridge, 
+                                    callback = channels[channel_name]["callback_connection"], 
+                                    result = data_dict['result'], 
+                                    clients_connected = data_dict["clients_connected"]), 0)
         
     elif data_dict['msg'] == 'new_client_connected': 
     
@@ -1308,7 +1318,10 @@ def receiver(data, addr):
         channel_name = data_dict["channel_name"]
         
         if channels[channel_name]["callback_new_client_connected"] != None:
-            channels[channel_name]["callback_new_client_connected"](data_dict['data'], data_dict["clients_connected"])
+            Clock.schedule_once(partial(callback_bridge, 
+                                        callback = channels[channel_name]["callback_new_client_connected"],
+                                        data = data_dict['data'], 
+                                        clients_connected = data_dict["clients_connected"]), 0)
         
     elif data_dict['msg'] == 'write_channel': 
         
@@ -1341,7 +1354,9 @@ def receiver(data, addr):
         
         request_id = data_dict["request_id"]
         
-        write_callbacks[request_id](request_id)
+        Clock.schedule_once(partial(callback_bridge, 
+                                        callback = write_callbacks[request_id],
+                                        request_id = request_id), 0)
             
     elif data_dict['msg'] == 'inputfrom_channel': 
         
@@ -1349,7 +1364,11 @@ def receiver(data, addr):
         
         channel_name = data_dict["channel_name"]
         
-        channels[channel_name]["callback"](data_dict["data"])
+        Clock.schedule_once(partial(callback_bridge, 
+                                    callback = channels[channel_name]["callback"],
+                                    data = data_dict["data"]), 0)
+        
+        
 
 if __name__ == "__main__":
     
