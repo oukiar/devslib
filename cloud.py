@@ -1078,7 +1078,7 @@ def callback_bridge(self, *args, **kwargs):
     callback = kwargs.get("callback")
     callback(**kwargs)
     
-def send_ping(self, dt):
+def send_ping(dt):
     print("Sending ping")
     
     tosend = json.dumps({'msg':'ping', 'data':socket.gethostname()})
