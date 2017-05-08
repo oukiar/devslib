@@ -1077,11 +1077,23 @@ except:
 def callback_bridge(self, *args, **kwargs):
     callback = kwargs.get("callback")
     callback(**kwargs)
+    
+def send_ping(self, dt):
+    print("Sending ping")
+    
+    tosend = json.dumps({'msg':'ping', 'data':socket.gethostname()})
+    net.send((server_ip, server_port), tosend)
+    
 
 def receiver(data, addr):
     
+    '''
+    All callbacks must be called with Clock.schedule_once  due to this fuction is not from the main thread
+    '''
+    
     global channels
     global callback_bridge
+    global send_ping
     
     data_dict = json.loads(data)
 
@@ -1310,6 +1322,11 @@ def receiver(data, addr):
                                     callback = channels[channel_name]["callback_connection"], 
                                     result = data_dict['result'], 
                                     clients_connected = data_dict["clients_connected"]), 0)
+                                    
+        #start ping interval to the server for this module
+        Clock.unschedule(send_ping)
+        Clock.schedule_interval(send_ping, 10)
+        
         
     elif data_dict['msg'] == 'new_client_connected': 
     
