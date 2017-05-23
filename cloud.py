@@ -634,7 +634,9 @@ class NGVar:
                 if has_autoincrement:
                     sql = "CREATE TABLE %s (" % (self.className) + right_sql + ");"
                 else:
-                    sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL" % (self.className)  + right_sql +   ");"
+                    sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL, " % (self.className)  + right_sql +   ");"
+                
+                print sql
                 
                 #crear tabla
                 cursor = cnx.cursor()
