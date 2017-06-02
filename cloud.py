@@ -38,10 +38,11 @@ session_token = None
 #server_ip = "162.243.152.20" #orgboat server ip
 
 server_ip = "127.0.0.1" #by default on localhost
-servers = []
+
+servers = [] #list of server minners
 
 
-server_port = 11235 #fibonacci sequencie port number by default
+server_port = 11235 #fibonacci sequencie port number by default ... all the minners must use the same server_port
 user = None
 net = None
 
@@ -87,8 +88,8 @@ def init(**kwargs):
     
     dbname = kwargs.get("database", 'database.db')
     server = kwargs.get("server", None) #none if cloud works only on local mode
-    server_port = kwargs.get("server_port", server_port)
-    local_port = kwargs.get("local_port", server_port)
+    server_port = kwargs.get("serverport", server_port)
+    local_port = kwargs.get("localport", server_port)
     
     #conexion sqlite para base de datos local
     cnx = sqlite3.connect(dbname)
