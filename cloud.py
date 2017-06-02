@@ -74,7 +74,8 @@ def initialized():
     global cnx
     return cnx
 
-def init(dbname='database.db', server=None, serverport=None, local_port=None):
+#def init(dbname='database.db', server=None, serverport=None, local_port=None):
+def init(**kwargs):
     '''
     Local database initialization, most used on devices
     '''
@@ -84,14 +85,10 @@ def init(dbname='database.db', server=None, serverport=None, local_port=None):
     global server_ip
     global server_port
     
-    if server != None:
-        server_ip = server
-    
-    if serverport != None:
-        server_port = serverport
-        
-    if local_port == None:
-        local_port = server_port
+    dbname = kwargs.get("database", 'database.db')
+    server = kwargs.get("server", None) #none if cloud works only on local mode
+    server_port = kwargs.get("server_port", server_port)
+    local_port = kwargs.get("local_port", server_port)
     
     #conexion sqlite para base de datos local
     cnx = sqlite3.connect(dbname)
@@ -121,7 +118,8 @@ def init(dbname='database.db', server=None, serverport=None, local_port=None):
     net = Network()  
     net.create_connection(receiver, local_port)
     
-def init_server(dbname='database.db', port=None):
+#init_server ya no se usa, todos deben usar la funcion init y si es server, pasar el parametro server_port
+def init_server(**kwargs):
     '''
     Server backend is working under sqlite3
     '''
@@ -130,11 +128,10 @@ def init_server(dbname='database.db', port=None):
     global net
     global server_port
     
-    if port == None:
-        port = server_port
-    else:
-        server_port = port
+    dbname = kwargs.get("database", "database.db")
+    port = kwargs.get("port", server_port)
     
+        
     '''
     if True:
         
@@ -1100,6 +1097,9 @@ def callback_bridge(self, *args, **kwargs):
     callback(**kwargs)
     
 def send_ping(dt):
+    '''
+    Sending ping to the server for maintain the holepunch
+    '''
     print("Sending ping")
     
     tosend = json.dumps({'msg':'ping', 'data':socket.gethostname()})
