@@ -7,6 +7,16 @@ cloud on/offline automatico y sync basado en versiones con solucion automatica d
 Se cuenta con un esquema distribuido de la base de datos en relacion a los users y devices
 '''
 
+
+'''
+Nueva documentacion:
+
+Database cloud
+Channels for realtime communication
+Distributed user management
+
+'''
+
 import json
 import uuid
 
@@ -25,7 +35,12 @@ except:
 #session token
 session_token = None
 #server_ip = "104.236.181.245"
-server_ip = "162.243.152.20" #orgboat server ip
+#server_ip = "162.243.152.20" #orgboat server ip
+
+server_ip = "127.0.0.1" #by default on localhost
+servers = []
+
+
 server_port = 11235 #fibonacci sequencie port number by default
 user = None
 net = None
@@ -211,7 +226,11 @@ def create_channel(channel_name, callback, callback_connection=None, callback_ne
 def connect_channel(channel_name, callback_notification, callback_connection=None, callback_new_client_connected=None, callback_disconnect=None):
     
     #crear canal en cloud local
-    create_channel(channel_name, callback_notification, callback_connection, callback_new_client_connected, callback_disconnect)
+    create_channel(channel_name, 
+                    callback_notification, 
+                    callback_connection, 
+                    callback_new_client_connected, 
+                    callback_disconnect)
     
     #conectar al servidor en el canal
     data = {'channel_name':channel_name}
