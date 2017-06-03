@@ -71,6 +71,9 @@ sync_callbacks = {}
 
 write_callbacks = {}
 
+#callback for devices found on local network
+callback_found_device = None
+
 def initialized():
     global cnx
     return cnx
@@ -1116,6 +1119,7 @@ def receiver(data, addr):
     global channels
     global callback_bridge
     global send_ping
+    global callback_found_device
     
     data_dict = json.loads(data)
 
@@ -1123,8 +1127,7 @@ def receiver(data, addr):
         #print('PING ACK RECEIVED FROM ', addr, data_dict['data'])
         
         if addr[0] != net.ngsock.addr[0]:
-        	pass
-            #Clock.schedule_once(partial(self.add_devicehost, addr, data_dict['data']), 0)
+            Clock.schedule_once(partial(callback_found_device, addr, data_dict['data']), 0)
         
 
     elif data_dict['msg'] == 'ping':
@@ -1406,8 +1409,18 @@ def receiver(data, addr):
         Clock.schedule_once(partial(callback_bridge, 
                                     callback = channels[channel_name]["callback"],
                                     data = data_dict["data"]), 0)
-        
-        
+    
+def scanLocalNetwork(callback_found, port=None):
+    global net
+    global callback_found_device
+    global server_port
+    
+    callback_found_device = callback_found
+    
+    if port == None:
+        port = server_port
+    
+    net.host_discover(port)
 
 if __name__ == "__main__":
     

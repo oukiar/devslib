@@ -206,7 +206,7 @@ class Transmission:
             
             packet_counter += 1
             
-        print('Enviados ' + str(len(self.packets) ) + ' paquetes')
+        #print('Enviados ' + str(len(self.packets) ) + ' paquetes')
         
 class Peer:
     def __init__(self, **kwargs):
@@ -400,7 +400,7 @@ class NetworkOut:
         transmission = peer.send(data)
         
         #print("Data: " + data)
-        print("Sending packets: " + str(len(transmission.packets)))
+        #print("Sending packets: " + str(len(transmission.packets)))
         
         #enqueue all packets to queue (safe-thread)
         for packet in transmission.packets:
@@ -684,10 +684,14 @@ class NetgetSocket:
 
             #send packet to myself saying that must shutdown receiver
             self.ngout.netget_send(self.addr, 'shutdown')
-        
+                
             self.ngout.send_thread.shutdown()
+            
+            while self.ngin.recv_thread.is_shuted_down() == False:
+                time.sleep(1)
+            
         except:
-                pass
+            print("Error finalizando socket: " + str(self.addr))
 
 class Network:
     '''
@@ -826,7 +830,10 @@ class Network:
         return ips
 
             
-    def host_discover(self):
+    def host_discover(self, port=None):
+            
+        if port == None:
+            port = netget_port
             
         for sock in self.netget_sockets:
             
@@ -838,7 +845,7 @@ class Network:
                 
                 tosend = json.dumps({'msg':'ping', 'data':None})
                 
-                sock.ngout.send((ip, netget_port), tosend)
+                sock.ngout.send((ip, port), tosend)
                 
                 
     def create_connection(self, dispatcher, port=netget_port):
