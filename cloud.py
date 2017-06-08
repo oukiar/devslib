@@ -232,6 +232,8 @@ def connect_channel(channel_name, callback_notification, callback_connection=Non
                     callback_connection, 
                     callback_new_client_connected, 
                     callback_disconnect)
+                    
+    print("Connecting to channel " + channel_name)
     
     #conectar al servidor en el canal
     data = {'channel_name':channel_name}
