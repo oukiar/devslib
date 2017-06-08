@@ -90,7 +90,7 @@ def init(**kwargs):
     global server_port
     
     dbname = kwargs.get("database", 'database.db')
-    server = kwargs.get("server", None) #none if cloud works only on local mode
+    server_ip = kwargs.get("server", None) #none if cloud works only on local mode
     server_port = kwargs.get("serverport", server_port)
     local_port = kwargs.get("localport", server_port)
     
@@ -1352,7 +1352,7 @@ def receiver(data, addr):
                                     
         #start ping interval to the server for this module
         Clock.unschedule(send_ping)
-        Clock.schedule_interval(send_ping, 10)
+        Clock.schedule_interval(send_ping, 60) #60 seconds, maybe is a good timeout for still active connections
         
         
     elif data_dict['msg'] == 'new_client_connected': 

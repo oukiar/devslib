@@ -293,6 +293,7 @@ class SendThread(threading.Thread):
                     continue
                                  
                 try:
+                    #print("Sending: ", packet_data[1])
                     self.sock.sendto(bytes(packet_data[0], "UTF-8"), packet_data[1])   #packet_data holds (data, addr)
                 except:
                     self.sock.sendto(packet_data[0], packet_data[1])   #packet_data holds (data, addr)
