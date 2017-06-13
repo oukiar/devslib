@@ -1190,6 +1190,8 @@ def dispatch_signup(addr, data_dict):
     else:
         tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
 
+    print(tosend)
+
     net.send(addr, tosend)
 
 def receiver(data, addr):
