@@ -737,7 +737,7 @@ class NGVar:
             else:
                 sql = "insert into " + self.className + "(objectId, " + sqlfields + ") values('"+ self.objectId + "', " + values + ")" 
             
-            print sql
+            print sql, lst_values
             
             try:
                 cursor = cnx.cursor()
