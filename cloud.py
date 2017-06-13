@@ -79,6 +79,7 @@ callback_found_device = None
 callback_list_channels = None
 
 callback_signup = None
+callback_login = None
 
 def initialized():
     global cnx
@@ -300,27 +301,28 @@ def create(className, objectId=None):
         
     return ngvar
 
-def login(username, password, **kwargs):
+def login(**kwargs):
     '''
     Request login always on the main server
     '''
-    data = {'username':username, 'password':password}
+    global callback_login
+    
+    callback_login = kwargs.pop("callback", None)
 
-    tosend = json.dumps({'msg':'login', 'data':data })
+    tosend = json.dumps({'msg':'login', 'data':kwargs })
 
-    net.cb_login = kwargs.get("callback")
     net.send((server_ip, server_port), tosend)
     
 def signup(**kwargs):
     '''
     Request signup always on the main server
     '''
+    global callback_signup
     
     callback_signup = kwargs.pop("callback", None)
 
     tosend = json.dumps({'msg':'signup', 'data':kwargs })
 
-    net.cb_signup = kwargs.get("callback")
     net.send((server_ip, server_port), tosend)
 
 def quit():
@@ -1195,6 +1197,67 @@ def dispatch_signup(addr, data_dict):
     print(tosend)
 
     net.send(addr, tosend)
+    
+    
+def dispatch_login(addr, data_dict):
+    
+    #try to sign up this new user
+    print(data_dict['data']['username'])
+
+    q = Query(className="users")
+    q.equalTo('username', data_dict['data']['username'])
+    result = q.find()
+    
+    if len( result ) == 0:
+        q = Query(className="users")
+        q.equalTo('email', data_dict['data']['username'])
+        result = q.find()
+    
+
+    #check that username exists
+    if len( result ):
+        '''
+        #yes, you can send messages async
+        tosend = json.dumps({'msg':'login_ack', 'data':"already_used"})
+        net.send(addr, tosend)
+        return
+        '''
+        
+        #user = NGVar(values=result[0]["values"])
+        user = result[0]
+        
+        print(result)
+        
+        print("User received pass: " + data_dict['data']['password'] )
+        print("User password hash: " + user.password )
+        
+        hashed = user.password
+        
+        #verify that password is correct
+        #if data_dict['data']['password'] == user.getval("password"):            
+        if bcrypt.hashpw( data_dict['data']['password'].encode("latin1"), hashed ) == hashed:
+            
+            #great, everithing is ok!, starting session
+        
+            #sessiontoken = os.urandom(32)
+
+            #user.setval('sessiontoken', sessiontoken)
+
+            tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":user.fix_to_json()})
+            net.send(addr, tosend)
+            
+            return
+            
+        else:
+            tosend = json.dumps({'msg':'login_ack', 'result':"error", "errormsg":"Passwords does not match"})
+            net.send(addr, tosend)        
+            return        
+    
+    #todo: check if the next result.error is correct
+    tosend = json.dumps({'msg':'login_ack', 'result':"error", "errormsg":"User does not exists"})
+    net.send(addr, tosend)
+    return
+    
 
 def receiver(data, addr):
     
@@ -1256,63 +1319,12 @@ def receiver(data, addr):
         
         print('LOGIN FROM ', addr, data_dict['data'])
         
-        #try to sign up this new user
-        print(data_dict['data']['username'])
-
-        q = Query(className="users")
-        q.equalTo('username', data_dict['data']['username'])
-        result = q.find()
+        server_dispatcher_lock.acquire()
         
-        if len( result ) == 0:
-            q = Query(className="users")
-            q.equalTo('email', data_dict['data']['username'])
-            result = q.find()
+        server_dispatchers.append( {"function":dispatch_login, "addr":addr, "data_dict":data_dict} )
         
-
-        #check that username exists
-        if len( result ):
-            '''
-            #yes, you can send messages async
-            tosend = json.dumps({'msg':'login_ack', 'data':"already_used"})
-            net.send(addr, tosend)
-            return
-            '''
-            
-            #user = NGVar(values=result[0]["values"])
-            user = result[0]
-            
-            print(result)
-            
-            print("User received pass: " + data_dict['data']['password'] )
-            print("User password hash: " + user.password )
-            
-            hashed = user.password
-            
-            #verify that password is correct
-            #if data_dict['data']['password'] == user.getval("password"):            
-            if bcrypt.hashpw( data_dict['data']['password'].encode("latin1"), hashed ) == hashed:
-                
-                #great, everithing is ok!, starting session
-            
-                #sessiontoken = os.urandom(32)
-
-                #user.setval('sessiontoken', sessiontoken)
-
-                tosend = json.dumps({'msg':'login_ack', 'result':"welcome", "user":user.fix_to_json()})
-                net.send(addr, tosend)
-                
-                return
-                
-            else:
-                tosend = json.dumps({'msg':'login_ack', 'result':"error", "errormsg":"Passwords does not match"})
-                net.send(addr, tosend)        
-                return        
+        server_dispatcher_lock.release()
         
-        #todo: check if the next result.error is correct
-        tosend = json.dumps({'msg':'login_ack', 'result':"error", "errormsg":"User does not exists"})
-        net.send(addr, tosend)
-        return
-
 
     elif data_dict['msg'] == 'sync':
         
