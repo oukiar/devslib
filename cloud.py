@@ -1130,6 +1130,62 @@ def send_ping(dt):
     tosend = json.dumps({'msg':'ping', 'data':socket.gethostname()})
     net.send((server_ip, server_port), tosend)
     
+    
+import threading
+
+server_dispatcher_lock = threading.Lock()
+
+server_dispatchers = []
+
+def dispatch_from_server():
+    server_dispatcher_lock.acquire()
+    
+    if len(server_dispatchers):
+        cbfunction = server_dispatchers.pop(0)
+        print cbfuntion
+        cbfunction()
+    
+    server_dispatcher_lock.release()
+    
+def dispatch_signup(addr, data_dict):
+    
+    #try to sign up this new user
+    print(data_dict['data']['username'])
+
+    q = Query(className="users")
+    q.equalTo('username', data_dict['data']['username'])
+    result = q.find()
+
+    #check that username does not exist
+    if len( result ):
+        #user already exists
+
+        tosend = json.dumps({'msg':'signup_ack', 'data':"already_used"})
+        net.send(addr, tosend)
+        return
+        
+    sessiontoken = os.urandom(32)
+
+    #new user initialization
+    newuser = create("users")
+    
+    newuser.from_values(data_dict['data'])
+    
+    '''
+    newuser.setval('username', data_dict['data']['username'])
+    newuser.setval('password', data_dict['data']['password'])
+    newuser.setval('email', data_dict['data']['email'])
+    '''
+    
+    newuser.sessiontoken = sessiontoken
+
+    #it is done in the server, can be syncronously
+    if(newuser.save() ):
+        tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser, "sessiontoken":sessiontoken})
+    else:
+        tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
+
+    net.send(addr, tosend)
 
 def receiver(data, addr):
     
@@ -1179,44 +1235,13 @@ def receiver(data, addr):
     elif data_dict['msg'] == 'signup':
         
         print('SIGNUP FROM ', addr, data_dict['data'])
+                    
+        server_dispatcher_lock.acquire()
         
-        #try to sign up this new user
-        print(data_dict['data']['username'])
-
-        q = Query(className="users")
-        q.equalTo('username', data_dict['data']['username'])
-        result = q.find()
-
-        #check that username does not exist
-        if len( result ):
-            #user already exists
-
-            tosend = json.dumps({'msg':'signup_ack', 'data':"already_used"})
-            net.send(addr, tosend)
-            return
-            
-        sessiontoken = os.urandom(32)
-
-        #new user initialization
-        newuser = create("users")
+        server_dispatchers.append( partial(dispatch_signup, addr, data_dict) )
         
-        newuser.from_values(data_dict['data'])
+        server_dispatcher_lock.release()
         
-        '''
-        newuser.setval('username', data_dict['data']['username'])
-        newuser.setval('password', data_dict['data']['password'])
-        newuser.setval('email', data_dict['data']['email'])
-        '''
-        
-        newuser.sessiontoken = sessiontoken
-
-        #it is done in the server, can be syncronously
-        if(newuser.save() ):
-            tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser, "sessiontoken":sessiontoken})
-        else:
-            tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
-
-        net.send(addr, tosend)
         
     elif data_dict['msg'] == 'login':
         
