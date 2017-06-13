@@ -220,11 +220,13 @@ def create_channel(channel_name, callback, callback_connection=None, callback_ne
     
     print("Creating channel " + channel_name)
     
-    channels[channel_name] = {"callback":callback, 
+    channel_data = {"callback":callback, 
                                 "callback_connection":callback_connection, 
                                 "callback_new_client_connected":callback_new_client_connected, 
                                 "callback_disconnect":callback_disconnect, 
                                 "clients":[]}
+                                
+    channels[channel_name] = channel_data
                                 
                                 
 def list_channels(callback):
@@ -1315,15 +1317,15 @@ def receiver(data, addr):
         
         print('LISTING CHANNELS FROM: ', addr, data_dict['data'])
         
-        tosend = json.dumps({'msg':'list_channels_ack', 'channels':json.dumps(channels)}, encoding='latin1')
+        tosend = json.dumps({'msg':'list_channels_ack', 'channels':channels}, encoding='latin1')
         
         net.send(addr, tosend)
         
     elif data_dict['msg'] == 'list_channels_ack': 
         
-        channels = data_dict['channels']
+        lst_channels = data_dict['channels']
         
-        Clock.schedule_once(partial(callback_list_channels, channels), 0)
+        Clock.schedule_once(partial(callback_list_channels, lst_channels), 0)
         
     elif data_dict['msg'] == 'connect_channel': 
         
