@@ -1141,9 +1141,14 @@ def dispatch_from_server():
     server_dispatcher_lock.acquire()
     
     if len(server_dispatchers):
-        cbfunction = server_dispatchers.pop(0)
-        print cbfuntion
-        cbfunction()
+        function_kwargs = server_dispatchers.pop(0)
+        print function_kwargs
+        
+        callback = function_kwargs["function"]
+        addr = function_kwargs["addr"]
+        data_dict = function_kwargs["data_dict"]
+        
+        callback(addr, data_dict)
     
     server_dispatcher_lock.release()
     
@@ -1238,7 +1243,7 @@ def receiver(data, addr):
                     
         server_dispatcher_lock.acquire()
         
-        server_dispatchers.append( partial(dispatch_signup, addr, data_dict) )
+        server_dispatchers.append( {"function":dispatch_signup, "addr":addr, "data_dict":data_dict} )
         
         server_dispatcher_lock.release()
         
