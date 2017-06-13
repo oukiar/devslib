@@ -1188,7 +1188,7 @@ def dispatch_signup(addr, data_dict):
 
     #it is done in the server, can be syncronously
     if(newuser.save() ):
-        tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser, "sessiontoken":sessiontoken})
+        tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser.fix_to_json() })
     else:
         tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
 
