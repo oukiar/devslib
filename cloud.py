@@ -74,6 +74,8 @@ write_callbacks = {}
 #callback for devices found on local network
 callback_found_device = None
 
+callback_list_channels = None
+
 def initialized():
     global cnx
     return cnx
@@ -223,6 +225,18 @@ def create_channel(channel_name, callback, callback_connection=None, callback_ne
                                 "callback_new_client_connected":callback_new_client_connected, 
                                 "callback_disconnect":callback_disconnect, 
                                 "clients":[]}
+                                
+                                
+def list_channels(callback):
+
+    global callback_list_channels
+
+    callback_list_channels = callback
+
+    tosend = json.dumps({'msg':'list_channels', 'data':None })
+
+    #net.cb_login = kwargs.get("callback")
+    net.send((server_ip, server_port), tosend)
     
 def connect_channel(channel_name, callback_notification, callback_connection=None, callback_new_client_connected=None, callback_disconnect=None):
     
@@ -1295,6 +1309,24 @@ def receiver(data, addr):
         print("Result: " + str(len(result)) )
         
         net.send(addr, tosend)
+        
+    
+    elif data_dict['msg'] == 'list_channels': 
+        
+        print('LISTING CHANNELS FROM: ', addr, data_dict['data'])
+        
+        tosend = json.dumps({'msg':'list_channels_ack', 'channels':json.dumps(channels)}, encoding='latin1')
+        
+        #print(tosend)
+        print("Result: " + str(len(result)) )
+        
+        net.send(addr, tosend)
+        
+    elif data_dict['msg'] == 'list_channels_ack': 
+        
+        channels = data_dict['channels']
+        
+        Clock.schedule_once(partial(callback_list_channels, channels), 0)
         
     elif data_dict['msg'] == 'connect_channel': 
         
