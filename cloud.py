@@ -1234,8 +1234,8 @@ def dispatch_login(addr, data_dict):
         hashed = user.password
         
         #verify that password is correct
-        #if data_dict['data']['password'] == user.getval("password"):            
-        if bcrypt.hashpw( data_dict['data']['password'].encode("latin1"), hashed ) == hashed:
+        if data_dict['data']['password'] == user.password:            
+        #if bcrypt.hashpw( data_dict['data']['password'].encode("latin1"), hashed ) == hashed:
             
             #great, everithing is ok!, starting session
         
