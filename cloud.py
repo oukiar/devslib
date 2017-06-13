@@ -76,6 +76,8 @@ callback_found_device = None
 
 callback_list_channels = None
 
+callback_signup = None
+
 def initialized():
     global cnx
     return cnx
@@ -311,6 +313,8 @@ def signup(**kwargs):
     '''
     Request signup always on the main server
     '''
+    
+    callback_signup = kwargs.pop("callback", None)
 
     tosend = json.dumps({'msg':'signup', 'data':kwargs })
 
@@ -1156,9 +1160,7 @@ def receiver(data, addr):
         
     elif data_dict['msg'] == 'signup_ack':
         
-        #print('SIGNUP ACK FROM', addr, data_dict['data'])
-        #net.cb_signup(data_dict)
-        Clock.schedule_once(partial(net.cb_signup, data_dict))
+        Clock.schedule_once(partial(callback_signup, data_dict), 0)
         
     elif data_dict['msg'] == 'login_ack':
         
@@ -1210,7 +1212,7 @@ def receiver(data, addr):
 
         #it is done in the server, can be syncronously
         if(newuser.save() ):
-            tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser})
+            tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser, "sessiontoken":sessiontoken})
         else:
             tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
 
