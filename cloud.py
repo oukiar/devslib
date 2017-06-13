@@ -1304,6 +1304,11 @@ def receiver(data, addr):
         
         channel_name = data["channel_name"]
         
+        #if the channel is not in this server, create it
+        if channel_name not in channels:
+            #create channel without callback
+            create_channel(channel_name, None):
+        
         #agregar este cliente a channel para hacer las notificaciones cuando hagan channel_write
         if addr not in channels[channel_name]["clients"]:
             channels[channel_name]["clients"].append(addr)
