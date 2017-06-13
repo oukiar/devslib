@@ -1171,7 +1171,7 @@ def dispatch_signup(addr, data_dict):
         net.send(addr, tosend)
         return
         
-    sessiontoken = os.urandom(32)
+    sessiontoken = str(uuid.uuid4())
 
     #new user initialization
     newuser = create("users")
