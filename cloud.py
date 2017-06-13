@@ -1317,9 +1317,6 @@ def receiver(data, addr):
         
         tosend = json.dumps({'msg':'list_channels_ack', 'channels':json.dumps(channels)}, encoding='latin1')
         
-        #print(tosend)
-        print("Result: " + str(len(result)) )
-        
         net.send(addr, tosend)
         
     elif data_dict['msg'] == 'list_channels_ack': 
