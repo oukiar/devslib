@@ -53,6 +53,8 @@ net = None
 #use sqlite for local storage
 import sqlite3
 
+import os
+
 '''
 try:
     import pymysql
