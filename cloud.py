@@ -307,11 +307,11 @@ def login(username, password, **kwargs):
     net.cb_login = kwargs.get("callback")
     net.send((server_ip, 31415), tosend)
     
-def signup(username, password, email, **kwargs):
+def signup(username, password, **kwargs):
     '''
     Request signup always on the main server
     '''
-    data = {'username':username, 'password':password, 'email':email}
+    data = {'username':username, 'password':password, **kwargs}
 
     tosend = json.dumps({'msg':'signup', 'data':data })
 
@@ -1198,14 +1198,20 @@ def receiver(data, addr):
 
         #new user initialization
         newuser = create("users")
+        
+        newuser.from_values(data_dict['data'])
+        
+        '''
         newuser.setval('username', data_dict['data']['username'])
         newuser.setval('password', data_dict['data']['password'])
         newuser.setval('email', data_dict['data']['email'])
-        newuser.setval('sessiontoken', sessiontoken)
+        '''
+        
+        newuser.sessiontoken = sessiontoken
 
         #it is done in the server, can be syncronously
         if(newuser.save() ):
-            tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":json.dumps(newuser.values)})
+            tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser})
         else:
             tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
 
