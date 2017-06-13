@@ -307,7 +307,7 @@ def login(username, password, **kwargs):
     tosend = json.dumps({'msg':'login', 'data':data })
 
     net.cb_login = kwargs.get("callback")
-    net.send((server_ip, 31415), tosend)
+    net.send((server_ip, server_port), tosend)
     
 def signup(**kwargs):
     '''
@@ -319,7 +319,7 @@ def signup(**kwargs):
     tosend = json.dumps({'msg':'signup', 'data':kwargs })
 
     net.cb_signup = kwargs.get("callback")
-    net.send((server_ip, 31415), tosend)
+    net.send((server_ip, server_port), tosend)
 
 def quit():
     global cnx
