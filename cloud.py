@@ -307,13 +307,12 @@ def login(username, password, **kwargs):
     net.cb_login = kwargs.get("callback")
     net.send((server_ip, 31415), tosend)
     
-def signup(username, password, **kwargs):
+def signup(**kwargs):
     '''
     Request signup always on the main server
     '''
-    data = {'username':username, 'password':password, **kwargs}
 
-    tosend = json.dumps({'msg':'signup', 'data':data })
+    tosend = json.dumps({'msg':'signup', 'data':kwargs })
 
     net.cb_signup = kwargs.get("callback")
     net.send((server_ip, 31415), tosend)
