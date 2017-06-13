@@ -77,6 +77,7 @@ write_callbacks = {}
 callback_found_device = None
 
 callback_list_channels = None
+callback_list_channel_devices = None
 
 callback_signup = None
 callback_login = None
@@ -242,10 +243,24 @@ def list_channels(callback):
 
     tosend = json.dumps({'msg':'list_channels', 'data':None })
 
-    #net.cb_login = kwargs.get("callback")
     net.send((server_ip, server_port), tosend)
     
-def connect_channel(channel_name, callback_notification, callback_connection=None, callback_new_client_connected=None, callback_disconnect=None):
+    
+def list_channel_devices(callback, channel):
+
+    global callback_list_channel_devices
+
+    callback_list_channel_devices = callback
+
+    tosend = json.dumps({'msg':'list_channel_devices', 'channel':channel })
+
+    net.send((server_ip, server_port), tosend)
+    
+def connect_channel(channel_name, 
+                        callback_notification, 
+                        callback_connection=None, 
+                        callback_new_client_connected=None, 
+                        callback_disconnect=None):
     
     #crear canal en cloud local
     create_channel(channel_name, 
@@ -261,7 +276,6 @@ def connect_channel(channel_name, callback_notification, callback_connection=Non
 
     tosend = json.dumps({'msg':'connect_channel', 'data':data })
 
-    #net.cb_login = kwargs.get("callback")
     net.send((server_ip, server_port), tosend)
     
     
@@ -1370,6 +1384,16 @@ def receiver(data, addr):
         print('LISTING CHANNELS FROM: ', addr, data_dict['data'])
         
         tosend = json.dumps({'msg':'list_channels_ack', 'channels':channels}, encoding='latin1')
+        
+        net.send(addr, tosend)
+        
+    elif data_dict['msg'] == 'list_channel_devices': 
+        
+        print('LISTING CHANNEL DEVICES FROM: ', addr, data_dict['data'])
+        
+        channel = data_dict['channel']
+        
+        tosend = json.dumps({'msg':'list_channel_devices_ack', 'channels':channels[channel]['clients']}, encoding='latin1')
         
         net.send(addr, tosend)
         
