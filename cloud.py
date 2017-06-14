@@ -1500,13 +1500,13 @@ def receiver(data, addr):
                 net.send(i, tosend)
                 
                 
-        tosend = json.dumps({'msg':'write_channel_ack', 'data':data, 'request_id':data_dict["request_id"]}, encoding='latin1')
+        tosend = json.dumps({'msg':'write_channel_ack', 'request_id':data_dict["request_id"]}, encoding='latin1')
         
         net.send(addr, tosend)
                 
     elif data_dict['msg'] == 'write_channel_ack': 
         
-        print('CHANNEL WRITE ACK FROM: ', addr, data_dict['data'])
+        print('CHANNEL WRITE ACK FROM: ', addr, data_dict)
         
         request_id = data_dict["request_id"]
         
@@ -1516,7 +1516,7 @@ def receiver(data, addr):
             
     elif data_dict['msg'] == 'inputfrom_channel': 
         
-        print('CHANNEL INPUT FROM: ', addr, data_dict['data'])
+        #print('CHANNEL INPUT FROM: ', addr, data_dict['data'])
         
         channel_name = data_dict["channel_name"]
         
