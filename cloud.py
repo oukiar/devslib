@@ -1183,7 +1183,7 @@ def dispatch_signup(addr, data_dict):
     if len( result ):
         #user already exists
 
-        tosend = json.dumps({'msg':'signup_ack', 'data':"already_used"})
+        tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":"Already in use"})
         net.send(addr, tosend)
         return
         
