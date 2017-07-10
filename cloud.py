@@ -591,7 +591,7 @@ class NGVar:
                     #print(i)
                 
     
-    def save(self):
+    def save(self, saveincloud=True):
         '''
         Insertion and Update in the save function, the object must be valid
         
@@ -638,12 +638,13 @@ class NGVar:
                     if autocommit:
                         cnx.commit()
                         
-                    print('Sync save to the server')
-                        
-                    #send to the server the event for update in the cloud, only if we have connection
-                    tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                    #send to the server
-                    net.send((server_ip, server_port), tosend)
+                    if saveincloud:
+                        print('Sync save to the server')
+                            
+                        #send to the server the event for update in the cloud, only if we have connection
+                        tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                        #send to the server
+                        net.send((server_ip, server_port), tosend)
                         
                     return True
                                       
@@ -772,12 +773,13 @@ class NGVar:
                     if autocommit:
                         cnx.commit()
                         
-                    print('Sync save to the server')
-                        
-                    #send to the server the event for update in the cloud, only if we have connection
-                    tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                    #send to the server
-                    net.send((server_ip, server_port), tosend)                    
+                    if saveincloud:
+                        print('Sync save to the server')
+                            
+                        #send to the server the event for update in the cloud, only if we have connection
+                        tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                        #send to the server
+                        net.send((server_ip, server_port), tosend)                    
                         
                     return cursor.lastrowid
                     
