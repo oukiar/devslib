@@ -591,14 +591,17 @@ class NGVar:
                     #print(i)
                 
     
-    def save(self, saveincloud=True):
+    def save(self, saveincloud=True, **kwargs):
         '''
         Insertion and Update in the save function, the object must be valid
         
         Be carefull here, because we are compatible with objectId and non standar, the save
             must avoid problems of fields existence
         '''
-        if self.objectId != "":
+        
+        sameId = kwargs.get("sameId", False)
+        
+        if self.objectId != "" and sameId == False:
             #update
             sql = "update " + self.className + " set "
             
@@ -663,8 +666,8 @@ class NGVar:
             return False
         else:
             #create object unique ID
-            self.objectId = str(uuid.uuid4())
-            
+            if sameId == False:
+                self.objectId = str(uuid.uuid4())
             
             if self.className not in tables:
                 
@@ -1240,6 +1243,9 @@ def dispatch_signup(addr, data_dict):
 
     #it is done in the server, can be syncronously
     if(newuser.save(False) ):
+        #esto es necesario debido a que 
+        #newuser.objectId = ""
+        
         tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser.fix_to_json() })
     else:
         tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
