@@ -763,6 +763,12 @@ class NGVar:
                 if cursor.execute(sql, lst_values):
                     if autocommit:
                         cnx.commit()
+                        
+                    #send to the server the event for update in the cloud, only if we have connection
+                    tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json})
+                    #send to the server
+                    net.send((server_ip, server_port), tosend)                    
+                        
                     return cursor.lastrowid
                     
             except sqlite3.Error as e:
@@ -1527,6 +1533,13 @@ def receiver(data, addr):
         Clock.schedule_once(partial(callback_bridge, 
                                     callback = channels[channel_name]["callback"],
                                     data = data_dict["data"]), 0)
+                                    
+    elif data_dict['msg'] == 'update_from_client':
+        print('Update from client: ', data_dict['data'] )
+        
+        
+        
+        
     
 def scanLocalNetwork(callback_found, port=None):
     global net
