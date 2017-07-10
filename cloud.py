@@ -1549,8 +1549,20 @@ def receiver(data, addr):
     elif data_dict['msg'] == 'update_from_client':
         print('Update from client: ', data_dict['data'] )
         
+        updatingvar = create(className=data_dict['className'], objectId=data_dict['data']['objectId'])
         
+        updatingvar.from_values(data_dict['data'])
         
+        #enviamos false para indicar que no actualize cloud, pues normalmente esto sucede en serverside
+        updatingvar.save(False)
+        
+        #avisamos al cliente que el save fue satisfactorio
+        tosend = json.dumps({'msg':'update_from_client_ack', 'objectId':data_dict['data']['objectId']}, encoding='latin1')
+        
+        net.send(addr, tosend)
+        
+    elif data_dict['msg'] == 'update_from_client_ack':
+        print('Update from client ACK: ', data_dict['data'] )
         
     
 def scanLocalNetwork(callback_found, port=None):
