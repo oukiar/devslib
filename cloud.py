@@ -1194,9 +1194,9 @@ def dispatch_signup(addr, data_dict):
     
     newuser.from_values(data_dict['data'])
     
-    newuser.modules = []
-    newuser.groups = []
-    newuser.privileges = {}
+    newuser.modules = ""
+    newuser.groups = ""
+    newuser.privileges = ""
     
     '''
     newuser.setval('username', data_dict['data']['username'])
