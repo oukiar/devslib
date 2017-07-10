@@ -1239,7 +1239,7 @@ def dispatch_signup(addr, data_dict):
     newuser.sessiontoken = sessiontoken
 
     #it is done in the server, can be syncronously
-    if(newuser.save() ):
+    if(newuser.save(False) ):
         tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser.fix_to_json() })
     else:
         tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
@@ -1571,7 +1571,7 @@ def receiver(data, addr):
         
         
     elif data_dict['msg'] == 'update_from_client_ack':
-        print('Update from client ACK: ', data_dict['data'] )
+        print('Update from client ACK: ', data_dict['objectId'] )
         
     
 def scanLocalNetwork(callback_found, port=None):
