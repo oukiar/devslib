@@ -565,9 +565,10 @@ class NGVar:
         self.sql = ""
         self.className = kwargs.get("className")
         self.objectId_key = kwargs.get("objectId_key", None) #this is usefull for compatibility with non standar key fields, is mandatory autoincrement with this mode
-        self.objectId = kwargs.get("objectId", "")
-                
+        
         self.members_backlist = dir(self)
+        
+        self.objectId = kwargs.get("objectId", "")
     
         #if objectId is comming on kwargs, initialize with values from database
         if self.objectId != "":
@@ -636,6 +637,13 @@ class NGVar:
                     
                     if autocommit:
                         cnx.commit()
+                        
+                    print('Sync save to the server')
+                        
+                    #send to the server the event for update in the cloud, only if we have connection
+                    tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                    #send to the server
+                    net.send((server_ip, server_port), tosend)
                         
                     return True
                                       
@@ -763,6 +771,8 @@ class NGVar:
                 if cursor.execute(sql, lst_values):
                     if autocommit:
                         cnx.commit()
+                        
+                    print('Sync save to the server')
                         
                     #send to the server the event for update in the cloud, only if we have connection
                     tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json})
