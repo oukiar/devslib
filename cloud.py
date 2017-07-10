@@ -703,7 +703,7 @@ class NGVar:
                         else:
                             right_sql += ", " + i + " " + tp
                 
-                if has_autoincrement or sameId:
+                if has_autoincrement or sameId or 'objectId' in right_sql:
                     sql = "CREATE TABLE %s (" % (self.className) + right_sql + ");"
                 else:
                     sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL, " % (self.className)  + right_sql +   ");"
