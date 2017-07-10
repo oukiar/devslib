@@ -591,7 +591,7 @@ class NGVar:
                     #print(i)
                 
     
-    def save(self, saveincloud=True, **kwargs):
+    def save(self, **kwargs):
         '''
         Insertion and Update in the save function, the object must be valid
         
@@ -600,6 +600,7 @@ class NGVar:
         '''
         
         sameId = kwargs.get("sameId", False)
+        saveincloud = kwargs.get("saveincloud", True) 
         
         if self.objectId != "" and sameId == False:
             #update
@@ -1242,7 +1243,7 @@ def dispatch_signup(addr, data_dict):
     newuser.sessiontoken = sessiontoken
 
     #it is done in the server, can be syncronously
-    if(newuser.save(False) ):
+    if(newuser.save(saveincloud=False) ):
         #esto es necesario debido a que 
         #newuser.objectId = ""
         
