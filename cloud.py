@@ -760,7 +760,7 @@ class NGVar:
                             values += ", '" + str(getattr(self, i).encode('utf8') ) + "'"
                     '''
             
-            if has_autoincrement:
+            if has_autoincrement or sameId:
                 sql = "insert into " + self.className + "(" + sqlfields + ") values(" + values + ")" 
             else:
                 sql = "insert into " + self.className + "(objectId, " + sqlfields + ") values('"+ self.objectId + "', " + values + ")" 
