@@ -1188,6 +1188,20 @@ def dispatch_from_server():
     
     server_dispatcher_lock.release()
     
+def dispatch_save(addr, data_dict):
+    
+    updatingvar = create(className=data_dict['className'], objectId=data_dict['data']['objectId'])
+    
+    updatingvar.from_values(data_dict['data'])
+    
+    #enviamos false para indicar que no actualize cloud, pues normalmente esto sucede en serverside
+    updatingvar.save(False)
+    
+    #avisamos al cliente que el save fue satisfactorio
+    tosend = json.dumps({'msg':'update_from_client_ack', 'objectId':data_dict['data']['objectId']}, encoding='latin1')
+    
+    net.send(addr, tosend)
+    
 def dispatch_signup(addr, data_dict):
     
     #try to sign up this new user
@@ -1548,18 +1562,13 @@ def receiver(data, addr):
                                     
     elif data_dict['msg'] == 'update_from_client':
         print('Update from client: ', data_dict['data'] )
+                
+        server_dispatcher_lock.acquire()
         
-        updatingvar = create(className=data_dict['className'], objectId=data_dict['data']['objectId'])
+        server_dispatchers.append( {"function":dispatch_save, "addr":addr, "data_dict":data_dict} )
         
-        updatingvar.from_values(data_dict['data'])
+        server_dispatcher_lock.release()
         
-        #enviamos false para indicar que no actualize cloud, pues normalmente esto sucede en serverside
-        updatingvar.save(False)
-        
-        #avisamos al cliente que el save fue satisfactorio
-        tosend = json.dumps({'msg':'update_from_client_ack', 'objectId':data_dict['data']['objectId']}, encoding='latin1')
-        
-        net.send(addr, tosend)
         
     elif data_dict['msg'] == 'update_from_client_ack':
         print('Update from client ACK: ', data_dict['data'] )
