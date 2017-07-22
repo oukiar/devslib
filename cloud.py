@@ -567,6 +567,7 @@ class NGVar:
         self.sql = ""
         self.className = kwargs.get("className")
         self.objectId_key = kwargs.get("objectId_key", None) #this is usefull for compatibility with non standar key fields, is mandatory autoincrement with this mode
+        self.saveincloud = True
         
         self.members_backlist = dir(self)
         
@@ -602,7 +603,7 @@ class NGVar:
         '''
         
         #sameId = kwargs.get("sameId", False) #util para almacenar objetos que tienen objectId en los values, tales como cuando retorna desde el server
-        self.saveincloud = kwargs.get("saveincloud", True)
+        self.saveincloud = kwargs.pop("saveincloud", True)
         
         if self.className not in tables:
                 
