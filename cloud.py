@@ -73,6 +73,8 @@ sync_callbacks = {}
 
 write_callbacks = {}
 
+save_callbacks = {}
+
 #callback for devices found on local network
 callback_found_device = None
 
@@ -599,207 +601,225 @@ class NGVar:
             must avoid problems of fields existence
         '''
         
-        sameId = kwargs.get("sameId", False)
-        saveincloud = kwargs.get("saveincloud", True) 
+        #sameId = kwargs.get("sameId", False) #util para almacenar objetos que tienen objectId en los values, tales como cuando retorna desde el server
+        self.saveincloud = kwargs.get("saveincloud", True)
         
-        if self.objectId != "" and sameId == False:
-            #update
-            sql = "update " + self.className + " set "
-            
-            values = ""
-            lst_values = []
-            
-            for i in dir(self):
-                if i not in self.members_backlist and i != "members_backlist":
-                                        
-                    #print (str(type(getattr(self, i) )))
-                    
-                    '''
-                    if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
-                        val = str(getattr(self, i))
-                    else:
-                        try:
-                            val = "'" + str(getattr(self, i) ) + "'"
-                        except:
-                            val = "'" + str(getattr(self, i).encode('utf8') ) + "'"
-                    '''
-                    
-                    lst_values.append(getattr(self, i))
-            
-                    if values == "":
-                        values = i + "=?" #+ val
-                    else:
-                        values += ", " + i + "=?" #+ val
-            
-            sql += values + " where objectId='"+ self.objectId + "'"  
-            
-            
-            try:
-                cursor = cnx.cursor()
-                if cursor.execute(sql, lst_values):
-                    #print("SQL: " + sql)
-                    
-                    if autocommit:
-                        cnx.commit()
-                        
-                    if saveincloud:
-                        print('Sync save to the server')
-                            
-                        #send to the server the event for update in the cloud, only if we have connection
-                        tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                        #send to the server
-                        net.send((server_ip, server_port), tosend)
-                        
-                    return True
-                                      
-            except sqlite3.Error as e:
-            
-                if 'no such table' in e.args[0]:
-                    print('sqlite3 Error: No such table')
-                    print (e.args[0])
-                else:
-                    print('sqlite3 Error: Unknown error')
-                    print (e.args[0])
-                                
-                print("Error updating-saving: " + sql)
-                print("Values: " + json.dumps(lst_values) )
-            
-            return False
-        else:
-            #create object unique ID
-            if sameId == False:
-                self.objectId = str(uuid.uuid4())
-            
-            if self.className not in tables:
+        if self.className not in tables:
                 
-                tables.append(self.className)
-                
-                #create table
-                #sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL" % (self.className)
-                
-                print("Recorriendo elementos de self")
-                
-                right_sql = ""
-                has_autoincrement = False
-                
-                #recorrer con dir los elementos de nuestro objeto, para saber que campos llevara
-                for i in dir(self):
-                    if i not in self.members_backlist and i != "members_backlist":
-                        
-                        #print(i, type(getattr(self, i) ) )
-                        
-                        if getattr(self, i) == "[AUTO_INCREMENT]":
-                            tp = "INTEGER PRIMARY KEY" #esto es para autoincrement en sqlite3, posiblemente manejemos este backend primariamente
-                            has_autoincrement = True
-                        elif str(type(getattr(self, i) )) in ["<type 'str'>", "<type 'unicode'>", "<class 'str'>"]:
-                            tp = "TEXT"
-                        elif str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
-                            tp = "INT"
-                        else:
-                            tp = "" #esto quizas provoca error al no definir tipo del campo
-                        
-                        if right_sql == "":
-                            right_sql = i + " " + tp
-                        else:
-                            right_sql += ", " + i + " " + tp
-                
-                if has_autoincrement or sameId or 'objectId' in right_sql:
-                    sql = "CREATE TABLE %s (" % (self.className) + right_sql + ");"
-                else:
-                    sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL, " % (self.className)  + right_sql +   ");"
-                
-                print sql
-                
-                #crear tabla
-                cursor = cnx.cursor()
-                
-                if cursor.execute(sql):
-                    print("Tabla creada")
-                else:
-                    print("Error creando tabla SQL: " + sql)
-            else:
-                pass
-                #print("Table already exists")
-                
+            tables.append(self.className)
             
-            #-------- INSERCION 
+            #create table
+            #sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL" % (self.className)
             
-            values = ""
-            lst_values = []
+            #print("Recorriendo elementos de self")
             
+            right_sql = ""
             has_autoincrement = False
-            sqlfields = ""
             
+            #recorrer con dir los elementos de nuestro objeto, para saber que campos llevara
             for i in dir(self):
                 if i not in self.members_backlist and i != "members_backlist":
+                    
+                    #print(i, type(getattr(self, i) ) )
                     
                     if getattr(self, i) == "[AUTO_INCREMENT]":
+                        tp = "INTEGER PRIMARY KEY" #esto es para autoincrement en sqlite3, posiblemente manejemos este backend primariamente
                         has_autoincrement = True
-                        continue
-                    
-                    if sqlfields == "":
-                        sqlfields += " " + i #HERE: avoid the sqlinjection
+                    elif str(type(getattr(self, i) )) in ["<type 'str'>", "<type 'unicode'>", "<class 'str'>"]:
+                        tp = "TEXT"
+                    elif str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
+                        tp = "INT"
                     else:
-                        sqlfields += ", " + i #HERE: avoid the sqlinjection
+                        tp = "" #esto quizas provoca error al no definir tipo del campo
                     
-                    #print (str(type(getattr(self, i) )))
-                    if values == "":
-                        values += "?" 
+                    if right_sql == "":
+                        right_sql = i + " " + tp
                     else:
-                        values += ", ?"
-                         
-                    lst_values.append(getattr(self, i))
-                
-                    
-                    '''
-                    if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
-                        values += ", " + str(getattr(self, i))
-                    else:
-                        try:
-                            values += ", '" + str(getattr(self, i) ) + "'"
-                        except:
-                            values += ", '" + str(getattr(self, i).encode('utf8') ) + "'"
-                    '''
+                        right_sql += ", " + i + " " + tp
             
-            if has_autoincrement or sameId:
-                sql = "insert into " + self.className + "(" + sqlfields + ") values(" + values + ")" 
+            if has_autoincrement or 'objectId' in right_sql:
+                sql = "CREATE TABLE %s (" % (self.className) + right_sql + ");"
             else:
-                sql = "insert into " + self.className + "(objectId, " + sqlfields + ") values('"+ self.objectId + "', " + values + ")" 
+                sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL, " % (self.className)  + right_sql +   ");"
             
-            print sql, lst_values
+            print sql
             
-            try:
-                cursor = cnx.cursor()
+            #crear tabla
+            cursor = cnx.cursor()
+            
+            if cursor.execute(sql):
+                print("Tabla creada")
+            else:
+                print("Error creando tabla SQL: " + sql)
+        else:
+            pass
+            #print("Table already exists")
+        
+        if self.objectId != "":
+            return self.real_save(**kwargs)
+        else:
+            return self.real_insert(**kwargs)
+            
+            
+            
+    def real_save(self, **kwargs):
+        #update
+        sql = "update " + self.className + " set "
+        
+        values = ""
+        lst_values = []
+        
+        for i in dir(self):
+            if i not in self.members_backlist and i != "members_backlist":
+                                    
+                #print (str(type(getattr(self, i) )))
                 
-                #print("SQL: " + sql)
-                
-                if cursor.execute(sql, lst_values):
-                    if autocommit:
-                        cnx.commit()
-                        
-                    if saveincloud:
-                        print('Sync save to the server')
-                            
-                        #send to the server the event for update in the cloud, only if we have connection
-                        tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                        #send to the server
-                        net.send((server_ip, server_port), tosend)                    
-                        
-                    return cursor.lastrowid
-                    
-            except sqlite3.Error as e:
-            
-                if 'no such table' in e.args[0]:
-                    print('sqlite3 Error: No such table')
-                    print (e.args[0])
+                '''
+                if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
+                    val = str(getattr(self, i))
                 else:
-                    print('sqlite3 Error: Unknown error')
-                    print (e.args[0])
+                    try:
+                        val = "'" + str(getattr(self, i) ) + "'"
+                    except:
+                        val = "'" + str(getattr(self, i).encode('utf8') ) + "'"
+                '''
                 
-                #print("Error saving: " + sql)
-                #input()
+                lst_values.append(getattr(self, i))
+        
+                if values == "":
+                    values = i + "=?" #+ val
+                else:
+                    values += ", " + i + "=?" #+ val
+        
+        sql += values + " where objectId='"+ self.objectId + "'"  
+        
+        
+        try:
+            cursor = cnx.cursor()
+            if cursor.execute(sql, lst_values):
+                #print("SQL: " + sql)
+                #print("Modified rows: " + str(cursor.rowcount))
+                
+                #si no se pudo actualizar entonces no existe, debe ser creado
+                if cursor.rowcount == 0:
+                    self.real_insert(**kwargs)
+                
+                if autocommit:
+                    cnx.commit()
+                    
+                if self.saveincloud:
+                    print('Sync save to the server')
+                    
+                    #guardar el callback que sera llamado en respuesta a esta llamada
+                    save_callbacks[self.objectId] = kwargs.get('callback', None)
+                        
+                    #send to the server the event for update in the cloud, only if we have connection
+                    tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                    #send to the server
+                    net.send((server_ip, server_port), tosend)
+                    
+                return True
+                                  
+        except sqlite3.Error as e:
+        
+            if 'no such table' in e.args[0]:
+                print('sqlite3 Error: No such table')
+                print (e.args[0])
+            else:
+                print('sqlite3 Error: Unknown error')
+                print (e.args[0])
+                            
+            print("Error updating-saving: " + sql)
+            print("Values: " + json.dumps(lst_values) )
+        
+        return False
+        
+    def real_insert(self, **kwargs):
+        #create object unique ID
+        self.objectId = str(uuid.uuid4())
             
-            return False
+        
+        #-------- INSERCION 
+        
+        values = ""
+        lst_values = []
+        
+        has_autoincrement = False
+        sqlfields = ""
+        
+        for i in dir(self):
+            if i not in self.members_backlist and i != "members_backlist":
+                
+                if getattr(self, i) == "[AUTO_INCREMENT]":
+                    has_autoincrement = True
+                    continue
+                
+                if sqlfields == "":
+                    sqlfields += " " + i #HERE: avoid the sqlinjection
+                else:
+                    sqlfields += ", " + i #HERE: avoid the sqlinjection
+                
+                #print (str(type(getattr(self, i) )))
+                if values == "":
+                    values += "?" 
+                else:
+                    values += ", ?"
+                     
+                lst_values.append(getattr(self, i))
+            
+                
+                '''
+                if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
+                    values += ", " + str(getattr(self, i))
+                else:
+                    try:
+                        values += ", '" + str(getattr(self, i) ) + "'"
+                    except:
+                        values += ", '" + str(getattr(self, i).encode('utf8') ) + "'"
+                '''
+        
+        if has_autoincrement or 'objectId' in sqlfields:
+            sql = "insert into " + self.className + "(" + sqlfields + ") values(" + values + ")" 
+        else:
+            sql = "insert into " + self.className + "(objectId, " + sqlfields + ") values('"+ self.objectId + "', " + values + ")" 
+        
+        print sql, lst_values
+        
+        try:
+            cursor = cnx.cursor()
+            
+            #print("SQL: " + sql)
+            
+            if cursor.execute(sql, lst_values):
+                if autocommit:
+                    cnx.commit()
+                    
+                if self.saveincloud:
+                    print('Sync save to the server')
+                    
+                    #guardar el callback que sera llamado en respuesta a esta llamada
+                    save_callbacks[self.objectId] = kwargs.get('callback', None)
+                        
+                    #send to the server the event for update in the cloud, only if we have connection
+                    tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                    #send to the server
+                    net.send((server_ip, server_port), tosend)                    
+                    
+                return cursor.lastrowid
+                
+        except sqlite3.Error as e:
+        
+            if 'no such table' in e.args[0]:
+                print('sqlite3 Error: No such table')
+                print (e.args[0])
+            else:
+                print('sqlite3 Error: Unknown error')
+                print (e.args[0])
+            
+            #print("Error saving: " + sql)
+            #input()
+        
+        return False
 
     def delete(self, destroy=True):
         '''
@@ -1578,7 +1598,13 @@ def receiver(data, addr):
         
         
     elif data_dict['msg'] == 'update_from_client_ack':
+        #ejecucion de callback en base al objectId que llamo la actualizacion cloud
         print('Update from client ACK: ', data_dict['objectId'] )
+        
+        if save_callbacks[data_dict['objectId']] != None:
+            Clock.schedule_once(partial(save_callbacks[data_dict['objectId']], data_dict['objectId']), 0)
+        
+        
         
     
 def scanLocalNetwork(callback_found, port=None):
