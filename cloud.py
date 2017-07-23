@@ -698,8 +698,8 @@ class NGVar:
         try:
             cursor = cnx.cursor()
             if cursor.execute(sql, lst_values):
-                #print("SQL: " + sql)
-                #print("Modified rows: " + str(cursor.rowcount))
+                print("SQL: " + sql)
+                print("Modified rows: " + str(cursor.rowcount))
                 
                 #si no se pudo actualizar entonces no existe, debe ser creado
                 if cursor.rowcount == 0:
