@@ -737,7 +737,8 @@ class NGVar:
         
     def real_insert(self, **kwargs):
         #create object unique ID
-        self.objectId = str(uuid.uuid4())
+        if self.objectId == '':
+            self.objectId = str(uuid.uuid4())
             
         
         #-------- INSERCION 
