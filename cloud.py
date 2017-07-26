@@ -592,7 +592,20 @@ class NGVar:
                         setattr(self, i, getattr(row, i) )
                         
                     #print(i)
-                
+         
+    def get_col_type(self, col):
+
+        if getattr(self, col) == "[AUTO_INCREMENT]":
+            tp = "INTEGER PRIMARY KEY" #esto es para autoincrement en sqlite3, posiblemente manejemos este backend primariamente
+            has_autoincrement = True
+        elif str(type(getattr(self, col) )) in ["<type 'str'>", "<type 'unicode'>", "<class 'str'>"]:
+            tp = "TEXT"
+        elif str(type(getattr(self, col) )) in ["<type 'int'>", "<class 'int'>"]:
+            tp = "INT"
+        else:
+            tp = "" #esto quizas provoca error al no definir tipo del campo
+            
+        return tp
     
     def save(self, **kwargs):
         '''
@@ -726,12 +739,29 @@ class NGVar:
             if 'no such table' in e.args[0]:
                 print('sqlite3 Error: No such table')
                 print (e.args[0])
+            elif 'no such column' in e.args[0]:
+                col = e.args[0].split(': ')[1]
+                print("Columna no detectada, creando: " + col)
+                
+                typecol = self.get_col_type(col)
+                
+                sql = "ALTER TABLE " + self.className + " ADD COLUMN " + col + " " + typecol + ";"
+                
+                print(sql)
+                
+                cursor = cnx.cursor()
+                
+                if cursor.execute(sql):
+                    self.real_save(**kwargs)
+                else:
+                    print("Error creando nueva columna")
+                
             else:
                 print('sqlite3 Error: Unknown error')
                 print (e.args[0])
                             
-            print("Error updating-saving: " + sql)
-            print("Values: " + json.dumps(lst_values) )
+            #print("Error updating-saving: " + sql)
+            #print("Values: " + json.dumps(lst_values) )
         
         return False
         
