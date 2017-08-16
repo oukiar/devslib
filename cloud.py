@@ -666,7 +666,7 @@ class NGVar:
                     print("Tabla creada")
                 else:
                     print("Error creando tabla SQL: " + sql)
-            pass:
+            except:
                 print('Error at table creation')
         else:
             pass
