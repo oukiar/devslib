@@ -661,10 +661,13 @@ class NGVar:
             #crear tabla
             cursor = cnx.cursor()
             
-            if cursor.execute(sql):
-                print("Tabla creada")
-            else:
-                print("Error creando tabla SQL: " + sql)
+            try:
+                if cursor.execute(sql):
+                    print("Tabla creada")
+                else:
+                    print("Error creando tabla SQL: " + sql)
+            pass:
+                print('Error at table creation')
         else:
             pass
             #print("Table already exists")
