@@ -847,6 +847,26 @@ class NGVar:
             if 'no such table' in e.args[0]:
                 print('sqlite3 Error: No such table')
                 print (e.args[0])
+            elif 'no such column' in e.args[0] or 'no column named' in e.args[0]:
+                try:
+                    col = e.args[0].split(': ')[1]
+                except:
+                    col = e.args[0].split('no column named ')[1]
+                    
+                print("Columna no detectada, creando: " + col)
+                
+                typecol = self.get_col_type(col)
+                
+                sql = "ALTER TABLE " + self.className + " ADD COLUMN " + col + " " + typecol + ";"
+                
+                print(sql)
+                
+                cursor = cnx.cursor()
+                
+                if cursor.execute(sql):
+                    self.real_insert(**kwargs)
+                else:
+                    print("Error creando nueva columna")
             else:
                 print('sqlite3 Error: Unknown error')
                 print (e.args[0])
