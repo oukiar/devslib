@@ -19,6 +19,8 @@ Distributed user management
 
 import json
 import uuid
+import datetime
+import time
 
 try:
     from kivy.clock import Clock
@@ -62,6 +64,8 @@ except:
     pymysql = None
 '''
 
+is_server = False
+
 cnx = None
 tables = []
 autocommit = True
@@ -74,6 +78,8 @@ sync_callbacks = {}
 write_callbacks = {}
 
 save_callbacks = {}
+
+delete_callbacks = {}
 
 #callback for devices found on local network
 callback_found_device = None
@@ -141,6 +147,9 @@ def init_server(**kwargs):
     global tables
     global net
     global server_port
+    global is_server
+    
+    is_server = True
     
     dbname = kwargs.get("database", "database.db")
     port = kwargs.get("port", server_port)
@@ -725,15 +734,26 @@ class NGVar:
                     cnx.commit()
                     
                 if self.saveincloud:
-                    print('Sync save to the server')
-                    
-                    #guardar el callback que sera llamado en respuesta a esta llamada
-                    save_callbacks[self.objectId] = kwargs.get('callback', None)
+                    if is_server == False:
+                        print('Sync save to the server')
                         
-                    #send to the server the event for update in the cloud, only if we have connection
-                    tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                    #send to the server
-                    net.send((server_ip, server_port), tosend)
+                        #guardar el callback que sera llamado en respuesta a esta llamada
+                        save_callbacks[self.objectId] = kwargs.get('callback', None)
+                            
+                        #send to the server the event for update in the cloud, only if we have connection
+                        tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                        #send to the server
+                        net.send((server_ip, server_port), tosend)
+                        
+                        #guardar esta transaccion en la tabla de transacciones
+                        t = cloud.create(className='transactions')
+                        t.model = self.className
+                        t.operation = 'update'
+                        t.object_json = self.fix_to_json()
+                        t.sql = sql
+                        t.values = json.dumps(lst_values)
+                        t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                        t.save()
                     
                 return True
                                   
@@ -781,6 +801,8 @@ class NGVar:
         
         has_autoincrement = False
         sqlfields = ""
+        
+        self.saveincloud = kwargs.pop("saveincloud", True)
         
         for i in dir(self):
             if i not in self.members_backlist and i != "members_backlist":
@@ -830,15 +852,26 @@ class NGVar:
                     cnx.commit()
                     
                 if self.saveincloud:
-                    print('Sync save to the server')
-                    
-                    #guardar el callback que sera llamado en respuesta a esta llamada
-                    save_callbacks[self.objectId] = kwargs.get('callback', None)
+                    if is_server == False:
+                        print('Sync save to the server')
                         
-                    #send to the server the event for update in the cloud, only if we have connection
-                    tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                    #send to the server
-                    net.send((server_ip, server_port), tosend)                    
+                        #guardar el callback que sera llamado en respuesta a esta llamada
+                        save_callbacks[self.objectId] = kwargs.get('callback', None)
+                            
+                        #send to the server the event for update in the cloud, only if we have connection
+                        tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                        #send to the server
+                        net.send((server_ip, server_port), tosend)
+                        
+                        #guardar esta transaccion en la tabla de transacciones
+                        t = cloud.create(className='transactions')
+                        t.model = self.className
+                        t.operation = 'create'
+                        t.object_json = self.fix_to_json()
+                        t.sql = sql
+                        t.values = json.dumps(lst_values)
+                        t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                        t.save()
                     
                 return cursor.lastrowid
                 
@@ -876,30 +909,47 @@ class NGVar:
         
         return False
 
-    def delete(self, destroy=True):
+    def delete(self, **kwargs):
         '''
         By default delete the row ... 
         '''
         sql = "delete from " + self.className + " where objectId='" + self.objectId + "'"
         print("Deleting: " + sql)
         
+        self.saveincloud = kwargs.pop("saveincloud", True)
+        
         cursor = cnx.cursor()
         if cursor.execute(sql):
             #print("SQL: " + sql)
             if autocommit:
                 cnx.commit()
+                
+            if self.saveincloud:
+                if is_server == False:
+                    #sync this deletion with the server
+                    
+                    #guardar el callback que sera llamado en respuesta a esta llamada
+                    delete_callbacks[self.objectId] = kwargs.get('callback', None)
+                        
+                    #send to the server the event for update in the cloud, only if we have connection
+                    tosend = json.dumps({'msg':'delete_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                    #send to the server
+                    net.send((server_ip, server_port), tosend)
+                    
+                    #save this transaction locally
+                    #guardar esta transaccion en la tabla de transacciones
+                    t = cloud.create(className='transactions')
+                    t.model = self.className
+                    t.operation = 'delete'
+                    t.object_json = self.fix_to_json()
+                    t.sql = sql
+                    t.values = None
+                    t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                    t.save()
+                
             return True
         
         return False
-
-    def destroy(self):
-    	'''
-    	This will really delete the register
-    	'''
-    	pass
-        
-        
-
         
     def fix_to_json(self):
         
