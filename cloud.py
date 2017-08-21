@@ -757,7 +757,7 @@ class NGVar:
                         
                     if self.className != 'transactions':
                         #guardar esta transaccion en la tabla de transacciones
-                        t = cloud.create(className='transactions')
+                        t = create(className='transactions')
                         t.model = self.className
                         t.operation = 'update'
                         t.object_json = self.fix_to_json()
@@ -876,7 +876,7 @@ class NGVar:
                         
                     if self.className != 'transactions':
                         #guardar esta transaccion en la tabla de transacciones
-                        t = cloud.create(className='transactions')
+                        t = create(className='transactions')
                         t.model = self.className
                         t.operation = 'create'
                         t.object_json = self.fix_to_json()
@@ -951,7 +951,7 @@ class NGVar:
                 #save this transaction locally
                 if self.className != 'transactions':
                     #guardar esta transaccion en la tabla de transacciones
-                    t = cloud.create(className='transactions')
+                    t = create(className='transactions')
                     t.model = self.className
                     t.operation = 'delete'
                     t.object_json = self.fix_to_json()
