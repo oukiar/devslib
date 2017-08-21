@@ -755,6 +755,7 @@ class NGVar:
                         #send to the server
                         net.send((server_ip, server_port), tosend)
                         
+                    if self.className != 'transactions':
                         #guardar esta transaccion en la tabla de transacciones
                         t = cloud.create(className='transactions')
                         t.model = self.className
@@ -873,6 +874,7 @@ class NGVar:
                         #send to the server
                         net.send((server_ip, server_port), tosend)
                         
+                    if self.className != 'transactions':
                         #guardar esta transaccion en la tabla de transacciones
                         t = cloud.create(className='transactions')
                         t.model = self.className
@@ -946,7 +948,8 @@ class NGVar:
                     #send to the server
                     net.send((server_ip, server_port), tosend)
                     
-                    #save this transaction locally
+                #save this transaction locally
+                if self.className != 'transactions':
                     #guardar esta transaccion en la tabla de transacciones
                     t = cloud.create(className='transactions')
                     t.model = self.className
