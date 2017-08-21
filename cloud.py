@@ -427,6 +427,16 @@ def sync(className, target_ip=server_ip, **kwargs):
     #raw_input()
     '''
     
+    '''
+    *****ACTUALIZACION 21 AGOSTO 2017
+    
+    - SE LLEVA UNA TABLA DE TRANSACCIONES DONDE SE ALMACENAN LAS INSERCIONES, ACTUALIZACIONES Y ELIMINACIONES
+    - PARA LOGRAR LA SINCRONIZACION SIMPLEMENTE SE HACE COMPARACION DE LOS TIMESTAMPS DE LAS TRANSACCIONES Y
+        LOS NUMEROS DE ID CONSECUTIVOS, EN CASO DE HABER DISCREPANCIAS, SIEMPRE EL SERVIDOR ES MANTADORIO PARA
+        REALIZAR LOS AJUSTES DEL CONSECUTIVO, PONIENDO COMO DUPLICADOS EN ID LOS QUE CORRESPONDAN A COLICIONES
+        DE EL MISMO REGISTRO (YA QUE EL PROBLEMA SOLO SURGE AL REALIZAR ACTUALIZACION)
+    '''
+    
     #get the difference between local index and latest index on the remote database
     data = {'className':className, 'sql':sql, 'params':params}
     tosend = json.dumps({'msg':'sync', 'data':data })
