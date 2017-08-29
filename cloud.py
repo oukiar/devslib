@@ -760,9 +760,9 @@ class NGVar:
                         t = create(className='transactions')
                         t.model = self.className
                         t.operation = 'update'
-                        t.object_json = self.fix_to_json()
+                        t.object_json = json.dumps(self.fix_to_json())
                         t.sql = sql
-                        t.values = json.dumps(lst_values)
+                        t.json_values = json.dumps(lst_values)
                         t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                         t.save()
                     
@@ -851,7 +851,7 @@ class NGVar:
         else:
             sql = "insert into " + self.className + "(objectId, " + sqlfields + ") values('"+ self.objectId + "', " + values + ")" 
         
-        print sql, lst_values
+        #print sql, lst_values
         
         try:
             cursor = cnx.cursor()
@@ -879,9 +879,9 @@ class NGVar:
                         t = create(className='transactions')
                         t.model = self.className
                         t.operation = 'create'
-                        t.object_json = self.fix_to_json()
+                        t.object_json = json.dumps(self.fix_to_json())
                         t.sql = sql
-                        t.values = json.dumps(lst_values)
+                        t.json_values = json.dumps(lst_values)
                         t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                         t.save()
                     
@@ -954,9 +954,9 @@ class NGVar:
                     t = create(className='transactions')
                     t.model = self.className
                     t.operation = 'delete'
-                    t.object_json = self.fix_to_json()
+                    t.object_json = json.dumps(self.fix_to_json())
                     t.sql = sql
-                    t.values = None
+                    t.json_values = None
                     t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                     t.save()
                 
