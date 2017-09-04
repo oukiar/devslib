@@ -1672,6 +1672,11 @@ def receiver(data, addr):
         
         channel_name = data_dict["channel_name"]
         
+        #if the channel is not in this server, create it
+        if channel_name not in channels:
+            #create channel without callback
+            create_channel(channel_name, None)
+        
         #recorrer lista de clientes conectados al canal
         for i in channels[channel_name]["clients"]:
 
