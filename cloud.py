@@ -1665,7 +1665,7 @@ def receiver(data, addr):
         
     elif data_dict['msg'] == 'write_channel': 
         
-        print('CHANNEL WRITE FROM: ', addr, data_dict['data'])
+        print('CHANNEL WRITE FROM: ', addr)
         
         data = data_dict['data']
         
@@ -1690,7 +1690,7 @@ def receiver(data, addr):
                 
     elif data_dict['msg'] == 'write_channel_ack': 
         
-        print('CHANNEL WRITE ACK FROM: ', addr, data_dict)
+        print('CHANNEL WRITE ACK FROM: ', addr)
         
         request_id = data_dict["request_id"]
         
