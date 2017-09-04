@@ -437,6 +437,9 @@ def sync(className, target_ip=server_ip, **kwargs):
         DE EL MISMO REGISTRO (YA QUE EL PROBLEMA SOLO SURGE AL REALIZAR ACTUALIZACION)
     '''
     
+    #obtener el ultimo registro de las transacciones
+    get_max('transactions', 'transaction_count')
+    
     #get the difference between local index and latest index on the remote database
     data = {'className':className, 'sql':sql, 'params':params}
     tosend = json.dumps({'msg':'sync', 'data':data })
