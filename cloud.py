@@ -1473,7 +1473,8 @@ def receiver(data, addr):
     if data_dict['msg'] == 'ping_ack':        
         #print('PING ACK RECEIVED FROM ', addr, data_dict['data'])
         
-        if addr[0] != net.ngsock.addr[0]:
+        
+        if addr[0] != net.ngsock.addr[0] and callback_found_device != None:
             Clock.schedule_once(partial(callback_found_device, addr, data_dict['data']), 0)
         
 
