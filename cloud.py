@@ -387,46 +387,10 @@ def erase(className):
                         
         print("Error erasing table: " + sql)
     
-def sync(className, target_ip=server_ip, **kwargs):
-    '''
-    Syncs local table and main server table on this device database
-    where is the parameters for filter results to minimum values for this user
-    latest is the field to test as max latest row
-    target_ip is the server for sync
+def sync_latest(**kwargs):
+    print("Syncing latest with: " + kwargs.get('className') )
     
-    **NEW: En el servidor se lleva una tabla de control de versiones en
-    relacion a los usuarios y las tablas
-    '''
-    print("Sync with: " + target_ip)
-    print("Classname: " + className)
-    
-    sql = kwargs.get('sql')
-    params = kwargs.get('params', [])
-    
-    '''
-    where = kwargs.get('where')
-    latest = kwargs.get('latest', None)
-    
-    #get the local top index row for this user-database where condition
-    q = Query(className=className)
-    q.where( where )    #where can be a dictionary, see the documentation for more details
-    
-    if latest != None:
-        q.orderby( latest , order="DESC")
-    
-    result = q.find()
-    #print(result)
-    
-    
-    if len(result) and latest != None:
-        localmaxindex = getattr(result[0], latest)
-    else:
-        localmaxindex = 0
-    
-    #print(localmaxindex)
-    #raw_input()
-    '''
-    
+def sync(**kwargs):
     '''
     *****ACTUALIZACION 21 AGOSTO 2017
     
@@ -436,20 +400,23 @@ def sync(className, target_ip=server_ip, **kwargs):
         REALIZAR LOS AJUSTES DEL CONSECUTIVO, PONIENDO COMO DUPLICADOS EN ID LOS QUE CORRESPONDAN A COLICIONES
         DE EL MISMO REGISTRO (YA QUE EL PROBLEMA SOLO SURGE AL REALIZAR ACTUALIZACION)
     '''
+    className = kwargs.get('className', None)
+    
+    where = {'clasName':className}
     
     #obtener el ultimo registro de las transacciones
-    get_max('transactions', 'transaction_count')
+    last_local_transaction = get_max(className='transactions', field='transaction_count', where=where)
     
-    #get the difference between local index and latest index on the remote database
-    data = {'className':className, 'sql':sql, 'params':params}
+    #get the difference between local last transaction and server live transactons
+    data = {'last_transaction':last_local_transaction}
     tosend = json.dumps({'msg':'sync', 'data':data })
     
-    if className not in sync_callbacks:
+    if className != None and className not in sync_callbacks:
         sync_callbacks[className] = kwargs.get("callback")
     
-    net.cb_sync = sync_callback
+    #net.cb_sync = sync_callback
     
-    net.send((target_ip, 31415), tosend)
+    net.send((server_ip, server_port), tosend)
     
 def sync_callback(result, className, dt):
     print("Sync done with: " + className)
@@ -486,11 +453,20 @@ def sync_callback(result, className, dt):
     cb_func = sync_callbacks[className]
     cb_func(result, dt)
     
-def get_max(className, field):
+def get_max(**kwargs):
     '''
     Get the max value of all rows on field
     '''
+    clasName = kwargs.get("className")
+    field = kwargs.get("field")
+    where = kwargs.get("where", None)
+
     query = Query(className=className)
+    
+    if where:
+        for i in where:
+            query.equalTo(i, where[i])
+    
     query.orderby(field, order="DESC")
     res = query.find()
     
@@ -767,6 +743,7 @@ class NGVar:
                         t.sql = sql
                         t.json_values = json.dumps(lst_values)
                         t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                        t.transaction_count = "[AUTO_INCREMENT]"
                         t.save()
                     
                 return True
@@ -886,6 +863,7 @@ class NGVar:
                         t.sql = sql
                         t.json_values = json.dumps(lst_values)
                         t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                        t.transaction_count = "[AUTO_INCREMENT]"
                         t.save()
                     
                 return cursor.lastrowid
@@ -961,6 +939,7 @@ class NGVar:
                     t.sql = sql
                     t.json_values = None
                     t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                    t.transaction_count = "[AUTO_INCREMENT]"
                     t.save()
                 
             return True
@@ -1531,7 +1510,7 @@ def receiver(data, addr):
         data = data_dict['data']
         
         #obtener los registros mayores al ultimo existente en el cliente remoto
-        q = Query(className=data['className'])
+        q = Query(className="transactions")
         q.sql = data['sql'].replace("?", "%s")  #esto es debido a que en app se usa sqlite y en servidor mysql
         q.params = data['params']
         
