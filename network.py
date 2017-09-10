@@ -409,6 +409,10 @@ class NetworkOut:
             
             self.safe_push_packet(packet_json, addr)
             
+        #if this transmission dont need integrity
+        #TODO: add here the validation for check of packages retransmission for integrity
+        del peer.transmissions[transmission.trans_id]    
+            
 class RecvThread(threading.Thread):
     '''
     Inform about new packets using a safe-thread callback function 
