@@ -611,11 +611,14 @@ class NetworkIn:
             '''
             
             self.dispatch_message(assembled_packet, addr)
-                            
+            
+            #remove this transmission, free memory
+            print('Deleting transmission: ' + trans.trans_id)
+            del peer.transmissions[trans.trans_id]                            
             
             #avisar que esta transmission ya llego completa
-            #tosend = json.dumps({'msg':''})
-            #self.sock.send(addr, )
+            tosend = json.dumps({'msg':''})
+            self.sock.send(addr, tosend)
             
     def assemble_packets(self, transmission):
         '''
