@@ -284,7 +284,7 @@ def connect_channel(channel_name,
     print("Connecting to channel " + channel_name)
     
     #conectar al servidor en el canal
-    data = {'channel_name':channel_name, mode=kwargs.get('mode', 'readwrite')}
+    data = {'channel_name':channel_name, 'mode':kwargs.get('mode', 'readwrite')}
 
     tosend = json.dumps({'msg':'connect_channel', 'data':data })
 
@@ -1664,7 +1664,7 @@ def receiver(data, addr):
         for i in channels[channel_name]["clients"]:
 
             #dont send notification to the sender
-            if i['addr'] != addr and i['mode'] == 'read':
+            if i['addr'] != addr and i['mode'] in ('read', 'readwrite'):
                 
                 print("Enviando notificacion a: ", i)
                 
