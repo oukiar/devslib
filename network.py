@@ -411,7 +411,18 @@ class NetworkOut:
             
         #if this transmission dont need integrity
         #TODO: add here the validation for check of packages retransmission for integrity
-        del peer.transmissions[transmission.trans_id]    
+        del peer.transmissions[transmission.trans_id] 
+        
+        #timeout de verificacion para esta transmision
+        #self.t = Timer(.5, self.verify_transmission, transmission.trans_id)
+        #self.t.start()
+            
+    def verify_transmission(self, trans_id):
+        print("Verificando transmission", trans_id)
+        
+        #if we already has the ACK for this transmission
+        
+            #remove this transmission
             
 class RecvThread(threading.Thread):
     '''

@@ -228,19 +228,26 @@ def init_server(**kwargs):
     net = Network()  
     net.create_connection(receiver, port)
         
-def create_channel(channel_name, callback, callback_connection=None, callback_new_client_connected=None, callback_disconnect=None):
+def create_channel(channel_name, **kwargs):
     '''
     Channels creation only for servers
     '''
     
     global channels
     
+    callback = kwargs.get('notification') 
+    callback_connection = kwargs.get('connection', None) 
+    callback_new_client_connected = kwargs.get('new_client_connected', None) 
+    callback_disconnect = kwargs.get('disconnect', None) 
+    mode = kwargs.get('mode', 'readwrite') 
+    
     print("Creating channel " + channel_name)
     
-    channel_data = {"callback":callback, 
+    channel_data = {"callback":callback, #same as notification event
                                 "callback_connection":callback_connection, 
                                 "callback_new_client_connected":callback_new_client_connected, 
                                 "callback_disconnect":callback_disconnect, 
+                                "mode":mode,
                                 "clients":[]}
                                 
     channels[channel_name] = channel_data
@@ -268,22 +275,16 @@ def list_channel_devices(callback, channel):
     net.send((server_ip, server_port), tosend)
     
 def connect_channel(channel_name, 
-                        callback_notification, 
-                        callback_connection=None, 
-                        callback_new_client_connected=None, 
-                        callback_disconnect=None):
+                        **kwargs):
     
     #crear canal en cloud local
     create_channel(channel_name, 
-                    callback_notification, 
-                    callback_connection, 
-                    callback_new_client_connected, 
-                    callback_disconnect)
+                    **kwargs)
                     
     print("Connecting to channel " + channel_name)
     
     #conectar al servidor en el canal
-    data = {'channel_name':channel_name}
+    data = {'channel_name':channel_name, mode=kwargs.get('mode', 'readwrite')}
 
     tosend = json.dumps({'msg':'connect_channel', 'data':data })
 
@@ -1574,15 +1575,18 @@ def receiver(data, addr):
         data = data_dict['data']
         
         channel_name = data["channel_name"]
+        mode = data["mode"]
         
         #if the channel is not in this server, create it
         if channel_name not in channels:
             #create channel without callback
-            create_channel(channel_name, None)
+            create_channel(channel_name)
+        
+        newclient = {'addr':addr, 'mode':mode}
         
         #agregar este cliente a channel para hacer las notificaciones cuando hagan channel_write
-        if addr not in channels[channel_name]["clients"]:
-            channels[channel_name]["clients"].append(addr)
+        if newclient not in channels[channel_name]["clients"]:
+            channels[channel_name]["clients"].append(newclient)
 
         #RESPUESTA
         tosend = json.dumps({'msg':'connect_channel_ack', 
@@ -1602,7 +1606,7 @@ def receiver(data, addr):
         for i in channels[channel_name]["clients"]:
 
             #dont send notification to the sender
-            if i != addr:
+            if i['addr'] != addr:
                 
                 print("Enviando connection notificacion a: ", i)
                 
@@ -1611,7 +1615,7 @@ def receiver(data, addr):
                                         "clients_connected":len(channels[channel_name]["clients"]),
                                         "channel_name":channel_name}, encoding='latin1')
                 
-                net.send(i, tosend)
+                net.send(i['addr'], tosend)
         
 
     elif data_dict['msg'] == 'connect_channel_ack': 
@@ -1660,13 +1664,13 @@ def receiver(data, addr):
         for i in channels[channel_name]["clients"]:
 
             #dont send notification to the sender
-            if i != addr:
+            if i['addr'] != addr and i['mode'] == 'read':
                 
                 print("Enviando notificacion a: ", i)
                 
                 tosend = json.dumps({'msg':'inputfrom_channel', 'data':data, "channel_name":channel_name}, encoding='latin1')
                 
-                net.send(i, tosend)
+                net.send(i['addr'], tosend)
                 
                 
         tosend = json.dumps({'msg':'write_channel_ack', 'request_id':data_dict["request_id"]}, encoding='latin1')
@@ -1709,8 +1713,7 @@ def receiver(data, addr):
         
         if save_callbacks[data_dict['objectId']] != None:
             Clock.schedule_once(partial(save_callbacks[data_dict['objectId']], data_dict['objectId']), 0)
-        
-        
+              
         
     
 def scanLocalNetwork(callback_found, port=None):
