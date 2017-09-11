@@ -1482,6 +1482,12 @@ def receiver(data, addr):
         #print('SIGNUP ACK FROM', addr, data_dict['result'])
         #net.cb_login(data_dict)
         Clock.schedule_once(partial(net.cb_sync, data_dict['result'], data_dict['className']))
+        
+    elif data_dict['msg'] == 'transmission_ack':
+        
+        #print('SIGNUP ACK FROM', addr, data_dict['result'])
+        #net.cb_login(data_dict)
+        Clock.schedule_once(partial(net.transmission_done, addr, data_dict['trans_id']) )
 
     #------------------
     #ONLY SERVERS ACTIONS

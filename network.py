@@ -585,15 +585,18 @@ class NetworkIn:
         #checar si hubo paquetes perdidos ... nota: despues se va a implementar el packet priority o type que definira el tipo de paquetes osea asegurando la entrega y asi
         if len(trans.packets)-1 < data_dict['pn']:
             print("Hey hey, se pudieron perder datos")
-            
+            '''
             if trans.lostpacketstimeout != None:
                 trans.lostpacketstimeout.cancel()
             
             #iniciar timer de paquetes perdidos, 500ms
             trans.lostpacketstimeout = Timer(.5, trans.packetsTimeout)
             trans.lostpacketstimeout.start()
+            '''
             
-            
+            if trans.lostpacketstimeout == None:
+                trans.lostpacketstimeout = Timer(.5, trans.packetsTimeout)
+                trans.lostpacketstimeout.start()
             
             #checando cual paquete se perdio
             #for i in trans.packets:
@@ -628,7 +631,7 @@ class NetworkIn:
             self.dispatch_message(assembled_packet, addr)
             
             #remove this transmission, free memory
-            print('Deleting transmission: ' + trans.trans_id)
+            print('Deleting received transmission: ' + trans.trans_id)
             del peer.transmissions[trans.trans_id]                            
             
             #avisar que esta transmission ya llego completa
