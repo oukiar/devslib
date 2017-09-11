@@ -1667,7 +1667,7 @@ def receiver(data, addr):
         #if the channel is not in this server, create it
         if channel_name not in channels:
             #create channel without callback
-            create_channel(channel_name, None)
+            create_channel(channel_name)
         
         #recorrer lista de clientes conectados al canal
         for i in channels[channel_name]["clients"]:
