@@ -640,12 +640,16 @@ class NetworkIn:
         Reensambla todos los paquetes de una transmission y devuelve los datos como cadena de texto
         '''
         #print 'Ensamblando ' + str(len(transmission.packets)) + ' paquetes'
-        
-        s_out = ''
-        for i in range(0, len(transmission.packets)):
-            s_out += base64.b64decode(transmission.packets[i]).decode(encoding="UTF-8")
-            
-        return s_out
+        try:
+            s_out = ''
+            for i in range(0, len(transmission.packets)):
+                s_out += base64.b64decode(transmission.packets[i]).decode(encoding="UTF-8")
+                
+            return s_out
+        except:
+            #this is caused when the decode causes error, disable except for more research
+            print('ERROR DECODING PACKETS', transmission.packets)
+            return ''
     
 class NetgetSocket:
     '''

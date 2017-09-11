@@ -1449,6 +1449,9 @@ def receiver(data, addr):
     global callback_found_device
     
     data_dict = json.loads(data)
+    
+    if 'msg' not in data_dict:
+        return
 
     if data_dict['msg'] == 'ping_ack':        
         #print('PING ACK RECEIVED FROM ', addr, data_dict['data'])
