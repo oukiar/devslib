@@ -253,13 +253,13 @@ def create_channel(channel_name, **kwargs):
     channels[channel_name] = channel_data
                                 
                                 
-def list_channels(callback):
+def list_channels(callback, search=None):
 
     global callback_list_channels
 
     callback_list_channels = callback
 
-    tosend = json.dumps({'msg':'list_channels', 'data':None })
+    tosend = json.dumps({'msg':'list_channels', 'search':search })
 
     net.send((server_ip, server_port), tosend)
     
