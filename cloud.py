@@ -1365,14 +1365,11 @@ def dispatch_signup(addr, data_dict):
 
     #it is done in the server, can be syncronously
     if(newuser.save(saveincloud=False) ):
-        #esto es necesario debido a que 
-        #newuser.objectId = ""
-        
         tosend = json.dumps({'msg':'signup_ack', 'result':"welcome", "newuser":newuser.fix_to_json() })
     else:
         tosend = json.dumps({'msg':'signup_ack', 'result':"error", "errormsg":newuser.error})
 
-    print(tosend)
+    print("Response to login: ", tosend)
 
     net.send(addr, tosend)
     
