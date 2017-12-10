@@ -458,7 +458,7 @@ def get_max(**kwargs):
     '''
     Get the max value of all rows on field
     '''
-    clasName = kwargs.get("className")
+    className = kwargs.get("className")
     field = kwargs.get("field")
     where = kwargs.get("where", None)
 
