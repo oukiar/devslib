@@ -476,6 +476,15 @@ def get_max(**kwargs):
     
     return 0
     
+def get_fieldval(className, objectId, field):
+    q = Query(className=className)
+    q.equalTo("objectId", objectId)
+    
+    r = q.find()
+    
+    if len(r):
+        return getattr(r[0], field)
+    
 def get_sum(className, field, where=""):
     
     sql = "select sum(" + field + ") from " + className
@@ -725,7 +734,7 @@ class NGVar:
                     
                 if self.saveincloud:
                     if is_server == False:
-                        print('Sync save to the server')
+                        print('Sync save to the server', self.className)
                         
                         #guardar el callback que sera llamado en respuesta a esta llamada
                         save_callbacks[self.objectId] = kwargs.get('callback', None)
@@ -845,7 +854,7 @@ class NGVar:
                     
                 if self.saveincloud:
                     if is_server == False:
-                        print('Sync save to the server')
+                        print('Insert Sync save to the server', self.className)
                         
                         #guardar el callback que sera llamado en respuesta a esta llamada
                         save_callbacks[self.objectId] = kwargs.get('callback', None)
