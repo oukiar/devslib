@@ -89,6 +89,7 @@ callback_list_channel_devices = None
 
 callback_signup = None
 callback_login = None
+callback_sync = None
 
 def initialized():
     global cnx
@@ -406,7 +407,11 @@ def sync(**kwargs):
     
     - 
     '''
-    className = kwargs.get('className', None)
+    global callback_sync
+    
+    callback_sync = kwargs.get("callback")
+    
+    #className = kwargs.get('className', None)
     
     #where = {'clasName':className}
     
@@ -420,15 +425,15 @@ def sync(**kwargs):
     
     print("SENDING:", tosend)
     
-    if className != None and className not in sync_callbacks:
-        sync_callbacks[className] = kwargs.get("callback")
     
     #net.cb_sync = sync_callback
     
     net.send((server_ip, server_port), tosend)
     
-def sync_callback(result, className, dt):
-    print("Sync done with: " + className)
+def sync_callback_store(data_dict, dt):
+    
+    result = data_dict['result']
+    
     print("Total rows: " + str(len(result)) )
     
     
@@ -437,6 +442,9 @@ def sync_callback(result, className, dt):
         ngvar_item = NGVar()
         ngvar_item.from_values(i)
         #ngvar_item.save()
+        
+        
+    callback_sync(result)
     
     '''
     #if the table is not on the schema, create one row for the table creation success
@@ -1538,7 +1546,7 @@ def receiver(data, addr):
         
         #print('SIGNUP ACK FROM', addr, data_dict['result'])
         #net.cb_login(data_dict)
-        Clock.schedule_once(partial(net.cb_sync, data_dict['result'], data_dict['className']))
+        Clock.schedule_once(partial(sync_callback_store, data_dict), 0)
         
     elif data_dict['msg'] == 'transmission_ack':
         
