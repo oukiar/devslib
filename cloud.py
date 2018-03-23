@@ -1345,6 +1345,48 @@ def dispatch_save(addr, data_dict):
     
     net.send(addr, tosend)
     
+def dispatch_sync(addr, data_dict):
+
+    data = data_dict['data']
+    
+    #obtener los registros mayores al ultimo existente en el cliente remoto
+    q = Query(className="transactions")
+    
+    q.greaterThan('transaction_count', data['last_transaction'])
+    
+    #q.sql = data['sql'].replace("?", "%s")  #esto es debido a que en app se usa sqlite y en servidor mysql
+    #q.params = data['params']
+    
+    #print(q.sql)
+    
+    '''
+    q.where(data['where'])
+    if data['latest_field'] != None:
+        q.greaterThan(data['latest_field'], data['latest_value'])
+    '''
+    
+    #print("RESULT: ", len(q.find()) )
+    
+    '''
+    #debug
+    result = q.find(raw=True)
+    for i in result:
+        print (i)
+        print (json.dumps(i, encoding='latin1'))
+        #print (json.dumps(i))
+    '''
+    
+    #result = q.find(raw=True, customsql=True)
+    result = q.find(raw=True)
+    
+    tosend = json.dumps({'msg':'sync_ack', 'result':result, "className":'ALL'}, encoding='latin1')
+    
+    print("RESPONSE_TOSEND:", tosend)
+    print("Sync Result: " + str(len(result)) )
+    
+    net.send(addr, tosend)
+        
+    
 def dispatch_signup(addr, data_dict):
     
     #try to sign up this new user
@@ -1531,46 +1573,14 @@ def receiver(data, addr):
     elif data_dict['msg'] == 'sync':
         
         print('SYNC FROM ', addr, data_dict['data'])
+        
+        server_dispatcher_lock.acquire()
+        
+        server_dispatchers.append( {"function":dispatch_sync, "addr":addr, "data_dict":data_dict} )
+        
+        server_dispatcher_lock.release()
+        
 
-        data = data_dict['data']
-        
-        #obtener los registros mayores al ultimo existente en el cliente remoto
-        q = Query(className="transactions")
-        
-        q.greaterThan('transaction_count', data['last_transaction'])
-        
-        #q.sql = data['sql'].replace("?", "%s")  #esto es debido a que en app se usa sqlite y en servidor mysql
-        #q.params = data['params']
-        
-        #print(q.sql)
-        
-        '''
-        q.where(data['where'])
-        if data['latest_field'] != None:
-            q.greaterThan(data['latest_field'], data['latest_value'])
-        '''
-        
-        #print("RESULT: ", len(q.find()) )
-        
-        '''
-        #debug
-        result = q.find(raw=True)
-        for i in result:
-            print (i)
-            print (json.dumps(i, encoding='latin1'))
-            #print (json.dumps(i))
-        '''
-        
-        #result = q.find(raw=True, customsql=True)
-        result = q.find(raw=True)
-        
-        tosend = json.dumps({'msg':'sync_ack', 'result':result, "className":'ALL'}, encoding='latin1')
-        
-        print("RESPONSE_TOSEND:", tosend)
-        print("Sync Result: " + str(len(result)) )
-        
-        net.send(addr, tosend)
-        
     
     elif data_dict['msg'] == 'list_channels': 
         
