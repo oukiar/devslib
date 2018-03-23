@@ -400,17 +400,25 @@ def sync(**kwargs):
         LOS NUMEROS DE ID CONSECUTIVOS, EN CASO DE HABER DISCREPANCIAS, SIEMPRE EL SERVIDOR ES MANTADORIO PARA
         REALIZAR LOS AJUSTES DEL CONSECUTIVO, PONIENDO COMO DUPLICADOS EN ID LOS QUE CORRESPONDAN A COLICIONES
         DE EL MISMO REGISTRO (YA QUE EL PROBLEMA SOLO SURGE AL REALIZAR ACTUALIZACION)
+        
+        
+    *****ACTUALIZACION 21 MARZO 2018
+    
+    - 
     '''
     className = kwargs.get('className', None)
     
-    where = {'clasName':className}
+    #where = {'clasName':className}
     
     #obtener el ultimo registro de las transacciones
-    last_local_transaction = get_max(className='transactions', field='transaction_count', where=where)
+    last_local_transaction = get_max(className='transactions', field='transaction_count')
+    #last_local_transaction = get_max(className='transactions', field='transaction_count', where=where)
     
     #get the difference between local last transaction and server live transactons
     data = {'last_transaction':last_local_transaction}
     tosend = json.dumps({'msg':'sync', 'data':data })
+    
+    print("SENDING:", tosend)
     
     if className != None and className not in sync_callbacks:
         sync_callbacks[className] = kwargs.get("callback")
@@ -425,9 +433,10 @@ def sync_callback(result, className, dt):
     
     
     for i in result:
+        print i
         ngvar_item = NGVar()
         ngvar_item.from_values(i)
-        ngvar_item.save()
+        #ngvar_item.save()
     
     '''
     #if the table is not on the schema, create one row for the table creation success
@@ -1527,8 +1536,11 @@ def receiver(data, addr):
         
         #obtener los registros mayores al ultimo existente en el cliente remoto
         q = Query(className="transactions")
-        q.sql = data['sql'].replace("?", "%s")  #esto es debido a que en app se usa sqlite y en servidor mysql
-        q.params = data['params']
+        
+        q.greaterThan('transaction_count', data['last_transaction'])
+        
+        #q.sql = data['sql'].replace("?", "%s")  #esto es debido a que en app se usa sqlite y en servidor mysql
+        #q.params = data['params']
         
         #print(q.sql)
         
@@ -1549,12 +1561,13 @@ def receiver(data, addr):
             #print (json.dumps(i))
         '''
         
-        result = q.find(raw=True, customsql=True)
+        #result = q.find(raw=True, customsql=True)
+        result = q.find(raw=True)
         
-        tosend = json.dumps({'msg':'sync_ack', 'result':result, "className":data['className']}, encoding='latin1')
+        tosend = json.dumps({'msg':'sync_ack', 'result':result, "className":'ALL'}, encoding='latin1')
         
-        #print(tosend)
-        print("Result: " + str(len(result)) )
+        print("RESPONSE_TOSEND:", tosend)
+        print("Sync Result: " + str(len(result)) )
         
         net.send(addr, tosend)
         
