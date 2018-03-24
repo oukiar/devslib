@@ -1360,29 +1360,7 @@ def dispatch_sync(addr, data_dict):
     #obtener los registros mayores al ultimo existente en el cliente remoto
     q = Query(className="transactions")
     
-    q.greaterThan('transaction_count', data['last_transaction'])
-    
-    #q.sql = data['sql'].replace("?", "%s")  #esto es debido a que en app se usa sqlite y en servidor mysql
-    #q.params = data['params']
-    
-    print(q.sql)
-    
-    '''
-    q.where(data['where'])
-    if data['latest_field'] != None:
-        q.greaterThan(data['latest_field'], data['latest_value'])
-    '''
-    
-    #print("RESULT: ", len(q.find()) )
-    
-    '''
-    #debug
-    result = q.find(raw=True)
-    for i in result:
-        print (i)
-        print (json.dumps(i, encoding='latin1'))
-        #print (json.dumps(i))
-    '''
+    q.greaterThan('transaction_count', int(data['last_transaction']) )
     
     #result = q.find(raw=True, customsql=True)
     result = q.find(raw=True)
