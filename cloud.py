@@ -1024,10 +1024,10 @@ class Query:
             
             for i in self.conditions:
                 #print("I:", i)
-                if i["condition"] in (" LIKE "):
+                if i["condition"] in ("=", " LIKE "):
                     self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
-                elif i["condition"] in ("=", "<", ">"):
+                elif i["condition"] in ("<", ">"):
                     self.sql += " AND "  + i["field"] + i["condition"] + i["value"]
                     
                 elif i["condition"] in ("f=", "f<", "f>"):
