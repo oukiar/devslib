@@ -1028,7 +1028,7 @@ class Query:
                     self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
                 elif i["condition"] in ("<", ">"):
-                    self.sql += " AND "  + i["field"] + i["condition"] + i["value"]
+                    self.sql += " AND "  + i["field"] + i["condition"] + str(i["value"])
                     
                 elif i["condition"] in ("f=", "f<", "f>"):
                     self.sql += " AND "  + i["field"] + i["condition"][1] + i["value"] 
