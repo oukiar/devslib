@@ -439,9 +439,9 @@ def sync_callback_store(data_dict, dt):
     
     for i in result:
         print i
-        ngvar_item = NGVar()
-        ngvar_item.from_values(i)
-        #ngvar_item.save()
+        ngvar_item = NGVar(className=i['model'])
+        ngvar_item.from_values(json.loads(i['object_json']) )
+        ngvar_item.save()
         
         
     callback_sync(result)
@@ -468,8 +468,8 @@ def sync_callback_store(data_dict, dt):
     '''
     
     #call the callback
-    cb_func = sync_callbacks[className]
-    cb_func(result, dt)
+    #cb_func = sync_callbacks[className]
+    #cb_func(result, dt)
     
 def get_max(**kwargs):
     '''
@@ -1365,7 +1365,7 @@ def dispatch_sync(addr, data_dict):
     #q.sql = data['sql'].replace("?", "%s")  #esto es debido a que en app se usa sqlite y en servidor mysql
     #q.params = data['params']
     
-    #print(q.sql)
+    print(q.sql)
     
     '''
     q.where(data['where'])
