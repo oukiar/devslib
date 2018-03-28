@@ -638,6 +638,14 @@ class NetworkIn:
             #tosend = json.dumps({'msg':'transmission_complete'})
             #self.sock.send(addr, tosend)
             
+        #es el primer paquete?
+        elif len(trans.packets) == 1:
+            print("Primer paquete recibido, enviando ACK de transmision iniciada")
+            
+            #este ack debe ser enviado para que el que envia se entere que ya se inicio
+            #la transmision y que el receptor se va a encargar de avisar sobre paquetes perdidos
+            
+            
     def assemble_packets(self, transmission):
         '''
         Reensambla todos los paquetes de una transmission y devuelve los datos como cadena de texto
