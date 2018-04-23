@@ -941,7 +941,7 @@ class NGVar:
         sql = "delete from " + self.className + " where objectId='" + self.objectId + "'"
         print("Deleting: " + sql)
         
-        self.saveincloud = kwargs.pop("saveincloud", True)
+        self.saveincloud = kwargs.pop("saveincloud", False)
         
         cursor = cnx.cursor()
         if cursor.execute(sql):
