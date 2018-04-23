@@ -589,10 +589,15 @@ class NGVar:
     Another try for netget variable
     '''
     def __init__(self, **kwargs):
+        global cnx 
+        
         self.sql = ""
         self.className = kwargs.get("className")
         self.objectId_key = kwargs.get("objectId_key", None) #this is usefull for compatibility with non standar key fields, is mandatory autoincrement with this mode
         self.saveincloud = True
+        
+        if cnx == None:
+            self.saveincloud = False
         
         self.members_backlist = dir(self)
         
@@ -641,7 +646,7 @@ class NGVar:
         '''
         
         #sameId = kwargs.get("sameId", False) #util para almacenar objetos que tienen objectId en los values, tales como cuando retorna desde el server
-        self.saveincloud = kwargs.pop("saveincloud", True)
+        self.saveincloud = kwargs.pop("saveincloud", False)
         
         if self.className not in tables:
                 
@@ -820,7 +825,7 @@ class NGVar:
         has_autoincrement = False
         sqlfields = ""
         
-        self.saveincloud = kwargs.pop("saveincloud", True)
+        self.saveincloud = kwargs.pop("saveincloud", False)
         
         for i in dir(self):
             if i not in self.members_backlist and i != "members_backlist":
