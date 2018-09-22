@@ -804,6 +804,7 @@ class NGVar:
                 
             else:
                 print('sqlite3 Error: Unknown error')
+                print sql
                 print (e.args[0])
                             
             #print("Error updating-saving: " + sql)
@@ -926,7 +927,8 @@ class NGVar:
                 else:
                     print("Error creando nueva columna")
             else:
-                print('sqlite3 Error: Unknown error')
+                print('sqlite3 Error: Unknown error real_insert')
+                print sql, lst_values
                 print (e.args[0])
             
             #print("Error saving: " + sql)
