@@ -766,17 +766,17 @@ class NGVar:
                         #send to the server
                         net.send((server_ip, server_port), tosend)
                         
-                    if self.className != 'transactions':
-                        #guardar esta transaccion en la tabla de transacciones
-                        t = create(className='transactions')
-                        t.model = self.className
-                        t.operation = 'update'
-                        t.object_json = json.dumps(self.fix_to_json())
-                        t.sql = sql
-                        t.json_values = json.dumps(lst_values)
-                        t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-                        t.transaction_count = "[AUTO_INCREMENT]"
-                        t.save()
+                if self.className != 'transactions':
+                    #guardar esta transaccion en la tabla de transacciones
+                    t = create(className='transactions')
+                    t.model = self.className
+                    t.operation = 'update'
+                    t.object_json = json.dumps(self.fix_to_json())
+                    t.sql = sql
+                    t.json_values = json.dumps(lst_values)
+                    t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                    t.transaction_count = "[AUTO_INCREMENT]"
+                    t.save()
                     
                 return True
                                   
@@ -887,17 +887,17 @@ class NGVar:
                         #send to the server
                         net.send((server_ip, server_port), tosend)
                         
-                    if self.className != 'transactions':
-                        #guardar esta transaccion en la tabla de transacciones
-                        t = create(className='transactions')
-                        t.model = self.className
-                        t.operation = 'create'
-                        t.object_json = json.dumps(self.fix_to_json())
-                        t.sql = sql
-                        t.json_values = json.dumps(lst_values)
-                        t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-                        t.transaction_count = "[AUTO_INCREMENT]"
-                        t.save()
+                if self.className != 'transactions':
+                    #guardar esta transaccion en la tabla de transacciones
+                    t = create(className='transactions')
+                    t.model = self.className
+                    t.operation = 'create'
+                    t.object_json = json.dumps(self.fix_to_json())
+                    t.sql = sql
+                    t.json_values = json.dumps(lst_values)
+                    t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                    t.transaction_count = "[AUTO_INCREMENT]"
+                    t.save()
                     
                 return cursor.lastrowid
                 
