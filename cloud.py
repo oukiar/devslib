@@ -646,7 +646,7 @@ class NGVar:
         '''
         
         #sameId = kwargs.get("sameId", False) #util para almacenar objetos que tienen objectId en los values, tales como cuando retorna desde el server
-        self.saveincloud = kwargs.pop("saveincloud", False)
+        self.saveincloud = kwargs.pop("saveincloud", True)
         
         if self.className not in tables:
                 
