@@ -755,7 +755,7 @@ class NGVar:
                     cnx.commit()
                     
                 if self.saveincloud:
-                    if is_server == False:
+                    if is_server == False: #el servidor nunca sincroniza a si mismo
                         print('Sync save to the server', self.className)
                         
                         #guardar el callback que sera llamado en respuesta a esta llamada
@@ -776,7 +776,7 @@ class NGVar:
                     t.json_values = json.dumps(lst_values)
                     t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                     t.transaction_count = "[AUTO_INCREMENT]"
-                    t.save()
+                    t.save(saveincloud=False)
                     
                 return True
                                   
@@ -897,7 +897,7 @@ class NGVar:
                     t.json_values = json.dumps(lst_values)
                     t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                     t.transaction_count = "[AUTO_INCREMENT]"
-                    t.save()
+                    t.save(saveincloud=False)
                     
                 return cursor.lastrowid
                 
