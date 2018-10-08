@@ -753,20 +753,22 @@ class NGVar:
                 
                 if autocommit:
                     cnx.commit()
-                    
-                if self.saveincloud:
-                    if is_server == False: #el servidor nunca sincroniza a si mismo
-                        print('Sync save to the server', self.className)
-                        
-                        #guardar el callback que sera llamado en respuesta a esta llamada
-                        save_callbacks[self.objectId] = kwargs.get('callback', None)
-                            
-                        #send to the server the event for update in the cloud, only if we have connection
-                        tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                        #send to the server
-                        net.send((server_ip, server_port), tosend)
                         
                 if self.className != 'transactions':
+                    
+                    if self.saveincloud:
+                        
+                        if is_server == False: #el servidor nunca sincroniza a si mismo
+                            print('Sync save to the server', self.className)
+                            
+                            #guardar el callback que sera llamado en respuesta a esta llamada
+                            save_callbacks[self.objectId] = kwargs.get('callback', None)
+                                
+                            #send to the server the event for update in the cloud, only if we have connection
+                            tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                            #send to the server
+                            net.send((server_ip, server_port), tosend)
+                    
                     #guardar esta transaccion en la tabla de transacciones
                     t = create(className='transactions')
                     t.model = self.className
@@ -875,19 +877,22 @@ class NGVar:
                 if autocommit:
                     cnx.commit()
                     
-                if self.saveincloud:
-                    if is_server == False:
-                        print('Insert Sync save to the server', self.className)
-                        
-                        #guardar el callback que sera llamado en respuesta a esta llamada
-                        save_callbacks[self.objectId] = kwargs.get('callback', None)
-                            
-                        #send to the server the event for update in the cloud, only if we have connection
-                        tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                        #send to the server
-                        net.send((server_ip, server_port), tosend)
+
                         
                 if self.className != 'transactions':
+                    
+                    if self.saveincloud:
+                        if is_server == False:
+                            print('Insert Sync save to the server', self.className)
+                            
+                            #guardar el callback que sera llamado en respuesta a esta llamada
+                            save_callbacks[self.objectId] = kwargs.get('callback', None)
+                                
+                            #send to the server the event for update in the cloud, only if we have connection
+                            tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                            #send to the server
+                            net.send((server_ip, server_port), tosend)
+                    
                     #guardar esta transaccion en la tabla de transacciones
                     t = create(className='transactions')
                     t.model = self.className
