@@ -815,6 +815,7 @@ class NGVar:
         return False
         
     def real_insert(self, **kwargs):
+        global is_server
         #create object unique ID
         if self.objectId == '':
             self.objectId = str(uuid.uuid4())
