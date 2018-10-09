@@ -645,6 +645,8 @@ class NGVar:
             must avoid problems of fields existence
         '''
         
+        print("GUARDANDO IN SAVE")
+        
         #sameId = kwargs.get("sameId", False) #util para almacenar objetos que tienen objectId en los values, tales como cuando retorna desde el server
         self.saveincloud = kwargs.pop("saveincloud", True)
         
@@ -816,6 +818,7 @@ class NGVar:
         
     def real_insert(self, **kwargs):
         global is_server
+        
         #create object unique ID
         if self.objectId == '':
             self.objectId = str(uuid.uuid4())
