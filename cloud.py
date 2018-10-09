@@ -1366,6 +1366,8 @@ def dispatch_save(addr, data_dict):
     
     #AQUI AGREGAR UN PARAMETRO QUE SIRVA PARA FORZAR LA CREACION DE LA VARIABLE A PESAR DE NO EXISTIR
     #AQUI SE VA A REPARAR EL PROBLEMA DE QUE SE ESTAN DUPLICANDO LOS ELEMENTOS AL SINCRONIZARSE Y NO TENER LA TABLA EN EL SERVER
+    print("DISPATCH SAVEE")
+    
     updatingvar = create(className=data_dict['className'], objectId=data_dict['data']['objectId'])
     
     updatingvar.from_values(data_dict['data'])
