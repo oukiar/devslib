@@ -829,7 +829,8 @@ class NGVar:
         has_autoincrement = False
         sqlfields = ""
         
-        self.saveincloud = kwargs.pop("saveincloud", True)
+        #esto estaba provocando duplicacion de registros, no es necesario pues ya se extrae en la funcion save y guarda en self.saveincloud
+        #self.saveincloud = kwargs.pop("saveincloud", True)
         
         for i in dir(self):
             if i not in self.members_backlist and i != "members_backlist":
