@@ -645,7 +645,7 @@ class NGVar:
             must avoid problems of fields existence
         '''
         
-        print("GUARDANDO IN SAVE")
+        print("GUARDANDO IN SAVE", tables)
         
         #sameId = kwargs.get("sameId", False) #util para almacenar objetos que tienen objectId en los values, tales como cuando retorna desde el server
         self.saveincloud = kwargs.pop("saveincloud", True)
