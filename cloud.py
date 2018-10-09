@@ -310,12 +310,15 @@ def write_channel(channel_name, data, write_callback=None):
     
     return request_id
 
-def create(className, objectId=None):
+def create(**kwargs):
     '''
     Create using their objectId
 
     If classname does not exist, it is created as a table on the database
     '''
+    className = kwargs.get("className")
+    objectId = kwargs.get("objectId", "")
+    
     if objectId != None:
         '''
         Create for and existing register on the database
@@ -1415,7 +1418,7 @@ def dispatch_signup(addr, data_dict):
     sessiontoken = str(uuid.uuid4())
 
     #new user initialization
-    newuser = create("users")
+    newuser = create(className="users")
     
     newuser.from_values(data_dict['data'])
     
