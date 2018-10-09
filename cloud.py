@@ -763,7 +763,7 @@ class NGVar:
                     
                     if self.saveincloud:
                         
-                        if is_server == False: #el servidor nunca sincroniza a si mismo
+                        if is_server == False and server_ip != None: #el servidor nunca sincroniza a si mismo
                             print('Sync save to the server', self.className)
                             
                             #guardar el callback que sera llamado en respuesta a esta llamada
@@ -890,7 +890,7 @@ class NGVar:
                 if self.className != 'transactions':
                     
                     if self.saveincloud:
-                        if is_server == False:
+                        if is_server == False and server_ip != None:
                             print('Insert Sync save to the server', self.className)
                             
                             #guardar el callback que sera llamado en respuesta a esta llamada
@@ -965,7 +965,7 @@ class NGVar:
                 cnx.commit()
                 
             if self.saveincloud:
-                if is_server == False:
+                if is_server == False and server_ip != None:
                     #sync this deletion with the server
                     
                     #guardar el callback que sera llamado en respuesta a esta llamada
