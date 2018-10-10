@@ -773,7 +773,7 @@ class NGVar:
                             tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
                             #send to the server
                             net.send((server_ip, server_port), tosend)
-                    '''
+                    
                     #guardar esta transaccion en la tabla de transacciones
                     t = create(className='transactions')
                     t.model = self.className
@@ -784,7 +784,7 @@ class NGVar:
                     t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                     t.transaction_count = "[AUTO_INCREMENT]"
                     t.save(saveincloud=False)
-                    '''
+                    
                 return True
                                   
         except sqlite3.Error as e:
@@ -900,7 +900,7 @@ class NGVar:
                             tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
                             #send to the server
                             net.send((server_ip, server_port), tosend)
-                    '''
+                    
                     #guardar esta transaccion en la tabla de transacciones
                     t = create(className='transactions')
                     t.model = self.className
@@ -911,7 +911,7 @@ class NGVar:
                     t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                     t.transaction_count = "[AUTO_INCREMENT]"
                     t.save(saveincloud=False)
-                    '''
+                    
                 return cursor.lastrowid
                 
         except sqlite3.Error as e:
