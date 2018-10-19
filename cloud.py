@@ -90,6 +90,7 @@ callback_list_channel_devices = None
 callback_signup = None
 callback_login = None
 callback_sync = None
+callback_events = None #para eventos cloud
 
 def initialized():
     global cnx
@@ -228,6 +229,12 @@ def init_server(**kwargs):
     #network
     net = Network()  
     net.create_connection(receiver, port)
+        
+def bind_events(function_callback):
+    global callback_events
+    print("EVENTS CALLBACK TO:", function_callback)
+    callback_events = function_callback
+    
         
 def create_channel(channel_name, **kwargs):
     '''
@@ -1765,6 +1772,7 @@ def receiver(data, addr):
         if save_callbacks[data_dict['objectId']] != None:
             Clock.schedule_once(partial(save_callbacks[data_dict['objectId']], data_dict['objectId']), 0)
               
+        #sincronizar con los peers que se tiene registro de existencia menor a 3 horas de ultima conexion
         
     
 def scanLocalNetwork(callback_found, port=None):
