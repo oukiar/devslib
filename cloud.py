@@ -5,15 +5,68 @@ Solucion de almacenamiento de informacion basado en modelo de objetos con
 cloud on/offline automatico y sync basado en versiones con solucion automatica de colisiones (duplicacion)
 
 Se cuenta con un esquema distribuido de la base de datos en relacion a los users y devices
+
+
+ESTE MODULO SIEMPRE TIENE 2 RETORNOS, UNO LOCAL Y OTRO NETWORK
 '''
 
 
 '''
+29/oct/2018 Oscar Alcantara Tapia
+
 Nueva documentacion:
 
 Database cloud
 Channels for realtime communication
 Distributed user management
+(Optional) Server Minners
+
+
+Nodos
+
+Los nodos son las computadoras con las que se tiene enlace, que tipicamente
+son las computadoras donde hemos iniciado sesion y las de nuestros contactos.
+
+La informacion que describe como se interrelacionan los nodos es almacenada
+en la base de datos local, esto con el fin de crear una especie de base de
+datos distribuida tipo user-related-data.
+
+
+
+Inicializacion de comunicacion
+
+Existen 2 modos de iniciar el enlace hacia los nodos, el primero es usando 
+un servidor con ip publica fija, que facilitara el proceso de inicio de
+sincorizacion sin intervencion de usuario
+
+La segunda forma es inicializar la libreria manualmente con el primer nodo, el
+cual debe ser la computadora con la que se quiere tener comunicacion en el
+formato de IP:PUERTO
+
+
+
+Login
+
+El login podra ser ejecutado entre los nodos del usuario o algun nodo de
+sus conexiones
+
+Almacen de datos global
+
+Estos datos son almacenados sin necesidad de especificar un usuario, esto
+es util para informacion accesible para todos, por ejemplo un blockchain o
+un catalogo de productos en un sistema colectivo de inventarios, etc.
+
+
+Almacen de datos por usuario
+
+
+Conexiones de usuarios
+
+
+Replicacion y seguridad
+
+
+
 
 '''
 
@@ -32,7 +85,6 @@ except:
 #disabled, schema must be created in runtime with creation of vars
 #from tables import schema
 
-        
 
 #session token
 session_token = None
@@ -42,7 +94,6 @@ session_token = None
 server_ip = "127.0.0.1" #by default on localhost
 
 servers = [] #list of server minners
-
 
 server_port = 11235 #fibonacci sequencie port number by default ... all the minners must use the same server_port
 user = None
@@ -108,9 +159,9 @@ def init(**kwargs):
     global server_port
     
     dbname = kwargs.get("database", 'database.db')
-    server_ip = kwargs.get("server", None) #none if cloud works only on local mode
-    server_port = kwargs.get("serverport", server_port)
-    local_port = kwargs.get("localport", server_port)
+    #server_ip = kwargs.get("server", None) #none if cloud works only on local mode
+    #server_port = kwargs.get("serverport", server_port)
+    #local_port = kwargs.get("localport", server_port)
     
     #conexion sqlite para base de datos local
     cnx = sqlite3.connect(dbname)
@@ -134,11 +185,11 @@ def init(**kwargs):
     print("Database schema loaded: " + json.dumps(tables) )
     
     
-    print("Creating network")
+    #print("Creating network")
 
     #network
-    net = Network()  
-    net.create_connection(receiver, local_port)
+    #net = Network()  
+    #net.create_connection(receiver, server_port)
     
 #init_server ya no se usa, todos deben usar la funcion init y si es server, pasar el parametro server_port
 def init_server(**kwargs):
@@ -226,9 +277,19 @@ def init_server(**kwargs):
     
     print("Creating network")
 
-    #network
-    net = Network()  
-    net.create_connection(receiver, port)
+       
+def add_node(ip, port):
+    global nodes
+    global net
+    
+    nodes.append({'ip':ip, 'port':port})
+    
+    if net == None:
+            
+        #network
+        net = Network()  
+        net.create_connection(receiver, port)
+    
         
 def bind_events(function_callback):
     global callback_events
@@ -722,6 +783,10 @@ class NGVar:
             
             
     def real_save(self, **kwargs):
+        
+        #el update solo funcionara con conexion
+        print("SAVE UPDATE !!!!! ----- CHECKIT ")
+        
         #update
         sql = "update " + self.className + " set "
         
@@ -781,6 +846,7 @@ class NGVar:
                             #send to the server
                             net.send((server_ip, server_port), tosend)
                     
+                    '''
                     #guardar esta transaccion en la tabla de transacciones
                     t = create(className='transactions')
                     t.model = self.className
@@ -791,6 +857,7 @@ class NGVar:
                     t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                     t.transaction_count = "[AUTO_INCREMENT]"
                     t.save(saveincloud=False)
+                    '''
                     
                 return True
                                   
@@ -892,32 +959,22 @@ class NGVar:
                 if autocommit:
                     cnx.commit()
                     
-
+                    
+                if self.saveincloud:
+                    
+                    #enviar datos a todos los nodos
+                    '''
+                    if is_server == False and server_ip != None:
+                        print('Insert Sync save to the server', self.className)
                         
-                if self.className != 'transactions':
-                    
-                    if self.saveincloud:
-                        if is_server == False and server_ip != None:
-                            print('Insert Sync save to the server', self.className)
+                        #guardar el callback que sera llamado en respuesta a esta llamada
+                        save_callbacks[self.objectId] = kwargs.get('callback', None)
                             
-                            #guardar el callback que sera llamado en respuesta a esta llamada
-                            save_callbacks[self.objectId] = kwargs.get('callback', None)
-                                
-                            #send to the server the event for update in the cloud, only if we have connection
-                            tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                            #send to the server
-                            net.send((server_ip, server_port), tosend)
-                    
-                    #guardar esta transaccion en la tabla de transacciones
-                    t = create(className='transactions')
-                    t.model = self.className
-                    t.operation = 'create'
-                    t.object_json = json.dumps(self.fix_to_json())
-                    t.sql = sql
-                    t.json_values = json.dumps(lst_values)
-                    t.timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-                    t.transaction_count = "[AUTO_INCREMENT]"
-                    t.save(saveincloud=False)
+                        #send to the server the event for update in the cloud, only if we have connection
+                        tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
+                        #send to the server
+                        net.send((server_ip, server_port), tosend)
+                    '''
                     
                 return cursor.lastrowid
                 
