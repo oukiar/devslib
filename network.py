@@ -739,6 +739,14 @@ class Network:
         
         self.on_netget_incoming = kwargs.get('on_netget_incoming')
         self.netget_sockets = []
+        self.ips = None
+        
+    def has_ip(test_ip):
+        for i in self.netget_sockets:
+            if test_ip == i.ip:
+                return True
+                
+        return False
         
     def has_connection(self):
         if len(self.netget_sockets) == 0:
@@ -889,7 +897,7 @@ class Network:
         Nota: Usa forsozamente el puerto 31415
         '''
         
-        ips = self.discover_ips()
+        self.ips = ips = self.discover_ips()
         
         print(ips)
         

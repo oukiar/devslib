@@ -75,6 +75,9 @@ import uuid
 import datetime
 import time
 
+
+import requests
+
 try:
     from kivy.clock import Clock
     from functools import partial
@@ -91,13 +94,15 @@ session_token = None
 #server_ip = "104.236.181.245"
 #server_ip = "162.243.152.20" #orgboat server ip
 
-server_ip = "127.0.0.1" #by default on localhost
+server_ip = "128.199.49.102" #by default on localhost
 
 servers = [] #list of server minners
 
 server_port = 11235 #fibonacci sequencie port number by default ... all the minners must use the same server_port
 user = None
 net = None
+
+nodes = []
 
 
 #-----------------
@@ -142,6 +147,14 @@ callback_signup = None
 callback_login = None
 callback_sync = None
 callback_events = None #para eventos cloud
+
+
+'''
+curl ifconfig.me
+curl icanhazip.com
+curl ipecho.net
+'''
+
 
 def initialized():
     global cnx
@@ -188,8 +201,40 @@ def init(**kwargs):
     #print("Creating network")
 
     #network
-    #net = Network()  
-    #net.create_connection(receiver, server_port)
+    net = Network()  
+    net.create_connection(receiver, server_port)
+    
+    
+    '''
+    #resolver ip publica
+     
+    r = requests.get(r'http://jsonip.com')
+
+    public_ip = r.json()['ip']
+
+    print('Your public IP is', public_ip)
+    '''
+
+    #si no somos el servidor
+    if not net.has_ip(server_ip):
+        add_node(ip=server_ip, port=server_port)
+        print("Primer nodo agregado correctamente")
+    else:
+        print("Running in server mode")
+    
+    
+    #inicia timeout de pings
+    Clock.schedule_interval(ping_nodes, 10)
+    
+def ping_nodes(dt):
+    print("Enviando ping a nodos ... ")
+    
+    for i in nodes:
+        print("... enviando ping a nodo ", i)
+                
+        tosend = json.dumps({'msg':'ping', 'data':'Nada' })
+
+        net.send((server_ip, server_port), tosend)
     
 #init_server ya no se usa, todos deben usar la funcion init y si es server, pasar el parametro server_port
 def init_server(**kwargs):
@@ -1599,7 +1644,9 @@ def receiver(data, addr):
         
         print('PING RECEIVED FROM ', addr, data_dict['data'])
         
-        tosend = json.dumps({'msg':'ping_ack', 'data':socket.gethostname()})
+        data = {'hostname':socket.gethostname(), 'ip':addr[0], 'port':addr[1]}
+        
+        tosend = json.dumps({'msg':'ping_ack', 'data':data})
         net.send(addr, tosend)
         
     elif data_dict['msg'] == 'signup_ack':
