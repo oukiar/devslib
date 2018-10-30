@@ -741,7 +741,7 @@ class Network:
         self.netget_sockets = []
         self.ips = None
         
-    def has_ip(test_ip):
+    def has_ip(self, test_ip):
         for i in self.netget_sockets:
             if test_ip == i.ip:
                 return True
