@@ -224,7 +224,8 @@ def init(**kwargs):
     
     
     #inicia timeout de pings
-    Clock.schedule_interval(ping_nodes, 10)
+    if Clock:
+        Clock.schedule_interval(ping_nodes, 10)
     
 def ping_nodes(dt):
     print("Enviando ping a nodos ... ")
