@@ -233,7 +233,7 @@ def ping_nodes(dt):
     for i in nodes:
         print("... enviando ping a nodo ", i)
                 
-        tosend = json.dumps({'msg':'ping', 'data':'Nada' })
+        tosend = json.dumps({'msg':'ping', 'data':datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S') })
 
         net.send((i['ip'], i['port']), tosend)
     
