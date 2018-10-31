@@ -235,7 +235,7 @@ def ping_nodes(dt):
                 
         tosend = json.dumps({'msg':'ping', 'data':'Nada' })
 
-        net.send((server_ip, server_port), tosend)
+        net.send((i['ip'], i['port']), tosend)
     
 #init_server ya no se usa, todos deben usar la funcion init y si es server, pasar el parametro server_port
 def init_server(**kwargs):
@@ -327,6 +327,8 @@ def init_server(**kwargs):
 def add_node(ip, port):
     global nodes
     global net
+    
+    port = int(port)
     
     nodes.append({'ip':ip, 'port':port})
     
