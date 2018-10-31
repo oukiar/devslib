@@ -1634,12 +1634,18 @@ def receiver(data, addr):
         return
 
     if data_dict['msg'] == 'ping_ack':        
-        #print('PING ACK RECEIVED FROM ', addr, data_dict['data'])
+        print('PING ACK RECEIVED FROM ', addr, data_dict['data'])
+        
+        #almacenar estos datos que corresponden a nuestra conexion publica en internet, se usara para el holepunch
         
         
+        #en este punto ya podemos almacenar cosas en los datos globales del cloud
+        
+        
+        '''
         if addr[0] != net.ngsock.addr[0] and callback_found_device != None:
             Clock.schedule_once(partial(callback_found_device, addr, data_dict['data']), 0)
-        
+        '''
 
     elif data_dict['msg'] == 'ping':
         
@@ -1649,6 +1655,15 @@ def receiver(data, addr):
         
         tosend = json.dumps({'msg':'ping_ack', 'data':data})
         net.send(addr, tosend)
+        '''
+        #almacenar
+        v = create(className='peers')
+        v.ip = addr[0]
+        v.port = addr[1]
+        v.createdAt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        
+        v.save(saveincloud=False)
+        '''
         
     elif data_dict['msg'] == 'signup_ack':
         
