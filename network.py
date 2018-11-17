@@ -755,8 +755,16 @@ class Network:
         return True
                 
     def discover_ips(self):
+
+        hostname = socket.gethostname()    
+        IPAddr = socket.gethostbyname(hostname)    
+        print("Your Computer Name is:" + hostname)    
+        print("Your Computer IP Address is:" + IPAddr)
         
+        return [IPAddr]
+
         print("Discovering IP netifaces: " + str(netifaces))
+
         
         if netifaces != None:
             
@@ -803,7 +811,10 @@ class Network:
                     print ('Windows IP solved')
                                 
             return ips
-                
+            
+
+
+
     def discover_ips_android(self):
         
         texto = check_output('netcfg')
