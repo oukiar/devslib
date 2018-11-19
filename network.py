@@ -755,13 +755,22 @@ class Network:
         return True
                 
     def discover_ips(self):
-
+        '''
         hostname = socket.gethostname()    
         IPAddr = socket.gethostbyname(hostname)    
         print("Your Computer Name is:" + hostname)    
         print("Your Computer IP Address is:" + IPAddr)
         
         return [IPAddr]
+        '''
+        
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        print("IP", str(ip))
+        s.close()
+        
+        return [str(ip)]
 
         print("Discovering IP netifaces: " + str(netifaces))
 
