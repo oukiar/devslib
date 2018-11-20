@@ -1260,6 +1260,20 @@ class Query:
 
         return results
 
+    def sync(self, callback=None):
+        print("Sincronizar usando query")
+        
+        #generar sql
+        
+        
+        #indicar cual es el callback para esta sincronizacion
+        
+        
+        #enviar peticion al server
+        
+
+
+
     def equalTo(self, field, value):
         
         self.conditions.append({"field":field, "condition":"=", "value":value})
