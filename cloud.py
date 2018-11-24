@@ -172,9 +172,9 @@ def init(**kwargs):
     global server_port
     
     dbname = kwargs.get("database", 'database.db')
-    server_ip = kwargs.get("server", None) #none if cloud works only on local mode
+    #server_ip = kwargs.get("server", None) #none if cloud works only on local mode
     server_port = kwargs.get("serverport", server_port)
-    local_port = kwargs.get("localport", server_port)
+    #local_port = kwargs.get("localport", server_port)
     
     #conexion sqlite para base de datos local
     cnx = sqlite3.connect(dbname)
@@ -883,9 +883,14 @@ class NGVar:
                     
                     if self.saveincloud:
                         
-                        if is_server == False and server_ip != None: #el servidor nunca sincroniza a si mismo
-                            print('Sync save to the server', self.className)
+                        #guardar en todos los nodos con los que se tiene conexion
+                        for i in nodes:
                             
+                            print("Node:", i)
+                        
+                            print('Sync save to node', self.className)
+                            
+                            '''
                             #guardar el callback que sera llamado en respuesta a esta llamada
                             save_callbacks[self.objectId] = kwargs.get('callback', None)
                                 
@@ -893,6 +898,7 @@ class NGVar:
                             tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
                             #send to the server
                             net.send((server_ip, server_port), tosend)
+                            '''
                     
                     '''
                     #guardar esta transaccion en la tabla de transacciones
@@ -1011,10 +1017,11 @@ class NGVar:
                 if self.saveincloud:
                     
                     #enviar datos a todos los nodos
-                    '''
-                    if is_server == False and server_ip != None:
-                        print('Insert Sync save to the server', self.className)
+                    for  i in nodes:
+                        print("Node:", i)
+                        print('Insert Sync save to node', self.className)
                         
+                        '''
                         #guardar el callback que sera llamado en respuesta a esta llamada
                         save_callbacks[self.objectId] = kwargs.get('callback', None)
                             
@@ -1022,7 +1029,7 @@ class NGVar:
                         tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
                         #send to the server
                         net.send((server_ip, server_port), tosend)
-                    '''
+                        '''
                     
                 return cursor.lastrowid
                 
