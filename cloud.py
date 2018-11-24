@@ -172,9 +172,9 @@ def init(**kwargs):
     global server_port
     
     dbname = kwargs.get("database", 'database.db')
-    #server_ip = kwargs.get("server", None) #none if cloud works only on local mode
-    #server_port = kwargs.get("serverport", server_port)
-    #local_port = kwargs.get("localport", server_port)
+    server_ip = kwargs.get("server", None) #none if cloud works only on local mode
+    server_port = kwargs.get("serverport", server_port)
+    local_port = kwargs.get("localport", server_port)
     
     #conexion sqlite para base de datos local
     cnx = sqlite3.connect(dbname)
