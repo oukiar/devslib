@@ -742,6 +742,26 @@ class NGVar:
                         
                     #print(i)
          
+    def update_from_database(self):
+        
+        #if objectId is comming on kwargs, initialize with values from database
+        if self.objectId != "":
+            #get values from the database
+            query = Query(className=self.className)
+            
+            if self.objectId_key == None:
+                query.equalTo("objectId", self.objectId)
+            else:
+                query.equalTo(self.objectId_key, self.objectId)
+                
+            result = query.find()
+            if len(result):
+                row = result[0]
+                
+                for i in dir(row):
+                    if i not in self.members_backlist:  
+                        setattr(self, i, getattr(row, i) )
+         
     def get_col_type(self, col):
 
         if getattr(self, col) == "[AUTO_INCREMENT]":
