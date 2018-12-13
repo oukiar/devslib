@@ -1186,6 +1186,9 @@ class Query:
                 if i["condition"] in ("=", " LIKE "):
                     self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
+                elif i["condition"] in ("=", " ORLIKE "):
+                    self.sql += " OR "  + i["field"] + " LIKE " + "'" + str(i["value"]) + "'" 
+                    
                 elif i["condition"] in ("<", ">"):
                     self.sql += " AND "  + i["field"] + i["condition"] + str(i["value"])
                     
@@ -1322,6 +1325,9 @@ class Query:
         
     def like(self, field, value):
         self.conditions.append({"field":field, "condition":" LIKE ", "value":value})
+        
+    def orlike(self, field, value):
+        self.conditions.append({"field":field, "condition":" ORLIKE ", "value":value})
         
     def orderby(self, field, order='ASC'):
         
