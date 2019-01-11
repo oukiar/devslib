@@ -215,20 +215,21 @@ def init(**kwargs):
     print('Your public IP is', public_ip)
     '''
 
+    '''
     #si no somos el servidor
     if not net.has_ip(server_ip):
         add_node(ip=server_ip, port=server_port)
         print("Primer nodo agregado correctamente")
     else:
         print("Running in server mode")
-    
+    '''
     
     #inicia timeout de pings
     if Clock:
         Clock.schedule_interval(ping_nodes, 10)
     
 def ping_nodes(dt):
-    print("Enviando ping a nodos ... ")
+    print("Enviando ping a nodos ... total (%d)" % len(nodes) )
     
     for i in nodes:
         print("... enviando ping a nodo ", i)
@@ -333,7 +334,7 @@ def add_node(ip, port):
     nodes.append({'ip':ip, 'port':port})
     
     if net == None:
-            
+        
         #network
         net = Network()  
         net.create_connection(receiver, port)
@@ -449,15 +450,20 @@ def create(**kwargs):
 
 def login(**kwargs):
     '''
-    Request login always on the main server
+    Step 1: Request login on the peers
+    Step 2: Request login at localhost
+    Step 3: Try to login offline
     '''
     global callback_login
+    
     
     callback_login = kwargs.pop("callback", None)
 
     tosend = json.dumps({'msg':'login', 'data':kwargs })
 
     net.send((server_ip, server_port), tosend)
+    
+    print("Login sent to: " + server_ip + ":" + str(server_port) )
     
 def signup(**kwargs):
     '''
