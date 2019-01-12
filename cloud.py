@@ -456,6 +456,47 @@ def login(**kwargs):
     '''
     global callback_login
     
+    #try to fast login using local user stored in the database
+    q = Query(className="users")
+    q.equalTo("username", kwargs["username"])
+    
+    res = q.find()
+    
+    if len(res) == 0:
+        #try to login using email as username
+        q = Query(className="users")
+        q.equalTo("email", kwargs["username"])
+        
+        res = q.find()
+        
+    #if user was found
+    if len(res):
+        
+        #check if the pass is correct
+        user = res[0]
+        
+        print(user)
+        
+        if user.password == kwargs["password"]:
+        
+            #login ok, one of the next tasks is try to sync
+            
+            
+            #return the user object
+            return user
+            
+            
+        
+        print("Bad credentials, password does not match")
+        
+        return None
+        
+    else:
+        print("Bad credentials, username does not exists")
+        
+        
+        
+    
     
     callback_login = kwargs.pop("callback", None)
 
