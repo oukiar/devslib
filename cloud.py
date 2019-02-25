@@ -604,7 +604,7 @@ def sync_callback_store(data_dict, dt):
     
     
     for i in result:
-        print i
+        print(i)
         ngvar_item = NGVar(className=i['model'])
         ngvar_item.from_values(json.loads(i['object_json']) )
         ngvar_item.save()
@@ -874,7 +874,7 @@ class NGVar:
             else:
                 sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL, " % (self.className)  + right_sql +   ");"
             
-            print sql
+            print(sql)
             
             #crear tabla
             cursor = cnx.cursor()
@@ -1006,7 +1006,7 @@ class NGVar:
                 
             else:
                 print('sqlite3 Error: Unknown error')
-                print sql
+                print(sql)
                 print (e.args[0])
                             
             #print("Error updating-saving: " + sql)
@@ -1127,7 +1127,7 @@ class NGVar:
                     print("Error creando nueva columna")
             else:
                 print('sqlite3 Error: Unknown error real_insert')
-                print sql, lst_values
+                print (sql, lst_values)
                 print (e.args[0])
             
             #print("Error saving: " + sql)
@@ -1254,7 +1254,7 @@ class Query:
                 elif i["condition"] in ("BETWEEN"):
                     self.sql +=  " AND " + i["field"] + " " + i["condition"] + " '" + str(i["value"][0]) + "' AND '" + str(i["value"][1]) + "' "
                 
-        print self.sql
+        print (self.sql)
         return self.sql
 
     def find(self, **kwargs):
@@ -1558,7 +1558,7 @@ def dispatch_from_server():
     
     if len(server_dispatchers):
         function_kwargs = server_dispatchers.pop(0)
-        print function_kwargs
+        print(function_kwargs)
         
         callback = function_kwargs["function"]
         addr = function_kwargs["addr"]
