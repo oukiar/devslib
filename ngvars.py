@@ -60,7 +60,7 @@ class NGVar(Widget):
                 callback=callback)
         
     def res_save(self, response):
-        print response
+        print(response)
     
     def get(self, **kwargs):
         
@@ -79,7 +79,7 @@ class NGVar(Widget):
                 callback=callback)
                 
     def res_get(self, response):
-        print response
+        print(response)
         
     def query(self, **kwargs):
         
@@ -119,7 +119,7 @@ class NGFactory(Widget):
                 callback=callback)
                 
     def res_search(self, response):
-        print "Search response: ", response
+        print("Search response: ", response)
         
     def Save(self, ngvar):
         ngvar.save()
@@ -132,15 +132,15 @@ if __name__ == '__main__':
     factory = NGFactory()
     ngvar = factory.Extends('Users')
     
-    print "Name: "
+    print("Name: ")
     name = raw_input()
     
-    print "email: "
+    print("email: ")
     email = raw_input()
     
     ngvar.save(Name=name, Email=email)
     
-    print "Search using factory: ", factory.Search(collection="Users")
+    print("Search using factory: ", factory.Search(collection="Users") )
     #print "Thow ngvar object: ", ngvar.query()
     
     from kivy.base import runTouchApp

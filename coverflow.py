@@ -47,7 +47,7 @@ class CoverItem(Widget3D):
         #self.title = Button(text='hello', size_hint=(None,None), height=40, width=150, x=-75, y=40, font_size=20, background_normal="barra_play.png")
         self.title = Label3D(text='hello', pos_z=-800, size_hint=(None,None) )
         self.title.pos_z = -1000
-        print "POS3D: ", self.title.pos3D
+        print("POS3D: ", self.title.pos3D)
         self.add_widget(self.title)
         
         self.add_widget(self.bg)
@@ -290,7 +290,7 @@ class CoverFlow(Widget3D):
             i.scale_x = scale3d[0]
             i.scale_y = scale3d[1]
             
-            print "Z: ", i.title.pos_z
+            print("Z: ", i.title.pos_z)
       
     def get_cover_from_cache(self, index, load=True):
         '''
@@ -321,7 +321,7 @@ class CoverFlow(Widget3D):
         Get a list of covers that exists into each directory of the path
         '''
         
-        print 'Listando desde coverflow: ', self.path
+        print('Listando desde coverflow: ', self.path)
         
         self.lst_covers = []
         for i in sorted(os.listdir(self.path)):
@@ -372,7 +372,7 @@ class CoverFlow(Widget3D):
                     if sup < (self.index + (self.side_ncovers*2)+1):
                         ncover = sup - self.index
                         
-                        print 'R Mostrando: ', ncover
+                        print('R Mostrando: ', ncover)
                         
                         Animation.cancel_all(self.covers[ncover], 'opacity')
                         self.covers[ncover].set_texture(cover)
@@ -399,7 +399,7 @@ class CoverFlow(Widget3D):
                     if inf >= self.index:
                         ncover = inf - self.index
                         
-                        print 'L Mostrando: ', ncover
+                        print('L Mostrando: ', ncover)
                         
                         Animation.cancel_all(self.covers[ncover], 'opacity')
                         self.covers[ncover].set_texture(cover)

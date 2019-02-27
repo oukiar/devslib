@@ -26,7 +26,7 @@ net = Network()
 net.create_connection(receiver)
 
 class CloudVar():
-	'''
+    '''
     Variable autosincronizable entre diferentes nodos de la red usando el
     networking p2p
     '''
@@ -36,42 +36,42 @@ class CloudVar():
         
         self.sync_callback = kwargs.get("sync_callback", None)
     
-	def link(self, serverip, channel):
+    def link(self, serverip, channel):
         '''
         Establece enlace hacia determinado bloque de datos
         '''
-		self.server = serverip
+        self.server = serverip
         self.channel = channel
         
         #conectar al servidor en el canal especificado
         
-		
-	def sync(self):
+
+    def sync(self):
         '''
         
         '''
-		pass
-		
-	def unlink(self):
-		pass
-		
+        pass
+
+    def unlink(self):
+        pass
+        
 if __name__ == "__main__":
-	
-	def cb_sync(var):
-		print var.colorval
-	
-	print("Probando cloudvars")
-	
-	net.shutdown_network()
-	
-	var1 = CloudVar()
-	var1.link("127.0.0.1", "conquians")
+
+    def cb_sync(var):
+        print(var.colorval)
+
+    print("Probando cloudvars")
+
+    net.shutdown_network()
+
+    var1 = CloudVar()
+    var1.link("127.0.0.1", "conquians")
 
 
-	var2 = CloudVar(sync_callback=cb_sync)
-	var2.link("127.0.0.1", "conquians")
-	
-	var1.colorval = "green"
-	var1.sync()
-	
-	print(var2.colorval)
+    var2 = CloudVar(sync_callback=cb_sync)
+    var2.link("127.0.0.1", "conquians")
+
+    var1.colorval = "green"
+    var1.sync()
+
+    print(var2.colorval)

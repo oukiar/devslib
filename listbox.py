@@ -542,11 +542,11 @@ class ListBox(ListBase):
             anim.start(widget)
             
     def on_pos(self, w, val):
-        print 'New listbox pos', val
+        print('New listbox pos', val)
         self.pos_and_size_change()
         
     def on_size(self, w, val):
-        print 'New listbox size', val
+        print('New listbox size', val)
         self.pos_and_size_change()
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ class FloatWindow():
     def __init__(self):
         self.root = Tk()
         self.root.overrideredirect(1)
-        print "Window ID: ", self.get_windowid()
+        print("Window ID: ", self.get_windowid() )
         
     def get_windowid(self):
         return self.root.winfo_id()
