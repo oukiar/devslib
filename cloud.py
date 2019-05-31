@@ -834,7 +834,7 @@ class NGVar:
         print("GUARDANDO IN SAVE", tables)
         
         #sameId = kwargs.get("sameId", False) #util para almacenar objetos que tienen objectId en los values, tales como cuando retorna desde el server
-        self.saveincloud = kwargs.pop("saveincloud", True)
+        self.saveincloud = kwargs.pop("saveincloud", False)
         
         if self.className not in tables:
                 
@@ -957,7 +957,7 @@ class NGVar:
                         
                             print('Sync save to node', self.className)
                             
-                            '''
+                            
                             #guardar el callback que sera llamado en respuesta a esta llamada
                             save_callbacks[self.objectId] = kwargs.get('callback', None)
                                 
@@ -965,7 +965,7 @@ class NGVar:
                             tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
                             #send to the server
                             net.send((server_ip, server_port), tosend)
-                            '''
+                            
                     
                     '''
                     #guardar esta transaccion en la tabla de transacciones
