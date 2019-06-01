@@ -560,16 +560,7 @@ def sync_latest(**kwargs):
     
 def sync(**kwargs):
     '''
-    *****ACTUALIZACION 21 AGOSTO 2017
-    
-    - SE LLEVA UNA TABLA DE TRANSACCIONES DONDE SE ALMACENAN LAS INSERCIONES, ACTUALIZACIONES Y ELIMINACIONES
-    - PARA LOGRAR LA SINCRONIZACION SIMPLEMENTE SE HACE COMPARACION DE LOS TIMESTAMPS DE LAS TRANSACCIONES Y
-        LOS NUMEROS DE ID CONSECUTIVOS, EN CASO DE HABER DISCREPANCIAS, SIEMPRE EL SERVIDOR ES MANTADORIO PARA
-        REALIZAR LOS AJUSTES DEL CONSECUTIVO, PONIENDO COMO DUPLICADOS EN ID LOS QUE CORRESPONDAN A COLICIONES
-        DE EL MISMO REGISTRO (YA QUE EL PROBLEMA SOLO SURGE AL REALIZAR ACTUALIZACION)
-        
-        
-    *****ACTUALIZACION 21 MARZO 2018
+    *****ACTUALIZACION MAYO 31
     
     - 
     '''
@@ -1088,15 +1079,20 @@ class NGVar:
                         print("Node:", i)
                         print('Insert Sync save to node', self.className)
                         
-                        '''
+                        
                         #guardar el callback que sera llamado en respuesta a esta llamada
                         save_callbacks[self.objectId] = kwargs.get('callback', None)
                             
                         #send to the server the event for update in the cloud, only if we have connection
                         tosend = json.dumps({'msg':'update_from_client', 'className':self.className, 'data':self.fix_to_json() })
-                        #send to the server
-                        net.send((server_ip, server_port), tosend)
-                        '''
+                        
+                        #send this message to the peers
+                        for i in nodes:
+                            print("SENDING TO NODE", i)
+                            
+                            #send to the node
+                            net.send((i["ip"], i["port"]), tosend)
+                        
                     
                 return cursor.lastrowid
                 
