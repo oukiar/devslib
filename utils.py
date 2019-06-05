@@ -27,6 +27,10 @@ import os
 
 from threading import Thread
 
+
+from kivy.lang import Builder
+Builder.load_file('devslib/utils.kv')
+
 class Alert(Popup):
     def __init__(self, **kwargs):
         

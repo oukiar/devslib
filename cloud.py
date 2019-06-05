@@ -1238,8 +1238,11 @@ class Query:
                 elif i["condition"] in ("f=", "f<", "f>"):
                     self.sql += " AND "  + i["field"] + i["condition"][1] + i["value"] 
                     
-                elif i["condition"] in ("ORDER BY", "GROUP BY"):
+                elif i["condition"] in ("ORDER BY"):
                     self.sql +=  " " + i["condition"] + " " +  i["field"] + " " + str(i["value"]) + " "
+                    
+                elif i["condition"] in ("GROUP BY"):
+                    self.sql +=  " " + i["condition"] + " " +  i["field"]
                     
                 elif i["condition"] in ("IN"):
                     self.sql +=  " AND "  + i["field"] + " " + i["condition"] + " (" + str(i["value"]) + ") "
