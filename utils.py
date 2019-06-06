@@ -34,13 +34,13 @@ Builder.load_file('devslib/utils.kv')
 class Alert(Popup):
     def __init__(self, **kwargs):
         
-        title = kwargs.get("title", "Hey hey")
-        message = kwargs.get("message", "Someting was happen")
-        bigmessage = kwargs.get("bigmessage", "Ops")
-        image = kwargs.get("image", "images/infoicon.png")
-        timeout = kwargs.get("timeout", 2)
-        confirm = kwargs.get("confirm", False)
-        self.confirm_callback = kwargs.get("confirm_callback", None)
+        title = kwargs.pop("title", "Hey hey")
+        message = kwargs.pop("message", "Someting was happen")
+        bigmessage = kwargs.pop("bigmessage", "Ops")
+        image = kwargs.pop("image", "images/infoicon.png")
+        timeout = kwargs.pop("timeout", 2)
+        confirm = kwargs.pop("confirm", False)
+        self.confirm_callback = kwargs.pop("confirm_callback", None)
         
         super(Alert, self).__init__(**kwargs)
         
