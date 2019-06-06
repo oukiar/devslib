@@ -508,9 +508,10 @@ def fade_out(widget):
 def on_parentremove(widget, w):
     w.parent.remove_widget(w)
     
-    
+'''
 class ImageButton(ButtonBehavior, Image):
     pass
+'''
 
 if __name__ == '__main__':
     from kivy.base import runTouchApp
