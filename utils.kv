@@ -21,7 +21,7 @@
     
 <Alert>:
     size_hint: None, None
-    size: 400,250
+    size: "350sp","250sp"
     layout:layout
     msg:msg
     bigmsg:bigmsg
@@ -36,7 +36,12 @@
         Label:
             id: bigmsg
             text: "Cancion agregada"
-            font_size: 28
+            font_size: "28sp"
         Label:
             id: msg
             text: "Titulo de la cancion"
+            font_size: "18sp"
+            text_size: root.width, None
+            size: self.texture_size
+            halign: 'center'
+            valign: 'middle'
