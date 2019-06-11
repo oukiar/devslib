@@ -229,7 +229,7 @@ def init(**kwargs):
         Clock.schedule_interval(ping_nodes, 10)
     
 def ping_nodes(dt):
-    print("Enviando ping a nodos ... total (%d)" % len(nodes) )
+    #print("Enviando ping a nodos ... total (%d)" % len(nodes) )
     
     for i in nodes:
         print("... enviando ping a nodo ", i)
@@ -822,7 +822,7 @@ class NGVar:
             must avoid problems of fields existence
         '''
         
-        print("GUARDANDO IN SAVE", tables)
+        #print("GUARDANDO IN SAVE", tables)
         
         #sameId = kwargs.get("sameId", False) #util para almacenar objetos que tienen objectId en los values, tales como cuando retorna desde el server
         self.saveincloud = kwargs.pop("saveincloud", False)
@@ -891,7 +891,7 @@ class NGVar:
     def real_save(self, **kwargs):
         
         #el update solo funcionara con conexion
-        print("SAVE UPDATE !!!!! ----- CHECKIT ")
+        #print("SAVE UPDATE !!!!! ----- CHECKIT ")
         
         #update
         sql = "update " + self.className + " set "
@@ -1253,7 +1253,7 @@ class Query:
                 elif i["condition"] in ("BETWEEN"):
                     self.sql +=  " AND " + i["field"] + " " + i["condition"] + " '" + str(i["value"][0]) + "' AND '" + str(i["value"][1]) + "' "
                 
-        print (self.sql)
+        #print (self.sql)
         return self.sql
 
     def find(self, **kwargs):
