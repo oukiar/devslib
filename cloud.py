@@ -232,7 +232,7 @@ def ping_nodes(dt):
     #print("Enviando ping a nodos ... total (%d)" % len(nodes) )
     
     for i in nodes:
-        print("... enviando ping a nodo ", i)
+        #print("... enviando ping a nodo ", i)
                 
         tosend = json.dumps({'msg':'ping', 'data':datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S') })
 
