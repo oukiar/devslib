@@ -72,7 +72,7 @@ class RotativeImage(Image):
         if val == "rotating":
             print("rotating")
             self.reanimate()
-        else:
+        elif hasattr(self, "anim"):
             self.anim.cancel(self)
     
     def reanimate(self, w=None, val=0):
