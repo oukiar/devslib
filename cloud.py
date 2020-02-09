@@ -88,6 +88,10 @@ except:
 #disabled, schema must be created in runtime with creation of vars
 #from tables import schema
 
+try:
+	import psycopg2
+except:
+	psycopg2 = None
 
 #session token
 session_token = None
@@ -170,6 +174,14 @@ def init(**kwargs):
     global net
     global server_ip
     global server_port
+    
+    username = kwargs.get("username")
+    password = kwargs.get("password")
+    db = username
+
+    cnx = psycopg2.connect("host=127.0.0.1 port=5432 user=%s password=%s dbname=%s", (username, password, db) )
+    
+    return
     
     dbname = kwargs.get("database", 'database.db')
     #server_ip = kwargs.get("server", None) #none if cloud works only on local mode
@@ -449,6 +461,31 @@ def create(**kwargs):
     return ngvar
 
 def login(**kwargs):
+    '''
+    2020: Use login of postgresql as user connected to the dbms
+    '''
+    global cnx
+    global tables
+    global net
+    global server_ip
+    global server_port
+    
+    
+    print("Iniciando sesion: " + kwargs["username"])
+
+
+    username = kwargs.get("username")
+    password = kwargs.get("password")
+    db = username
+
+    try:
+        cnx = psycopg2.connect("host=127.0.0.1 port=5432 user=%s password=%s dbname=%s" % (username, password, db) )
+        return True
+    except:
+        return False
+    
+    return
+    #OUTDATED
     '''
     Step 1: Request login on the peers
     Step 2: Request login at localhost
