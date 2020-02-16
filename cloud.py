@@ -89,7 +89,9 @@ except:
 #from tables import schema
 
 try:
-	import psycopg2
+    import psycopg2
+    from psycopg2.extensions import AsIs
+
 except:
 	psycopg2 = None
 
@@ -167,7 +169,7 @@ def initialized():
 #def init(dbname='database.db', server=None, serverport=None, local_port=None):
 def init(**kwargs):
     '''
-    Local database initialization, most used on devices
+    Local database initialization, most used on devices ... OUTDATED
     '''
     global cnx
     global tables
@@ -177,9 +179,12 @@ def init(**kwargs):
     
     username = kwargs.get("username")
     password = kwargs.get("password")
-    db = username
+    db = kwargs.get("db", username)
+    server = kwargs.get("server", "127.0.0.1")
+    port = kwargs.get("port", "5432")
 
-    cnx = psycopg2.connect("host=127.0.0.1 port=5432 user=%s password=%s dbname=%s", (username, password, db) )
+    cnx = psycopg2.connect("host=%s port=%s user=%s password=%s dbname=%s", (server, port, username, password, db) )
+    
     
     return
     
@@ -466,20 +471,30 @@ def login(**kwargs):
     '''
     global cnx
     global tables
-    global net
-    global server_ip
-    global server_port
-    
     
     print("Iniciando sesion: " + kwargs["username"])
 
 
     username = kwargs.get("username")
     password = kwargs.get("password")
-    db = username
+    db = kwargs.get("db")
+    server = kwargs.get("server", "127.0.0.1")
+    port = kwargs.get("port", "5432")
 
     try:
-        cnx = psycopg2.connect("host=127.0.0.1 port=5432 user=%s password=%s dbname=%s" % (username, password, db) )
+        cnx = psycopg2.connect("host=%s port=%s user=%s password=%s dbname=%s" % (server, port, username, password, db) )
+        
+        
+        #obtener la lista de tablas
+        
+        query = Query(className="pg_catalog.pg_tables")
+        query.notEqualTo("schemaname", "pg_catalog")
+        query.notEqualTo("schemaname", "information_schema")
+        for i in query.find():
+            tables.append(i.tablename)
+            #print(i.tablename)
+        
+        
         return True
     except:
         return False
@@ -545,8 +560,25 @@ def login(**kwargs):
     
 def signup(**kwargs):
     '''
-    Request signup always on the main server
+    2020: Postgres signup is create user
     '''
+    global cnx
+    
+    username = kwargs.get("username")
+    password = kwargs.get("password")
+    
+    cur = cnx.cursor()
+    
+    try:
+        cur.execute("CREATE USER %s with PASSWORD %s", (AsIs(username), password,))
+    
+        
+    
+        return True
+    
+    except:
+        return False
+    
     global callback_signup
     
     callback_signup = kwargs.pop("callback", None)
@@ -908,12 +940,11 @@ class NGVar:
             cursor = cnx.cursor()
             
             try:
-                if cursor.execute(sql):
-                    print("Tabla creada")
-                else:
-                    print("Error creando tabla SQL: " + sql)
-            except:
-                print('Error at table creation')
+                cursor.execute(sql):
+                cnx.commit()
+                    
+            except (Exception, psycopg2.DatabaseError) as error:
+                print('Error at table creation', error)
         else:
             pass
             #print("Table already exists")
@@ -1263,7 +1294,7 @@ class Query:
             
             for i in self.conditions:
                 #print("I:", i)
-                if i["condition"] in ("=", " LIKE "):
+                if i["condition"] in ("=", "!=", " LIKE "):
                     self.sql += " AND "  + i["field"] + i["condition"] + "'" + str(i["value"]) + "'" 
                     
                 elif i["condition"] in ("=", " ORLIKE "):
@@ -1290,7 +1321,7 @@ class Query:
                 elif i["condition"] in ("BETWEEN"):
                     self.sql +=  " AND " + i["field"] + " " + i["condition"] + " '" + str(i["value"][0]) + "' AND '" + str(i["value"][1]) + "' "
                 
-        #print (self.sql)
+        print (self.sql)
         return self.sql
 
     def find(self, **kwargs):
@@ -1405,6 +1436,10 @@ class Query:
         #self.params.append(field)
         self.params.append(value)
         '''
+        
+    def notEqualTo(self, field, value):
+        
+        self.conditions.append({"field":field, "condition":"!=", "value":value})
         
     def like(self, field, value):
         self.conditions.append({"field":field, "condition":" LIKE ", "value":value})
