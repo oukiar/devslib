@@ -982,19 +982,26 @@ class NGVar:
                         val = "'" + str(getattr(self, i).encode('utf8') ) + "'"
                 '''
                 
-                lst_values.append(getattr(self, i))
+                #lst_values.append(getattr(self, i))
         
                 if values == "":
-                    values = i + "=?" #+ val
+                    #values = i + "=?" #+ val
+                    values = i + val
                 else:
-                    values += ", " + i + "=?" #+ val
+                    #values += ", " + i + "=?" #+ val
+                    values += ", " + i + val
         
         sql += values + " where objectId='"+ self.objectId + "'"  
         
         
         try:
             cursor = cnx.cursor()
-            if cursor.execute(sql, lst_values):
+            cursor.execute(sql)
+            cnx.commit()
+            
+            return True
+            
+            if cursor.execute(sql):
                 #print("SQL: " + sql)
                 #print("Modified rows: " + str(cursor.rowcount))
                 
@@ -1134,7 +1141,7 @@ class NGVar:
         try:
             cursor = cnx.cursor()
             
-            print("SQL: " + sql)
+            #print("SQL: " + sql)
             
             cursor.execute(sql)
             cnx.commit()
