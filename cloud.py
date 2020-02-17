@@ -940,14 +940,14 @@ class NGVar:
             cursor = cnx.cursor()
             
             try:
-                cursor.execute(sql):
+                cursor.execute(sql)
                 cnx.commit()
                     
             except (Exception, psycopg2.DatabaseError) as error:
                 print('Error at table creation', error)
         else:
-            pass
-            #print("Table already exists")
+            #pass
+            print("Table already exists")
         
         if self.objectId != "":
             return self.real_save(**kwargs)
@@ -1105,39 +1105,44 @@ class NGVar:
                     sqlfields += ", " + i #HERE: avoid the sqlinjection
                 
                 #print (str(type(getattr(self, i) )))
+                
+                '''
                 if values == "":
                     values += "?" 
                 else:
                     values += ", ?"
                      
                 lst_values.append(getattr(self, i))
-            
+                '''
                 
-                '''
+                if values != "":
+                    values += ", "
+                
                 if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
-                    values += ", " + str(getattr(self, i))
+                    values += str(getattr(self, i))
                 else:
-                    try:
-                        values += ", '" + str(getattr(self, i) ) + "'"
-                    except:
-                        values += ", '" + str(getattr(self, i).encode('utf8') ) + "'"
-                '''
+                    values += "'" + str(getattr(self, i) ) + "'"
+                
         
         if has_autoincrement or 'objectId' in sqlfields:
-            sql = "insert into " + self.className + "(" + sqlfields + ") values(" + values + ")" 
+            sql = "insert into " + self.className + "(" + sqlfields + ") values(" + values + ");" 
         else:
-            sql = "insert into " + self.className + "(objectId, " + sqlfields + ") values('"+ self.objectId + "', " + values + ")" 
+            sql = "insert into " + self.className + "(objectId, " + sqlfields + ") values('"+ self.objectId + "', " + values + ");" 
         
         #print sql, lst_values
         
         try:
             cursor = cnx.cursor()
             
-            #print("SQL: " + sql)
+            print("SQL: " + sql)
             
-            if cursor.execute(sql, lst_values):
-                if autocommit:
-                    cnx.commit()
+            cursor.execute(sql)
+            cnx.commit()
+            return cursor.lastrowid
+            
+            if cursor.execute(sql):
+                #if autocommit:
+                cnx.commit()
                     
                     
                 if self.saveincloud:
