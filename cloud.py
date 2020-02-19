@@ -492,7 +492,7 @@ def login(**kwargs):
         query.notEqualTo("schemaname", "information_schema")
         for i in query.find():
             tables.append(i.tablename)
-            #print(i.tablename)
+            print(i.tablename)
         
         
         return True
@@ -884,6 +884,7 @@ class NGVar:
         return tp
     
     def save(self, **kwargs):
+        global tables
         '''
         Insertion and Update in the save function, the object must be valid
         
@@ -912,6 +913,9 @@ class NGVar:
             for i in dir(self):
                 if i not in self.members_backlist and i != "members_backlist":
                     
+                    if i == "objectId":
+                        continue
+                    
                     #print(i, type(getattr(self, i) ) )
                     
                     if getattr(self, i) == "[AUTO_INCREMENT]":
@@ -929,10 +933,15 @@ class NGVar:
                     else:
                         right_sql += ", " + i + " " + tp
             
+            '''
             if has_autoincrement or 'objectId' in right_sql:
                 sql = "CREATE TABLE %s (" % (self.className) + right_sql + ");"
             else:
                 sql = "CREATE TABLE %s (objectId TEXT PRIMARY KEY NOT NULL, " % (self.className)  + right_sql +   ");"
+            '''
+            
+            sql = "CREATE TABLE %s (objectId serial PRIMARY KEY, " % (self.className)  + right_sql +   ");"
+            
             
             print(sql)
             
@@ -1084,8 +1093,8 @@ class NGVar:
         global is_server
         
         #create object unique ID
-        if self.objectId == '':
-            self.objectId = str(uuid.uuid4())
+        #if self.objectId == '':
+        #    self.objectId = str(uuid.uuid4())
             
         
         #-------- INSERCION 
@@ -1101,7 +1110,10 @@ class NGVar:
         
         for i in dir(self):
             if i not in self.members_backlist and i != "members_backlist":
-                
+            
+                if i == "objectId":
+                    continue
+                    
                 if getattr(self, i) == "[AUTO_INCREMENT]":
                     has_autoincrement = True
                     continue
@@ -1130,13 +1142,15 @@ class NGVar:
                 else:
                     values += "'" + str(getattr(self, i) ) + "'"
                 
-        
+        '''
         if has_autoincrement or 'objectId' in sqlfields:
             sql = "insert into " + self.className + "(" + sqlfields + ") values(" + values + ");" 
         else:
             sql = "insert into " + self.className + "(objectId, " + sqlfields + ") values('"+ self.objectId + "', " + values + ");" 
+        '''
         
-        #print sql, lst_values
+        sql = "insert into " + self.className + "(" + sqlfields + ") values(" + values + ");" 
+        
         
         try:
             cursor = cnx.cursor()
@@ -1337,6 +1351,9 @@ class Query:
         return self.sql
 
     def find(self, **kwargs):
+        
+        if self.className not in tables and self.className != "pg_catalog.pg_tables":
+            return []
         
         raw = kwargs.get("raw", False)
         customsql = kwargs.get("customsql", False)
