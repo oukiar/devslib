@@ -1154,7 +1154,7 @@ class NGVar:
                 else:
                     sqlfields += ", " + i #HERE: avoid the sqlinjection
                 
-                #print (str(type(getattr(self, i) )))
+                print ("TYPE", str(type(getattr(self, i) )))
                 
                 '''
                 if values == "":
@@ -1168,7 +1168,7 @@ class NGVar:
                 if values != "":
                     values += ", "
                 
-                if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
+                if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>", "<class 'devslib.cloud.Date'>", "<class 'devslib.cloud.Time'>", "<class 'devslib.cloud.Datetime'>"]:
                     values += str(getattr(self, i))
                 else:
                     values += "'" + str(getattr(self, i) ) + "'"
