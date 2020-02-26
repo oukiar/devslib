@@ -1168,8 +1168,12 @@ class NGVar:
                 if values != "":
                     values += ", "
                 
-                if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>", "<class 'devslib.cloud.Date'>", "<class 'devslib.cloud.Time'>", "<class 'devslib.cloud.Datetime'>"]:
+                if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>", "<class 'devslib.cloud.Date'>", "<class 'devslib.cloud.Time'>"]:
                     values += str(getattr(self, i))
+                    
+                elif str(type(getattr(self, i) )) == "<class 'devslib.cloud.Datetime'>":
+                    values += "'" + str(getattr(self, i).datetime) + "'"
+                    
                 else:
                     values += "'" + str(getattr(self, i) ) + "'"
                 
