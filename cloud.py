@@ -163,7 +163,7 @@ curl ipecho.net
 
 
 class Date():
-    def __init__(dateparam=None):
+    def __init__(self, dateparam=None):
         
         if dateparam == None:
             self.date = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d')
@@ -171,14 +171,14 @@ class Date():
 
 
 class Time():
-    def __init__(timeparam=None):
+    def __init__(self, timeparam=None):
         
         if timeparam == None:
             self.time = datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S')
             return self.time
             
 class Datetime():
-    def __init__(datetimeparam=None):
+    def __init__(self, datetimeparam=None):
         
         self.datetime = None
         
