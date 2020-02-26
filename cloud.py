@@ -947,13 +947,13 @@ class NGVar:
                     elif str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
                         tp = "INT"
                         
-                    elif str(type(getattr(self, i) )) == "<class '__main__.Date'>":
+                    elif str(type(getattr(self, i) )) == "<class 'devslib.cloud.Date'>":
                         tp = "DATE"
                         
-                    elif str(type(getattr(self, i) )) == "<class '__main__.Time'>":
+                    elif str(type(getattr(self, i) )) == "<class 'devslib.cloud.Time'>":
                         tp = "TIME"
                         
-                    elif str(type(getattr(self, i) )) == "<class '__main__.Datetime'>":
+                    elif str(type(getattr(self, i) )) == "<class 'devslib.cloud.Datetime'>":
                         tp = "TIMESTAMP"
                         
                     else:
