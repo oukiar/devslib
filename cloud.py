@@ -162,6 +162,27 @@ curl ipecho.net
 '''
 
 
+class Date():
+    def __init__(dateparam=None):
+        
+        if dateparam == None:
+            self.date = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d')
+            return self.date
+
+
+class Time():
+    def __init__(timeparam=None):
+        
+        if timeparam == None:
+            self.time = datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S')
+            return self.time
+            
+class DateTime():
+    def __init__(datetimeparam=None):
+        if datetimeparam == None:
+            self.datetime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+            return self.datetime
+
 def initialized():
     global cnx
     return cnx
@@ -925,6 +946,16 @@ class NGVar:
                         tp = "TEXT"
                     elif str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
                         tp = "INT"
+                        
+                    elif str(type(getattr(self, i) )) == "<class '__main__.Date'>":
+                        tp = "DATE"
+                        
+                    elif str(type(getattr(self, i) )) == "<class '__main__.Time'>":
+                        tp = "TIME"
+                        
+                    elif str(type(getattr(self, i) )) == "<class '__main__.DateTime'>":
+                        tp = "TIMESTAMP"
+                        
                     else:
                         tp = "" #esto quizas provoca error al no definir tipo del campo
                     
