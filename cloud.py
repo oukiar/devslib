@@ -179,9 +179,12 @@ class Time():
             
 class Datetime():
     def __init__(datetimeparam=None):
+        
+        self.datetime = None
+        
         if datetimeparam == None:
             self.datetime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-            return self.datetime
+            #return self.datetime
 
 def initialized():
     global cnx
