@@ -937,7 +937,7 @@ class NGVar:
                     if i == "objectId":
                         continue
                     
-                    #print(i, type(getattr(self, i) ) )
+                    print(i, type(getattr(self, i) ) )
                     
                     if getattr(self, i) == "[AUTO_INCREMENT]":
                         tp = "INTEGER PRIMARY KEY" #esto es para autoincrement en sqlite3, posiblemente manejemos este backend primariamente
