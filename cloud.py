@@ -177,7 +177,7 @@ class Time():
             self.time = datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S')
             return self.time
             
-class DateTime():
+class Datetime():
     def __init__(datetimeparam=None):
         if datetimeparam == None:
             self.datetime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
@@ -953,7 +953,7 @@ class NGVar:
                     elif str(type(getattr(self, i) )) == "<class '__main__.Time'>":
                         tp = "TIME"
                         
-                    elif str(type(getattr(self, i) )) == "<class '__main__.DateTime'>":
+                    elif str(type(getattr(self, i) )) == "<class '__main__.Datetime'>":
                         tp = "TIMESTAMP"
                         
                     else:
