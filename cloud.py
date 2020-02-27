@@ -745,7 +745,7 @@ def get_max(**kwargs):
     
 def get_fieldval(className, objectId, field):
     q = Query(className=className)
-    q.equalTo("objectId", objectId)
+    q.equalTo("objectid", objectId)
     
     r = q.find()
     
