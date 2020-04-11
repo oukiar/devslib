@@ -108,6 +108,8 @@ server_port = 11235 #fibonacci sequencie port number by default ... all the minn
 user = None
 net = None
 
+engine = "sqlite3"
+
 nodes = []
 
 
@@ -200,74 +202,78 @@ def init(**kwargs):
     global net
     global server_ip
     global server_port
+    global engine
     
-    username = kwargs.get("username")
-    password = kwargs.get("password")
-    db = kwargs.get("db", username)
-    server = kwargs.get("server", "127.0.0.1")
-    port = kwargs.get("port", "5432")
+    if engine == "postgres":
+        
+        engine = kwargs.get("engine", "sqlite3")
+        username = kwargs.get("username")
+        password = kwargs.get("password")
+        db = kwargs.get("db", username)
+        server = kwargs.get("server", "127.0.0.1")
+        port = kwargs.get("port", "5432")
 
-    cnx = psycopg2.connect("host=%s port=%s user=%s password=%s dbname=%s", (server, port, username, password, db) )
+        cnx = psycopg2.connect("host=%s port=%s user=%s password=%s dbname=%s", (server, port, username, password, db) )
+        
     
-    
-    return
-    
-    dbname = kwargs.get("database", 'database.db')
-    #server_ip = kwargs.get("server", None) #none if cloud works only on local mode
-    server_port = kwargs.get("serverport", server_port)
-    #local_port = kwargs.get("localport", server_port)
-    
-    #conexion sqlite para base de datos local
-    cnx = sqlite3.connect(dbname)
-    
-    print(cnx)    
-    
-    '''
-    #check if users table exists
-    cursor = cnx.cursor()
-    #cursor.execute( "SELECT name FROM sqlite_master WHERE type='table' AND name='users'" )
-    cursor.execute( "SELECT name FROM sqlite_master WHERE type='table'" )
-    
-    tables = cursor.fetchall()
-    '''
-    
-    query = Query(className="sqlite_master")
-    query.equalTo("type", "table")
-    for i in query.find():
-        tables.append(i.name)
-    
-    print("Database schema loaded: " + json.dumps(tables) )
-    
-    
-    #print("Creating network")
-
-    #network
-    net = Network()  
-    net.create_connection(receiver, server_port)
-    
-    
-    '''
-    #resolver ip publica
-     
-    r = requests.get(r'http://jsonip.com')
-
-    public_ip = r.json()['ip']
-
-    print('Your public IP is', public_ip)
-    '''
-
-    '''
-    #si no somos el servidor
-    if not net.has_ip(server_ip):
-        add_node(ip=server_ip, port=server_port)
-        print("Primer nodo agregado correctamente")
     else:
-        print("Running in server mode")
-    '''
-    
-    #inicia timeout de pings
-    if Clock:
-        Clock.schedule_interval(ping_nodes, 10)
+        
+        dbname = kwargs.get("database", 'database.db')
+        #server_ip = kwargs.get("server", None) #none if cloud works only on local mode
+        server_port = kwargs.get("serverport", server_port)
+        #local_port = kwargs.get("localport", server_port)
+        
+        #conexion sqlite para base de datos local
+        cnx = sqlite3.connect(dbname)
+        
+        print(cnx)    
+        
+        '''
+        #check if users table exists
+        cursor = cnx.cursor()
+        #cursor.execute( "SELECT name FROM sqlite_master WHERE type='table' AND name='users'" )
+        cursor.execute( "SELECT name FROM sqlite_master WHERE type='table'" )
+        
+        tables = cursor.fetchall()
+        '''
+        
+        query = Query(className="sqlite_master")
+        query.equalTo("type", "table")
+        for i in query.find():
+            tables.append(i.name)
+        
+        print("Database schema loaded: " + json.dumps(tables) )
+        
+        
+        #print("Creating network")
+
+        #network
+        net = Network()  
+        net.create_connection(receiver, server_port)
+        
+        
+        '''
+        #resolver ip publica
+         
+        r = requests.get(r'http://jsonip.com')
+
+        public_ip = r.json()['ip']
+
+        print('Your public IP is', public_ip)
+        '''
+
+        '''
+        #si no somos el servidor
+        if not net.has_ip(server_ip):
+            add_node(ip=server_ip, port=server_port)
+            print("Primer nodo agregado correctamente")
+        else:
+            print("Running in server mode")
+        '''
+        
+        #inicia timeout de pings
+        if Clock:
+            Clock.schedule_interval(ping_nodes, 10)
     
 def ping_nodes(dt):
     #print("Enviando ping a nodos ... total (%d)" % len(nodes) )
