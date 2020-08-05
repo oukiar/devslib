@@ -204,9 +204,10 @@ def init(**kwargs):
     global server_port
     global engine
     
+    engine = kwargs.get("engine", "sqlite3")
+        
     if engine == "postgres":
         
-        engine = kwargs.get("engine", "sqlite3")
         username = kwargs.get("username")
         password = kwargs.get("password")
         db = kwargs.get("db", username)
@@ -1396,7 +1397,7 @@ class Query:
 
     def find(self, **kwargs):
         
-        if self.className not in tables and self.className != "pg_catalog.pg_tables":
+        if self.className not in tables and self.className != "pg_catalog.pg_tables" and len(tables) != 0:
             return []
         
         raw = kwargs.get("raw", False)
@@ -1406,7 +1407,7 @@ class Query:
             self.generate_sql()
         
         cursor = cnx.cursor()
-        #print( (self.sql) )
+        print( (self.sql) )
 
         try:
             cursor.execute(self.sql)
