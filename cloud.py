@@ -1022,7 +1022,7 @@ class NGVar:
                                     
                 #print (str(type(getattr(self, i) )))
                 
-                '''
+                
                 if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
                     val = str(getattr(self, i))
                 else:
@@ -1030,7 +1030,7 @@ class NGVar:
                         val = "'" + str(getattr(self, i) ) + "'"
                     except:
                         val = "'" + str(getattr(self, i).encode('utf8') ) + "'"
-                '''
+                
                 
                 #lst_values.append(getattr(self, i))
         
@@ -1133,9 +1133,9 @@ class NGVar:
     def real_insert(self, **kwargs):
         global is_server
         
-        #create object unique ID
-        #if self.objectId == '':
-        #    self.objectId = str(uuid.uuid4())
+        #create object unique ID ... talvez esto deba ser comentado para postgres backend
+        if self.objectId == '':
+            self.objectId = str(uuid.uuid4())
             
         
         #-------- INSERCION 
