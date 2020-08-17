@@ -76,7 +76,7 @@ import datetime
 import time
 
 
-import requests
+#import requests
 
 try:
     from kivy.clock import Clock
