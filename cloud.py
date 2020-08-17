@@ -1152,8 +1152,9 @@ class NGVar:
         for i in dir(self):
             if i not in self.members_backlist and i != "members_backlist":
             
-                if i == "objectId":
-                    continue
+                #esto debe ser rehabilitado para postgress backend
+                #if i == "objectId":
+                #    continue
                     
                 if getattr(self, i) == "[AUTO_INCREMENT]":
                     has_autoincrement = True
