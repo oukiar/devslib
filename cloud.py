@@ -1036,10 +1036,10 @@ class NGVar:
         
                 if values == "":
                     #values = i + "=?" #+ val
-                    values = i + val
+                    values = i + "=" + val
                 else:
                     #values += ", " + i + "=?" #+ val
-                    values += ", " + i + val
+                    values += ", " + i + "=" + val
         
         sql += values + " where objectId='"+ self.objectId + "'"  
         
