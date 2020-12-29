@@ -438,7 +438,7 @@ class rotatingPoints(Widget3D):
                                                 size=(10,10), 
                                                 pos=(-5, -5), 
                                                 pos3D=kwargs.pop('pos3D', (0,0,-15)),
-                                                rotate3D=(0,0,0),
+                                                rotate3D=kwargs.pop('rotate3D',(0,0,0)),
                                                 **kwargs)
         
         self.color3D = kwargs.get('color', (1, 1, 1))
@@ -514,6 +514,8 @@ if __name__ == '__main__':
     
     #runTouchApp( Widget3D( pos3D=(0,0,-15), rotate3D=(0,45,0) ) )
     #runTouchApp( rotatingPoints( pos3D=(0,0,-15), rotate3D=(0,0,0) ) )
+    
+    
     
     lay = Edit3D()
     #lay.add_widget(Image3D(source='default.png', pos3D=(0,0,-10)))
