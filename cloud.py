@@ -947,7 +947,7 @@ class NGVar:
                     if i == "objectId":
                         continue
                     
-                    print(i, type(getattr(self, i) ) )
+                    #print(i, type(getattr(self, i) ) )
                     
                     if getattr(self, i) == "[AUTO_INCREMENT]":
                         tp = "INTEGER PRIMARY KEY" #esto es para autoincrement en sqlite3, posiblemente manejemos este backend primariamente
@@ -996,8 +996,8 @@ class NGVar:
             except (Exception, psycopg2.DatabaseError) as error:
                 print('Error at table creation', error)
         else:
-            #pass
-            print("Table already exists")
+            pass
+            #print("Table already exists")
         
         if self.objectId != "":
             return self.real_save(**kwargs)
@@ -1022,7 +1022,7 @@ class NGVar:
                                     
                 #print (str(type(getattr(self, i) )))
                 
-                
+                '''
                 if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>"]:
                     val = str(getattr(self, i))
                 else:
@@ -1030,24 +1030,25 @@ class NGVar:
                         val = "'" + str(getattr(self, i) ) + "'"
                     except:
                         val = "'" + str(getattr(self, i).encode('utf8') ) + "'"
+                '''
                 
-                
-                #lst_values.append(getattr(self, i))
+                lst_values.append(getattr(self, i))
         
                 if values == "":
-                    #values = i + "=?" #+ val
-                    values = i + "=" + val
+                    values = i + "=?" #+ val
+                    #values = i + "=" + val
                 else:
-                    #values += ", " + i + "=?" #+ val
-                    values += ", " + i + "=" + val
+                    values += ", " + i + "=?" #+ val
+                    #values += ", " + i + "=" + val
         
         sql += values + " where objectId='"+ self.objectId + "'"  
         
         
         try:
             cursor = cnx.cursor()
-            cursor.execute(sql)
-            cnx.commit()
+            cursor.execute(sql, lst_values)
+            if autocommit:
+                cnx.commit()
             
             return True
             
@@ -1165,17 +1166,28 @@ class NGVar:
                 else:
                     sqlfields += ", " + i #HERE: avoid the sqlinjection
                 
-                print ("TYPE", str(type(getattr(self, i) )))
+                #print ("TYPE", str(type(getattr(self, i) )))
                 
-                '''
+                
                 if values == "":
                     values += "?" 
                 else:
                     values += ", ?"
                      
-                lst_values.append(getattr(self, i))
-                '''
+                #lst_values.append(getattr(self, i))
+              
                 
+                if str(type(getattr(self, i) )) in ["<type 'int'>", "<class 'int'>", "<class 'devslib.cloud.Date'>", "<class 'devslib.cloud.Time'>"]:
+                    lst_values.append( getattr(self, i) )
+                    
+                elif str(type(getattr(self, i) )) == "<class 'devslib.cloud.Datetime'>":
+                    lst_values.append( getattr(self, i).datetime )
+                    
+                else:
+                    lst_values.append( getattr(self, i) )
+                
+                
+                '''
                 if values != "":
                     values += ", "
                 
@@ -1187,6 +1199,7 @@ class NGVar:
                     
                 else:
                     values += "'" + str(getattr(self, i) ) + "'"
+                '''
                 
         '''
         if has_autoincrement or 'objectId' in sqlfields:
@@ -1203,8 +1216,11 @@ class NGVar:
             
             #print("SQL: " + sql)
             
-            cursor.execute(sql)
-            cnx.commit()
+            cursor.execute(sql, lst_values)
+            
+            if autocommit:
+                cnx.commit()
+            
             return cursor.lastrowid
             
             if cursor.execute(sql):
