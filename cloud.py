@@ -110,6 +110,7 @@ net = None
 
 engine = "sqlite3"
 
+#nodos que se tienen registrados
 nodes = []
 
 
@@ -372,6 +373,23 @@ def init_server(**kwargs):
     
     print("Creating network")
 
+
+def register_node(self, node_id=None):
+    '''
+    Funcion encargada de realizar el registro en la red, se obtiene un
+    ID que representa nuestro nodo en la red, dicho ID debe ser almacenado
+    para futuras conexiones local y remotas.
+    '''
+    print("Iniciando registro en red distribuida")
+    
+    data = {"node_id":node_id, "pubkey":None}
+    
+    #enviar datos de registro
+    tosend = json.dumps({'msg':'register_node', 'data':data})
+    net.send((i['ip'], i['port']), tosend)
+    
+    
+    
        
 def add_node(ip, port):
     global nodes
@@ -2151,6 +2169,14 @@ def receiver(data, addr):
             Clock.schedule_once(partial(save_callbacks[data_dict['objectId']], data_dict['objectId']), 0)
               
         #sincronizar con los peers que se tiene registro de existencia menor a 3 horas de ultima conexion
+        
+    elif data_dict['msg'] == 'register_node':
+        print("Registrando nodo remoto", addr)
+        
+        
+        
+        
+        
         
     
 def scanLocalNetwork(callback_found, port=None):
