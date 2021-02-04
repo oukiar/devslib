@@ -395,7 +395,7 @@ def register_node(**kwargs):
     
     #enviar datos de registro
     tosend = json.dumps({'msg':'register_node', 'data':data})
-    net.send((i['ip'], i['port']), tosend)
+    net.send((server_ip, server_port), tosend)
     
     
     
@@ -2194,13 +2194,13 @@ def receiver(data, addr):
         nodes[node_id] = {"addr":addr, "pubkey":pubkey}
         
         #enviar respuesta
-        tosend = json.dumps({'msg':'register_node_ack', 'response':"ok_registered"}, encoding='latin1')
+        tosend = json.dumps({'msg':'register_node_ack', "data":{'response':"ok_registered", "node_id":node_id} } , encoding='latin1')
         net.send(addr, tosend)
         
     elif data_dict['msg'] == 'register_node_ack':
         
         if callback_registration:
-            Clock.schedule_once(partial(callback_registration, data_dict['response']), 0)
+            Clock.schedule_once(partial(callback_registration, data_dict['data']), 0)
         
     
 def scanLocalNetwork(callback_found, port=None):
