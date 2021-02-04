@@ -111,7 +111,7 @@ net = None
 engine = "sqlite3"
 
 #nodos que se tienen registrados
-nodes = []
+nodes = {}  #es diccionario para poder acceder a los nodos en base al node_id
 
 
 #-----------------
@@ -156,6 +156,9 @@ callback_signup = None
 callback_login = None
 callback_sync = None
 callback_events = None #para eventos cloud
+
+
+callback_registration = None #callback llamado en respuesta de mensaje de registro en red
 
 
 '''
@@ -374,13 +377,19 @@ def init_server(**kwargs):
     print("Creating network")
 
 
-def register_node(self, node_id=None):
+def register_node(**kwargs):
+    global callback_registration
     '''
     Funcion encargada de realizar el registro en la red, se obtiene un
     ID que representa nuestro nodo en la red, dicho ID debe ser almacenado
     para futuras conexiones local y remotas.
     '''
+    
     print("Iniciando registro en red distribuida")
+    
+    
+    node_id = kwargs.get("node_id", None)
+    callback_registration = kwargs.get("callback_registration", None)
     
     data = {"node_id":node_id, "pubkey":None}
     
@@ -1903,6 +1912,7 @@ def receiver(data, addr):
     global callback_bridge
     global send_ping
     global callback_found_device
+    global nodes
     
     data_dict = json.loads(data)
     
@@ -2173,10 +2183,24 @@ def receiver(data, addr):
     elif data_dict['msg'] == 'register_node':
         print("Registrando nodo remoto", addr)
         
+        data = data_dict['data']
+
+        node_id = data["node_id"]
+        pubkey = data["pubkey"]
         
+        if node_id == None:
+            node_id = str(uuid.uuid4())
         
+        nodes[node_id] = {"addr":addr, "pubkey":pubkey}
         
+        #enviar respuesta
+        tosend = json.dumps({'msg':'register_node_ack', 'response':"ok_registered"}, encoding='latin1')
+        net.send(addr, tosend)
         
+    elif data_dict['msg'] == 'register_node_ack':
+        
+        if callback_registration:
+            Clock.schedule_once(partial(callback_registration, data_dict['response']), 0)
         
     
 def scanLocalNetwork(callback_found, port=None):
